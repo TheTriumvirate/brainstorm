@@ -19,6 +19,5 @@ mod abstract_window;
 #[cfg(any(target_arch = "wasm32"))]
 mod webgl;
 
-
 #[cfg(not(any(target_arch = "wasm32")))]
 mod opengl;

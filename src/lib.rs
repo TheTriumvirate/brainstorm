@@ -12,4 +12,5 @@ extern crate stdweb;
 #[cfg(any(target_arch = "wasm32", target_arch = "asmjs"))]
 extern crate stdweb_derive;
 
+pub mod shaders;
 pub mod window;

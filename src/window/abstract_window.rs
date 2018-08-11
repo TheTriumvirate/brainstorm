@@ -10,7 +10,7 @@ use window::webgl::WebGLWindow as ContextImpl;
 
 pub enum ShaderType {
     Vertex,
-    Fragment
+    Fragment,
 }
 // TODO: Auto-destruct Buffer, etc
 
@@ -62,7 +62,7 @@ pub trait AbstractWindow {
     fn delete_shader(&self, shader: &Shader);
     fn get_shader_parameter(&self, shader: &Shader, pname: GLEnum) -> Option<i32>;
     fn get_shader_info_log(&self, shader: &Shader) -> Option<String>;
-    
+
     fn create_program(&self) -> Option<Program>;
     fn attach_shader(&self, program: &Program, shader: &Shader);
     fn link_program(&self, program: &Program);
@@ -79,7 +79,15 @@ pub trait AbstractWindow {
     fn delete_vertex_array(&self, vbo: &VertexArray);
 
     fn get_attrib_location(&self, program: &Program, name: &str) -> GLUint;
-    fn vertex_attrib_pointer(&self, pointer: &GLUint, size: i32, type_: GLEnum, normalized: bool, stride: i32, offset: i32); 
+    fn vertex_attrib_pointer(
+        &self,
+        pointer: &GLUint,
+        size: i32,
+        type_: GLEnum,
+        normalized: bool,
+        stride: i32,
+        offset: i32,
+    );
     fn enable_vertex_attrib_array(&self, pointer: &GLUint);
 
     fn draw_arrays(&self, type_: GLEnum, first: i32, count: i32);

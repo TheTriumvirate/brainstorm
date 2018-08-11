@@ -6,30 +6,29 @@
 
 use window::abstract_window::*;
 
-use stdweb::{Value};
-use stdweb::web::{document, window, IParentNode, INode, TypedArray};
-use stdweb::unstable::{TryInto};
-use stdweb::web::html_element::{CanvasElement};
+use stdweb::unstable::TryInto;
+use stdweb::web::html_element::CanvasElement;
+use stdweb::web::{document, window, INode, IParentNode, TypedArray};
+use stdweb::Value;
 
 use std::mem;
 
 use super::webgl_bindings::{
-    WebGLBuffer, WebGLProgram, WebGLRenderingContext, WebGL2RenderingContext, WebGLShader,
-    GLenum, GLintptr, GLsizeiptr, WebGLVertexArrayObject
+    GLenum, GLintptr, GLsizeiptr, WebGL2RenderingContext, WebGLBuffer, WebGLProgram,
+    WebGLRenderingContext, WebGLShader, WebGLVertexArrayObject,
 };
 
 pub struct WebGLWindow {
-    context: WebGL2RenderingContext
+    context: WebGL2RenderingContext,
 }
 
 impl AbstractWindow for WebGLWindow {
-    
     const FLOAT: u32 = WebGLRenderingContext::FLOAT;
     const COLOR_BUFFER_BIT: u32 = WebGL2RenderingContext::COLOR_BUFFER_BIT;
     const VERTEX_SHADER: u32 = WebGL2RenderingContext::VERTEX_SHADER;
-    const FRAGMENT_SHADER: u32 = WebGL2RenderingContext::FRAGMENT_SHADER; 
-    const ARRAY_BUFFER:u32 = WebGL2RenderingContext::ARRAY_BUFFER;
-    const STATIC_DRAW:u32 = WebGL2RenderingContext::STATIC_DRAW;
+    const FRAGMENT_SHADER: u32 = WebGL2RenderingContext::FRAGMENT_SHADER;
+    const ARRAY_BUFFER: u32 = WebGL2RenderingContext::ARRAY_BUFFER;
+    const STATIC_DRAW: u32 = WebGL2RenderingContext::STATIC_DRAW;
     const DYNAMIC_DRAW: u32 = WebGL2RenderingContext::STATIC_DRAW;
     const COMPILE_STATUS: u32 = WebGL2RenderingContext::COMPILE_STATUS;
     const POINTS: u32 = WebGL2RenderingContext::POINTS;
@@ -39,7 +38,7 @@ impl AbstractWindow for WebGLWindow {
     const TRIANGLE_STRIP: u32 = WebGL2RenderingContext::TRIANGLE_STRIP;
     const TRIANGLE_FAN: u32 = WebGL2RenderingContext::TRIANGLE_FAN;
     const TRIANGLES: u32 = WebGL2RenderingContext::TRIANGLES;
-    
+
     type GLEnum = GLenum;
     type GLsizeiptr = GLsizeiptr;
     type GLintptr = GLintptr;
@@ -48,23 +47,29 @@ impl AbstractWindow for WebGLWindow {
     type GLProgram = WebGLProgram;
     type GLVertexArray = WebGLVertexArrayObject;
     type GLUint = u32;
-    
+
     fn new(_: &str, width: u32, height: u32) -> Self {
-        let canvas: CanvasElement = document().create_element("canvas").unwrap().try_into().unwrap();
+        let canvas: CanvasElement = document()
+            .create_element("canvas")
+            .unwrap()
+            .try_into()
+            .unwrap();
         canvas.set_width(width);
         canvas.set_height(height);
-        document().query_selector("body").unwrap().unwrap().append_child(&canvas);
-        
+        document()
+            .query_selector("body")
+            .unwrap()
+            .unwrap()
+            .append_child(&canvas);
+
         //let res = js!(return @(canvas).getContext("2d", {alpha: true});).try_into();
         let context: WebGL2RenderingContext = canvas.get_context().unwrap();
-        WebGLWindow {
-            context
-        }
+        WebGLWindow { context }
     }
 
     fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
         let _ = window().request_animation_frame(move |t| {
-            if(callback(t)) {
+            if (callback(t)) {
                 let _ = Self::run_loop(callback);
             }
         });
@@ -84,7 +89,7 @@ impl AbstractWindow for WebGLWindow {
     fn create_shader(&self, type_: ShaderType) -> Option<Shader> {
         match type_ {
             ShaderType::Vertex => self.context.create_shader(Self::VERTEX_SHADER),
-            ShaderType::Fragment => self.context.create_shader(Self::FRAGMENT_SHADER)
+            ShaderType::Fragment => self.context.create_shader(Self::FRAGMENT_SHADER),
         }
     }
 
@@ -100,7 +105,8 @@ impl AbstractWindow for WebGLWindow {
         self.context.delete_shader(Some(shader));
     }
 
-    fn get_shader_parameter(&self, shader: &Shader, pname: GLEnum) -> Option<i32> { // TODO: Handle all value types?
+    fn get_shader_parameter(&self, shader: &Shader, pname: GLEnum) -> Option<i32> {
+        // TODO: Handle all value types?
         match self.context.get_shader_parameter(shader, pname) {
             Value::Number(n) => n.try_into().ok(),
             _ => None,
@@ -117,7 +123,7 @@ impl AbstractWindow for WebGLWindow {
 
     fn attach_shader(&self, program: &Program, shader: &Shader) {
         self.context.attach_shader(program, shader);
-    } 
+    }
 
     fn link_program(&self, program: &Program) {
         self.context.link_program(program);
@@ -141,9 +147,10 @@ impl AbstractWindow for WebGLWindow {
 
     fn buffer_data(&self, target: GLEnum, data: &[f32], usage: GLEnum) {
         let abuf = TypedArray::<f32>::from(data);
-        self.context.buffer_data_1(target, Some(&abuf.buffer()), usage);
+        self.context
+            .buffer_data_1(target, Some(&abuf.buffer()), usage);
     }
-    
+
     fn delete_buffer(&self, buffer: &Buffer) {
         self.context.delete_buffer(Some(buffer));
     }
@@ -151,7 +158,7 @@ impl AbstractWindow for WebGLWindow {
     fn create_vertex_array(&self) -> Option<VertexArray> {
         self.context.create_vertex_array()
     }
-    
+
     fn bind_vertex_array(&self, vbo: &VertexArray) {
         self.context.bind_vertex_array(Some(vbo));
     }
@@ -164,10 +171,23 @@ impl AbstractWindow for WebGLWindow {
         self.context.get_attrib_location(program, name) as u32
     }
 
-    fn vertex_attrib_pointer(&self, pointer: &GLUint, size: i32, type_: GLEnum, normalized: bool, stride: i32, offset: i32) {
-        self.context.vertex_attrib_pointer(*pointer, size, type_, normalized, 
-        (stride * mem::size_of::<f32>() as i32) as i32, 
-        (offset * mem::size_of::<f32>() as i32) as GLintptr) // todo: offset as custom type
+    fn vertex_attrib_pointer(
+        &self,
+        pointer: &GLUint,
+        size: i32,
+        type_: GLEnum,
+        normalized: bool,
+        stride: i32,
+        offset: i32,
+    ) {
+        self.context.vertex_attrib_pointer(
+            *pointer,
+            size,
+            type_,
+            normalized,
+            (stride * mem::size_of::<f32>() as i32) as i32,
+            (offset * mem::size_of::<f32>() as i32) as GLintptr,
+        ) // todo: offset as custom type
     }
 
     fn enable_vertex_attrib_array(&self, pointer: &GLUint) {
@@ -176,8 +196,10 @@ impl AbstractWindow for WebGLWindow {
 
     fn draw_arrays(&self, type_: GLEnum, first: i32, count: i32) {
         self.context.enable(WebGL2RenderingContext::BLEND);
-        self.context.blend_func(WebGL2RenderingContext::SRC_ALPHA, WebGL2RenderingContext::ONE_MINUS_SRC_ALPHA);
+        self.context.blend_func(
+            WebGL2RenderingContext::SRC_ALPHA,
+            WebGL2RenderingContext::ONE_MINUS_SRC_ALPHA,
+        );
         self.context.draw_arrays(type_, first, count)
     }
-
 }

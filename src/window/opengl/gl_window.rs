@@ -6,9 +6,9 @@ extern crate gl;
 extern crate glutin;
 
 use std::ffi::CString;
-use std::ptr;
-use std::mem;
 use std::iter;
+use std::mem;
+use std::ptr;
 
 use window::abstract_window::*;
 
@@ -20,16 +20,16 @@ use self::glutin::{GlContext, GlRequest};
 #[allow(dead_code)]
 pub struct GLWindow {
     window: glutin::GlWindow,
-    events: glutin::EventsLoop
+    events: glutin::EventsLoop,
 }
 
 impl AbstractWindow for GLWindow {
     const FLOAT: u32 = gl::FLOAT;
     const COLOR_BUFFER_BIT: u32 = gl::COLOR_BUFFER_BIT;
     const VERTEX_SHADER: u32 = gl::VERTEX_SHADER;
-    const FRAGMENT_SHADER: u32 = gl::FRAGMENT_SHADER; 
-    const ARRAY_BUFFER:u32 = gl::ARRAY_BUFFER;
-    const STATIC_DRAW:u32 = gl::STATIC_DRAW;
+    const FRAGMENT_SHADER: u32 = gl::FRAGMENT_SHADER;
+    const ARRAY_BUFFER: u32 = gl::ARRAY_BUFFER;
+    const STATIC_DRAW: u32 = gl::STATIC_DRAW;
     const DYNAMIC_DRAW: u32 = gl::DYNAMIC_DRAW;
     const COMPILE_STATUS: u32 = gl::COMPILE_STATUS;
     const POINTS: u32 = gl::POINTS;
@@ -67,7 +67,7 @@ impl AbstractWindow for GLWindow {
 
         GLWindow {
             window: gl_window,
-            events: events_loop
+            events: events_loop,
         }
     }
 
@@ -111,7 +111,7 @@ impl AbstractWindow for GLWindow {
         unsafe {
             match type_ {
                 ShaderType::Vertex => Some(gl::CreateShader(Self::VERTEX_SHADER)),
-                ShaderType::Fragment => Some(gl::CreateShader(Self::FRAGMENT_SHADER))
+                ShaderType::Fragment => Some(gl::CreateShader(Self::FRAGMENT_SHADER)),
             }
         }
     }
@@ -137,19 +137,28 @@ impl AbstractWindow for GLWindow {
 
     fn get_shader_parameter(&self, shader: &Shader, pname: GLEnum) -> Option<i32> {
         let mut result = 0;
-        unsafe {gl::GetShaderiv(*shader, pname, &mut result);}
+        unsafe {
+            gl::GetShaderiv(*shader, pname, &mut result);
+        }
         Some(result)
     }
 
     fn get_shader_info_log(&self, shader: &Shader) -> Option<String> {
-        let info_length = self.get_shader_parameter(shader, gl::INFO_LOG_LENGTH).unwrap();
-        if(info_length > 0) {
+        let info_length = self
+            .get_shader_parameter(shader, gl::INFO_LOG_LENGTH)
+            .unwrap();
+        if (info_length > 0) {
             let mut written_length = 0;
             let buffer: String = iter::repeat(' ').take(info_length as usize).collect();
 
             let buffer_string = CString::new(buffer.as_bytes()).unwrap();
             unsafe {
-                gl::GetShaderInfoLog(*shader, info_length, &mut written_length, buffer_string.as_ptr() as *mut i8)
+                gl::GetShaderInfoLog(
+                    *shader,
+                    info_length,
+                    &mut written_length,
+                    buffer_string.as_ptr() as *mut i8,
+                )
             };
             let bytes = buffer_string.as_bytes();
             let bytes = &bytes[..bytes.len() - 1];
@@ -160,16 +169,14 @@ impl AbstractWindow for GLWindow {
     }
 
     fn create_program(&self) -> Option<Program> {
-        unsafe {
-            Some(gl::CreateProgram())
-        }
+        unsafe { Some(gl::CreateProgram()) }
     }
 
     fn attach_shader(&self, program: &Program, shader: &Shader) {
         unsafe {
             gl::AttachShader(*program, *shader);
         }
-    } 
+    }
 
     fn link_program(&self, program: &Program) {
         unsafe {
@@ -190,8 +197,10 @@ impl AbstractWindow for GLWindow {
     }
 
     fn create_buffer(&self) -> Option<Buffer> {
-        let mut buffer=0;
-        unsafe {gl::GenBuffers(1, &mut buffer);}
+        let mut buffer = 0;
+        unsafe {
+            gl::GenBuffers(1, &mut buffer);
+        }
         Some(buffer)
     }
 
@@ -203,10 +212,12 @@ impl AbstractWindow for GLWindow {
 
     fn buffer_data(&self, target: GLEnum, data: &[f32], usage: GLEnum) {
         unsafe {
-            gl::BufferData(target, 
+            gl::BufferData(
+                target,
                 (data.len() * mem::size_of::<f32>()) as GLsizeiptr,
                 mem::transmute(&data[0]),
-                usage)
+                usage,
+            )
         }
     }
 
@@ -217,11 +228,13 @@ impl AbstractWindow for GLWindow {
     }
 
     fn create_vertex_array(&self) -> Option<VertexArray> {
-        let mut vertex_array=0;
-        unsafe {gl::GenVertexArrays(1, &mut vertex_array);}
+        let mut vertex_array = 0;
+        unsafe {
+            gl::GenVertexArrays(1, &mut vertex_array);
+        }
         Some(vertex_array)
     }
-    
+
     fn bind_vertex_array(&self, vbo: &VertexArray) {
         unsafe {
             gl::BindVertexArray(*vbo);
@@ -241,11 +254,24 @@ impl AbstractWindow for GLWindow {
         }
     }
 
-    fn vertex_attrib_pointer(&self, pointer: &GLUint, size: i32, type_: GLEnum, normalized: bool, stride: i32, offset: i32) {
+    fn vertex_attrib_pointer(
+        &self,
+        pointer: &GLUint,
+        size: i32,
+        type_: GLEnum,
+        normalized: bool,
+        stride: i32,
+        offset: i32,
+    ) {
         unsafe {
-            gl::VertexAttribPointer(*pointer, size, type_, normalized as u8,
-                                        stride * mem::size_of::<f32>() as gl::types::GLsizei,
-                                        (offset * mem::size_of::<f32>() as i32) as *const () as *const _); // black magic
+            gl::VertexAttribPointer(
+                *pointer,
+                size,
+                type_,
+                normalized as u8,
+                stride * mem::size_of::<f32>() as gl::types::GLsizei,
+                (offset * mem::size_of::<f32>() as i32) as *const () as *const _,
+            ); // black magic
         }
     }
 

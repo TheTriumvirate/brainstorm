@@ -1,23 +1,25 @@
 [package]
 name = "particles"
 version = "0.1.0"
-authors = ["theAzack9 <robin@cavachi.be>", "stisol", "vegit"]
+authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "vegit"]
 build = "build.rs"
+readme = "readme.md"
+homepage = "https://github.com/stisol/particles"
 
 [dependencies]
 serde = "1.0"
 serde_derive = "1.0"
-noise = "0.5.1"
-rand = "0.5"
+noise = "0.5"
 
 [target.'cfg(not(any(target_arch = "wasm32")))'.dependencies]
-gl = "0.10.0"
-glutin = "0.17"
-
+gl = "0.10"
+glutin = "0.18"
+rand = "0.5"
 
 [target.wasm32-unknown-unknown.dependencies]
-stdweb = "0.4.0"
-stdweb-derive = "0.4.0"
+stdweb = "0.4"
+stdweb-derive = "0.4"
+rand = {version = "0.5", features = ["stdweb"]}
 
 [build-dependencies]
-webgl_generator = "0.1.0"
+webgl_generator = "0.1"
