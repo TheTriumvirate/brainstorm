@@ -2,25 +2,68 @@ extern crate noise;
 extern crate particles;
 extern crate rand;
 
-use noise::{NoiseFn, RidgedMulti};
-use particles::shaders;
+use noise::RidgedMulti;
 use particles::window::*;
+use particles::*;
 use rand::rngs::SmallRng;
 use rand::{FromEntropy, Rng};
 use std::f32;
 
 const PARTICLE_COUNT: usize = 50_000;
 
-// Assumes normalized vector return
-fn field((x, y): (f32, f32), noise: &RidgedMulti, time: &f32) -> (f32, f32) {
-    let angle = noise.get([x as f64, y as f64, *time as f64]) as f32 * f32::consts::PI * 2.0;
-    let strength = noise
-        .get([x as f64 + 4000.0, y as f64 + 2000.0, *time as f64])
-        .abs() as f32 * 9.0 + 1.0;
-    (
-        angle.cos() * strength,
-        angle.sin() * strength + 20.0 * (y.abs() + 0.5),
-    )
+fn main() {
+    // Set up window and shaders.
+    let mut window = Window::new("Particles!", 1000, 1000);
+    let program = configure_shaders(&mut window);
+
+    // Set up particles.
+    let mut data = Vec::new();
+    let countsqrt: f32 = (PARTICLE_COUNT as f32).sqrt();
+    for i in 0..PARTICLE_COUNT {
+        let x: f32 = ((i as f32) % countsqrt) / countsqrt * 2.0 - 1.0;
+        let y: f32 = ((i as f32) / countsqrt).floor() / countsqrt * 2.0 - 1.0;
+        data.push(x);
+        data.push(0.0);
+        data.push(y.atan2(x).abs() / f32::consts::PI * 2.0 + 0.5);
+        data.push(x / 4.0 + 0.25);
+        data.push(y / 4.0 + 0.25);
+        data.push(0.2);
+    }
+
+    // Bind the window buffer.
+    let vb = window
+        .create_buffer()
+        .expect("Failed to create window buffer.");
+    window.bind_buffer(Window::ARRAY_BUFFER, &vb);
+    window.buffer_data(Window::ARRAY_BUFFER, &data, Window::DYNAMIC_DRAW);
+
+    // Bind the vertex array.
+    let vao = window
+        .create_vertex_array()
+        .expect("Failed to create vertex array.");
+    window.bind_vertex_array(&vao);
+
+    // Enable the attribute arrays.
+    let pos_attrib = window.get_attrib_location(&program, "position");
+    let color_attrib = window.get_attrib_location(&program, "color");
+    window.vertex_attrib_pointer(&pos_attrib, 2, Window::FLOAT, false, 6, 0);
+    window.vertex_attrib_pointer(&color_attrib, 4, Window::FLOAT, false, 6, 2);
+    window.enable_vertex_attrib_array(&pos_attrib);
+    window.enable_vertex_attrib_array(&color_attrib);
+
+    // Run main loop.
+    let mut noise = RidgedMulti::new();
+    let mut time: f32 = 0.0;
+    let mut rng = SmallRng::from_entropy();
+
+    Window::run_loop(move |_| run(&mut window, &mut data, &mut noise, &mut time, &mut rng));
+    /* TODO: cleanup resources... not easy bcs of window move into loop
+    window.delete_vertex_array(&vao);
+    window.delete_buffer(&vb);
+    window.delete_program(&program);
+    window.delete_shader(&vs);
+    window.delete_shader(&fs);
+    */
 }
 
 fn run(
@@ -37,7 +80,7 @@ fn run(
             data[i * 6] = angle.cos() * dist;
             data[i * 6 + 1] = angle.sin() * dist;
         }
-        let (dx, dy) = field((data[i * 6], data[i * 6 + 1]), &noise, time);
+        let (dx, dy) = field((data[i * 6], data[i * 6 + 1]), &noise, *time);
         data[i * 6] += dx * 0.001;
         data[i * 6 + 1] += dy * 0.001;
     }
@@ -50,7 +93,7 @@ fn run(
     true
 }
 
-fn config_shaders(window: &mut Window) -> Program {
+fn configure_shaders(window: &mut Window) -> Program {
     // Compile vertex shader
     let vertex_shader =
         std::str::from_utf8(shaders::VERTEX_SHADER).expect("Failed to load vertex shader.");
@@ -86,49 +129,4 @@ fn config_shaders(window: &mut Window) -> Program {
     window.use_program(&program);
 
     program
-}
-
-fn main() {
-    let mut window = Window::new("Particles!", 1000, 1000);
-    let program = config_shaders(&mut window);
-
-    let mut data = Vec::new();
-    let countsqrt: f32 = (PARTICLE_COUNT as f32).sqrt();
-    for i in 0..PARTICLE_COUNT {
-        let x: f32 = ((i as f32) % countsqrt) / countsqrt * 2.0 - 1.0;
-        let y: f32 = ((i as f32) / countsqrt).floor() / countsqrt * 2.0 - 1.0;
-        data.push(x);
-        data.push(0.0);
-        data.push(y.atan2(x).abs() / f32::consts::PI * 2.0 + 0.5);
-        data.push(x / 4.0 + 0.25);
-        data.push(y / 4.0 + 0.25);
-        data.push(0.2);
-    }
-
-    let vb = window.create_buffer().expect("Failed to create window buffer.");
-    window.bind_buffer(Window::ARRAY_BUFFER, &vb);
-    window.buffer_data(Window::ARRAY_BUFFER, &data, Window::DYNAMIC_DRAW);
-
-    let vao = window.create_vertex_array().expect("Failed to create vertex array.");
-    window.bind_vertex_array(&vao);
-
-    let pos_attrib = window.get_attrib_location(&program, "position");
-    let color_attrib = window.get_attrib_location(&program, "color");
-    window.vertex_attrib_pointer(&pos_attrib, 2, Window::FLOAT, false, 6, 0);
-    window.vertex_attrib_pointer(&color_attrib, 4, Window::FLOAT, false, 6, 2);
-    window.enable_vertex_attrib_array(&pos_attrib);
-    window.enable_vertex_attrib_array(&color_attrib);
-
-    let mut noise = RidgedMulti::new();
-    let mut time: f32 = 0.0;
-    let mut rng = SmallRng::from_entropy();
-
-    Window::run_loop(move |_| run(&mut window, &mut data, &mut noise, &mut time, &mut rng));
-    /* TODO: cleanup resources... not easy bcs of window move into loop
-    window.delete_vertex_array(&vao);
-    window.delete_buffer(&vb);
-    window.delete_program(&program);
-    window.delete_shader(&vs);
-    window.delete_shader(&fs);
-    */
 }

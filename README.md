@@ -18,12 +18,11 @@ Prerequisites: (Only done once)
 
 ```
 cargo install cargo-web
-rustup override set nightly
 rustup target install wasm32-unknown-unknown
 ```
 
 Running:
 
 ```
-cargo web start --release
+cargo +nightly web start --release
 ```
