@@ -62,8 +62,8 @@ impl AbstractWindow for WebGLWindow {
             .unwrap()
             .append_child(&canvas);
 
-        //let res = js!(return @(canvas).getContext("2d", {alpha: true});).try_into();
-        let context: WebGL2RenderingContext = canvas.get_context().unwrap();
+        let context = js!(return @{canvas}.getContext("webgl2", {alpha: false});).try_into().unwrap();
+        //let context: WebGL2RenderingContext = canvas.get_context().unwrap();
         WebGLWindow { context }
     }
 
