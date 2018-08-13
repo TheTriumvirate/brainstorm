@@ -2,15 +2,15 @@
 extern crate noise;
 
 #[macro_use]
-#[cfg(any(target_arch = "wasm32", target_arch = "asmjs"))]
+#[cfg(target_arch = "wasm32")]
 extern crate stdweb;
 #[macro_use]
-#[cfg(any(target_arch = "wasm32", target_arch = "asmjs"))]
+#[cfg(target_arch = "wasm32")]
 extern crate stdweb_derive;
 #[macro_use]
-#[cfg(any(target_arch = "wasm32", target_arch = "asmjs"))]
+#[cfg(target_arch = "wasm32")]
 extern crate serde_derive;
-#[cfg(any(target_arch = "wasm32", target_arch = "asmjs"))]
+#[cfg(target_arch = "wasm32")]
 extern crate serde;
 
 pub mod shaders;

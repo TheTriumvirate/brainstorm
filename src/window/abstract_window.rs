@@ -3,9 +3,9 @@
  * link: https://github.com/sebcrozet/kiss3d
  */
 
-#[cfg(not(any(target_arch = "wasm32")))]
+#[cfg(not(target_arch = "wasm32"))]
 use window::opengl::GLWindow as ContextImpl;
-#[cfg(any(target_arch = "wasm32"))]
+#[cfg(target_arch = "wasm32")]
 use window::webgl::WebGLWindow as ContextImpl;
 
 pub enum ShaderType {
