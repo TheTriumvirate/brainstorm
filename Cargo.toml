@@ -9,6 +9,9 @@ homepage = "https://github.com/stisol/particles"
 [dependencies]
 noise = "0.5"
 
+[build-dependencies]
+webgl_generator = "0.1"
+
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 gl = "0.10"
 glutin = "0.18"
@@ -21,8 +24,6 @@ serde = "1.0"
 serde_derive = "1.0"
 rand = {version = "0.5", features = ["stdweb"]}
 
-[target.wasm32-unknown-unknown.build-dependencies]
-webgl_generator = "0.1"
 
 [profile.dev]
 opt-level = 2
