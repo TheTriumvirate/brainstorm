@@ -1,7 +1,7 @@
 [package]
 name = "particles"
 version = "0.1.0"
-authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "vegit"]
+authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "Vegard Itland <veggitland@hotmail.com>"]
 build = "build.rs"
 readme = "readme.md"
 homepage = "https://github.com/stisol/particles"
