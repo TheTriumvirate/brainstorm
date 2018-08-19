@@ -5,6 +5,7 @@
 //pub use self::window::Window;
 
 pub use self::abstract_window::*;
+pub use self::events::*;
 
 #[cfg(target_arch = "wasm32")]
 pub use self::webgl::WebGLWindow as Window;
@@ -19,3 +20,5 @@ mod webgl;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod opengl;
+
+mod events;

@@ -11,10 +11,24 @@ use std::os::raw::c_void;
 use std::ptr;
 
 use window::abstract_window::*;
+use window::Event as EventWrapper;
+use window::*;
 
 use self::glutin::dpi::*;
+use self::glutin::WindowEvent::{KeyboardInput, CursorMoved, CloseRequested};
 use self::glutin::Api::OpenGl;
-use self::glutin::{GlContext, GlRequest};
+use self::glutin::{GlContext, GlRequest, Event, WindowEvent, VirtualKeyCode, ElementState, ModifiersState};
+use self::glutin::KeyboardInput as KeyboardData;
+
+fn translate_event(event: WindowEvent) -> Option<EventWrapper> {
+    match event {
+        CloseRequested => Some(EventWrapper::Quit),
+        CursorMoved{position: LogicalPosition{x, y}, ..} => Some(EventWrapper::CursorMoved {x, y}),
+        KeyboardInput{input: KeyboardData{state, virtual_keycode, modifiers, ..}, ..} => 
+            Some(EventWrapper::KeyboardInput {pressed: state == ElementState::Pressed, key: Key::from(virtual_keycode), modifiers: ModifierKeys::from(modifiers)}),
+        _ => None // Unknown or Unhandled event
+    }
+}
 
 // allow dead code until events are implemented
 #[allow(dead_code)]
@@ -73,22 +87,28 @@ impl AbstractWindow for GLWindow {
 
     fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
         while callback(0.0) {
-            /*self.events.poll_events(|event| {
-                match event {
-                    glutin::Event::WindowEvent{ event, .. } => match event {
-                        glutin::WindowEvent::CloseRequested => running = false,
-                        _ => ()
-                    },
-                    _ => ()
-                }
-            });*/
-
+            // TODO: Proper wrapper
+            // Temporary solution
             unsafe {
                 gl::PointSize(4.0);
                 gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
                 gl::Enable(gl::BLEND);
             }
         }
+    }
+
+    fn handle_events<T>(&mut self, mut callback: T) -> ()
+        where T: FnMut(EventWrapper) -> () 
+    {
+        self.events.poll_events(|event| {
+            match event {
+                glutin::Event::WindowEvent{ event, .. } => match translate_event(event) {
+                    Some(x) => callback(x),
+                    _ => () // Unhandled or unknown event
+                },
+                _ => ()
+            }
+        });
     }
 
     fn swap_buffers(&mut self) {
@@ -285,5 +305,60 @@ impl AbstractWindow for GLWindow {
         unsafe {
             gl::DrawArrays(type_, first, count);
         }
+    }
+}
+
+impl From<Option<VirtualKeyCode>> for Key {
+    fn from(key: Option<VirtualKeyCode>) -> Self {
+        match key {
+            None => Key::Unknown,
+            Some(x) => match x {
+                VirtualKeyCode::Key1 => Key::Num1,
+                VirtualKeyCode::Key2 => Key::Num2,
+                VirtualKeyCode::Key3 => Key::Num3,
+                VirtualKeyCode::Key4 => Key::Num4,
+                VirtualKeyCode::Key5 => Key::Num5,
+                VirtualKeyCode::Key6 => Key::Num6,
+                VirtualKeyCode::Key7 => Key::Num7,
+                VirtualKeyCode::Key8 => Key::Num8,
+                VirtualKeyCode::Key9 => Key::Num9,
+                VirtualKeyCode::Key0 => Key::Num0,
+
+                VirtualKeyCode::A => Key::A,
+                VirtualKeyCode::B => Key::B,
+                VirtualKeyCode::C => Key::C,
+                VirtualKeyCode::D => Key::D,
+                VirtualKeyCode::E => Key::E,
+                VirtualKeyCode::F => Key::F,
+                VirtualKeyCode::G => Key::G,
+                VirtualKeyCode::H => Key::H,
+                VirtualKeyCode::I => Key::I,
+                VirtualKeyCode::J => Key::J,
+                VirtualKeyCode::K => Key::K,
+                VirtualKeyCode::L => Key::L,
+                VirtualKeyCode::M => Key::M,
+                VirtualKeyCode::N => Key::N,
+                VirtualKeyCode::O => Key::O,
+                VirtualKeyCode::P => Key::P,
+                VirtualKeyCode::Q => Key::Q,
+                VirtualKeyCode::R => Key::R,
+                VirtualKeyCode::S => Key::S,
+                VirtualKeyCode::T => Key::T,
+                VirtualKeyCode::U => Key::U,
+                VirtualKeyCode::V => Key::V,
+                VirtualKeyCode::W => Key::W,
+                VirtualKeyCode::X => Key::X,
+                VirtualKeyCode::Y => Key::Y,
+                VirtualKeyCode::Z => Key::Z,
+
+                _ => Key::Unknown
+            }
+        }
+    }
+}
+
+impl From<ModifiersState> for ModifierKeys {
+    fn from(ModifiersState{ctrl, shift, alt, logo}: ModifiersState) -> Self {
+        ModifierKeys {ctrl, shift, alt, logo}
     }
 }

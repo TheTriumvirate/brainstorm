@@ -5,21 +5,38 @@
 #![allow(unused_results)]
 
 use window::abstract_window::*;
+use window::Event as EventWrapper;
+use window::*;
 
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
-use stdweb::web::{document, window, INode, IParentNode, TypedArray};
+use stdweb::web::{document, window, INode, IParentNode, TypedArray, IEventTarget};
 use stdweb::Value;
+use stdweb::web::event::*;
 
 use std::mem;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 use super::webgl_bindings::{
     GLenum, GLintptr, GLsizeiptr, WebGL2RenderingContext, WebGLBuffer, WebGLProgram,
     WebGLRenderingContext, WebGLShader, WebGLVertexArrayObject,
 };
 
+// Shamelessly stolen from stdweb, 
+// Shamelessly stolen from webplatform's TodoMVC example.
+macro_rules! enclose {
+    ( ($( $x:ident ),*) $y:expr ) => {
+        {
+            $(let $x = $x.clone();)*
+            $y
+        }
+    };
+}
+
 pub struct WebGLWindow {
     context: WebGL2RenderingContext,
+    events: Rc<RefCell<Vec<EventWrapper>>>
 }
 
 impl AbstractWindow for WebGLWindow {
@@ -62,9 +79,26 @@ impl AbstractWindow for WebGLWindow {
             .unwrap()
             .append_child(&canvas);
 
+        let events = Rc::new(RefCell::new(Vec::new()));
+        
+        // TODO: Refractor event registration
+        canvas.add_event_listener(enclose!((events) move |event: MouseMoveEvent| {
+            events.borrow_mut().push(EventWrapper::CursorMoved{x: event.client_x() as f64, y: event.client_y() as f64});
+        }));
+
+        // canvas does not support key events (for some reason...)
+        window().add_event_listener(enclose!((events) move |event: KeyDownEvent| {
+            events.borrow_mut().push(EventWrapper::KeyboardInput{pressed: true, key: Key::from(event.key()), 
+                modifiers: ModifierKeys{ctrl: event.ctrl_key(), shift: event.shift_key(), alt: event.alt_key(), logo: event.meta_key()}})
+        }));
+        window().add_event_listener(enclose!((events) move |event: KeyUpEvent| {
+            events.borrow_mut().push(EventWrapper::KeyboardInput{pressed: false, key: Key::from(event.key()), 
+                modifiers: ModifierKeys{ctrl: event.ctrl_key(), shift: event.shift_key(), alt: event.alt_key(), logo: event.meta_key()}})
+        }));
+
         let context = js!(return @{canvas}.getContext("webgl2", {alpha: false});).try_into().unwrap();
-        //let context: WebGL2RenderingContext = canvas.get_context().unwrap();
-        WebGLWindow { context }
+
+        WebGLWindow { context, events: events.clone() }
     }
 
     fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
@@ -73,6 +107,17 @@ impl AbstractWindow for WebGLWindow {
                 let _ = Self::run_loop(callback);
             }
         });
+    }
+
+    fn handle_events<T>(&mut self, mut callback: T) -> ()
+        where T: FnMut(EventWrapper) -> () 
+    {
+        // We have to copy every event such that there won't be any multiple reference issues
+        // Data is small enough, so it shouldn't matter for performance
+        for event in self.events.borrow().iter() {
+            callback(event.clone());
+        }
+        self.events.borrow_mut().clear();
     }
 
     fn swap_buffers(&mut self) {
@@ -201,5 +246,52 @@ impl AbstractWindow for WebGLWindow {
             WebGL2RenderingContext::ONE_MINUS_SRC_ALPHA,
         );
         self.context.draw_arrays(type_, first, count)
+    }
+}
+
+
+impl From<String> for Key {
+    fn from(key: String) -> Self {
+        match key.to_uppercase().as_str() {
+            "1" => Key::Num1,
+            "2" => Key::Num2,
+            "3" => Key::Num3,
+            "4" => Key::Num4,
+            "5" => Key::Num5,
+            "6" => Key::Num6,
+            "7" => Key::Num7,
+            "8" => Key::Num8,
+            "9" => Key::Num9,
+            "0" => Key::Num0,
+
+            "A" => Key::A,
+            "B" => Key::B,
+            "C" => Key::C,
+            "D" => Key::D,
+            "E" => Key::E,
+            "F" => Key::F,
+            "G" => Key::G,
+            "H" => Key::H,
+            "I" => Key::I,
+            "J" => Key::J,
+            "K" => Key::K,
+            "L" => Key::L,
+            "M" => Key::M,
+            "N" => Key::N,
+            "O" => Key::O,
+            "P" => Key::P,
+            "Q" => Key::Q,
+            "R" => Key::R,
+            "S" => Key::S,
+            "T" => Key::T,
+            "U" => Key::U,
+            "V" => Key::V,
+            "W" => Key::W,
+            "X" => Key::X,
+            "Y" => Key::Y,
+            "Z" => Key::Z,
+
+            _ => Key::Unknown
+        }
     }
 }

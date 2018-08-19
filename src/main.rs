@@ -55,8 +55,9 @@ fn main() {
     let mut noise = RidgedMulti::new();
     let mut time: f32 = 0.0;
     let mut rng = SmallRng::from_entropy();
+    let mut running = true;
 
-    Window::run_loop(move |_| run(&mut window, &mut data, &mut noise, &mut time, &mut rng));
+    Window::run_loop(move |_| run(&mut window, &mut data, &mut noise, &mut time, &mut rng, &mut running));
     /* TODO: cleanup resources... not easy bcs of window move into loop
     window.delete_vertex_array(&vao);
     window.delete_buffer(&vb);
@@ -72,7 +73,16 @@ fn run(
     noise: &mut RidgedMulti,
     time: &mut f32,
     rng: &mut SmallRng,
+    running: &mut bool,
 ) -> bool {
+    window.handle_events(|event| {
+        //println!("Event: {:?}", event);
+        match event {
+            Event::KeyboardInput{pressed: true, key: Key::W, modifiers: ModifierKeys{ctrl: true, ..}} 
+                | Event::Quit => *running = false,
+            _ => ()
+        }
+    });
     for i in 0..PARTICLE_COUNT {
         if rng.gen_bool(0.01) {
             let angle = rng.gen_range::<f32>(0.0, 2.0 * f32::consts::PI);
@@ -90,7 +100,7 @@ fn run(
     window.draw_arrays(Window::POINTS, 0, PARTICLE_COUNT as i32);
     window.swap_buffers();
     *time += 0.01;
-    true
+    *running
 }
 
 fn configure_shaders(window: &mut Window) -> Program {

@@ -8,6 +8,8 @@ use window::opengl::GLWindow as ContextImpl;
 #[cfg(target_arch = "wasm32")]
 use window::webgl::WebGLWindow as ContextImpl;
 
+use window::Event as EventWrapper;
+
 pub enum ShaderType {
     Vertex,
     Fragment,
@@ -51,6 +53,8 @@ pub trait AbstractWindow {
 
     fn new(title: &str, width: u32, height: u32) -> Self;
     fn run_loop(callback: impl FnMut(f64) -> bool + 'static);
+    fn handle_events<T>(&mut self, callback: T)
+        where T: FnMut(EventWrapper) -> ();
 
     fn swap_buffers(&mut self);
     fn clear_color(&self, r: f32, g: f32, b: f32, a: f32);
