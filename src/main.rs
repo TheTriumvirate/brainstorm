@@ -1,6 +1,7 @@
 extern crate noise;
 extern crate particles;
 extern crate rand;
+extern crate nalgebra as na;
 
 use noise::RidgedMulti;
 use particles::window::*;
@@ -9,7 +10,9 @@ use rand::rngs::SmallRng;
 use rand::{FromEntropy, Rng};
 use std::f32;
 
-const PARTICLE_COUNT: usize = 50_000;
+use na::{Isometry3, Matrix4, Perspective3, Point3, Vector2, Vector3};
+
+const PARTICLE_COUNT: usize = 100_000;
 
 fn main() {
     // Set up window and shaders.
@@ -18,16 +21,11 @@ fn main() {
 
     // Set up particles.
     let mut data = Vec::new();
-    let countsqrt: f32 = (PARTICLE_COUNT as f32).sqrt();
     for i in 0..PARTICLE_COUNT {
-        let x: f32 = ((i as f32) % countsqrt) / countsqrt * 2.0 - 1.0;
-        let y: f32 = ((i as f32) / countsqrt).floor() / countsqrt * 2.0 - 1.0;
+        let x: f32 = (i as f32) / PARTICLE_COUNT as f32 - 0.5;
         data.push(x);
+        data.push(-0.5);
         data.push(0.0);
-        data.push(y.atan2(x).abs() / f32::consts::PI * 2.0 + 0.5);
-        data.push(x / 4.0 + 0.25);
-        data.push(y / 4.0 + 0.25);
-        data.push(0.2);
     }
 
     // Bind the window buffer.
@@ -45,11 +43,10 @@ fn main() {
 
     // Enable the attribute arrays.
     let pos_attrib = window.get_attrib_location(&program, "position");
-    let color_attrib = window.get_attrib_location(&program, "color");
-    window.vertex_attrib_pointer(&pos_attrib, 2, Window::FLOAT, false, 6, 0);
-    window.vertex_attrib_pointer(&color_attrib, 4, Window::FLOAT, false, 6, 2);
+    window.vertex_attrib_pointer(&pos_attrib, 3, Window::FLOAT, false, 3, 0);
     window.enable_vertex_attrib_array(&pos_attrib);
-    window.enable_vertex_attrib_array(&color_attrib);
+
+    let mut mvp_uniform = window.get_uniform_location(&program, "MVP");
 
     // Run main loop.
     let mut noise = RidgedMulti::new();
@@ -57,7 +54,7 @@ fn main() {
     let mut rng = SmallRng::from_entropy();
     let mut running = true;
 
-    Window::run_loop(move |_| run(&mut window, &mut data, &mut noise, &mut time, &mut rng, &mut running));
+    Window::run_loop(move |_| run(&mut window, &mut data, &mut noise, &mut time, &mut rng, &mut running, &mut mvp_uniform));
     /* TODO: cleanup resources... not easy bcs of window move into loop
     window.delete_vertex_array(&vao);
     window.delete_buffer(&vb);
@@ -74,6 +71,7 @@ fn run(
     time: &mut f32,
     rng: &mut SmallRng,
     running: &mut bool,
+    mvp_uniform: &mut UniformLocation
 ) -> bool {
     window.handle_events(|event| {
         //println!("Event: {:?}", event);
@@ -84,16 +82,25 @@ fn run(
         }
     });
     for i in 0..PARTICLE_COUNT {
-        if rng.gen_bool(0.01) {
-            let angle = rng.gen_range::<f32>(0.0, 2.0 * f32::consts::PI);
-            let dist = rng.gen_range::<f32>(-0.1, 0.1);
-            data[i * 6] = angle.cos() * dist;
-            data[i * 6 + 1] = angle.sin() * dist;
+        if rng.gen_bool(0.02) {
+            data[i * 3] = rng.gen_range::<f32>(-0.5, 0.5);
+            data[i * 3 + 1] = rng.gen_range::<f32>(-0.5, -0.47);
+            data[i * 3 + 2] = 0.0;
         }
-        let (dx, dy) = field((data[i * 6], data[i * 6 + 1]), &noise, *time);
-        data[i * 6] += dx * 0.001;
-        data[i * 6 + 1] += dy * 0.001;
+        let (dx, dy, dz) = field((data[i * 3], data[i * 3 + 1], data[i * 3 + 2]), &noise, *time);
+        data[i * 3] += dx * 0.001;
+        data[i * 3 + 1] += dy * 0.001;
+        data[i * 3 + 2] += dz * 0.001;
     }
+
+    
+    let perspective = Perspective3::new(1.0, f32::consts::PI / 4.0, 0.1, 1024.0);
+    let eye = Point3::new(time.sin() * 2.0, 0.75, time.cos() * 2.0);
+    let at = Point3::new(0.0, 0.0, 0.0);
+    let view: Isometry3<f32> = Isometry3::look_at_rh(&eye, &at, &Vector3::y());
+    let projection_matrix = perspective.as_matrix() * view.to_homogeneous();
+    window.uniform_matrix_4fv(&mvp_uniform, 1, false, &projection_matrix);
+
     window.buffer_data(Window::ARRAY_BUFFER, &data, Window::DYNAMIC_DRAW);
     window.clear_color(0.0, 0.0, 0.0, 1.0);
     window.clear(Window::COLOR_BUFFER_BIT);

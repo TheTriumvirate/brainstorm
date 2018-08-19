@@ -18,9 +18,11 @@ use std::mem;
 use std::rc::Rc;
 use std::cell::RefCell;
 
+use na::{Matrix4};
+
 use super::webgl_bindings::{
     GLenum, GLintptr, GLsizeiptr, WebGL2RenderingContext, WebGLBuffer, WebGLProgram,
-    WebGLRenderingContext, WebGLShader, WebGLVertexArrayObject,
+    WebGLRenderingContext, WebGLShader, WebGLVertexArrayObject, WebGLUniformLocation
 };
 
 // Shamelessly stolen from stdweb, 
@@ -56,6 +58,7 @@ impl AbstractWindow for WebGLWindow {
     const TRIANGLE_FAN: u32 = WebGL2RenderingContext::TRIANGLE_FAN;
     const TRIANGLES: u32 = WebGL2RenderingContext::TRIANGLES;
 
+    type UniformLocation = WebGLUniformLocation;
     type GLEnum = GLenum;
     type GLsizeiptr = GLsizeiptr;
     type GLintptr = GLintptr;
@@ -237,6 +240,14 @@ impl AbstractWindow for WebGLWindow {
 
     fn enable_vertex_attrib_array(&self, pointer: &GLUint) {
         self.context.enable_vertex_attrib_array(*pointer)
+    }
+
+    fn get_uniform_location(&self, program: &Program, name: &str) -> UniformLocation {
+        self.context.get_uniform_location(program, name).expect("Uniform location could not be found or does not exist")
+    }
+
+    fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>) {
+        self.context.uniform_matrix4fv_1(Some(location), transpose, matrix.as_slice())
     }
 
     fn draw_arrays(&self, type_: GLEnum, first: i32, count: i32) {

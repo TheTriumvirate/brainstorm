@@ -14,6 +14,8 @@ use window::abstract_window::*;
 use window::Event as EventWrapper;
 use window::*;
 
+use na::{Matrix4};
+
 use self::glutin::dpi::*;
 use self::glutin::WindowEvent::{KeyboardInput, CursorMoved, CloseRequested};
 use self::glutin::Api::OpenGl;
@@ -54,6 +56,7 @@ impl AbstractWindow for GLWindow {
     const TRIANGLE_FAN: u32 = gl::TRIANGLE_FAN;
     const TRIANGLES: u32 = gl::TRIANGLES;
 
+    type UniformLocation = i32;
     type GLEnum = u32;
     type GLsizeiptr = gl::types::GLsizeiptr;
     type GLintptr = gl::types::GLintptr;
@@ -70,7 +73,7 @@ impl AbstractWindow for GLWindow {
             .with_dimensions(LogicalSize::new(width as f64, height as f64));
         let context = glutin::ContextBuilder::new()
             .with_gl(GlRequest::Specific(OpenGl, (3, 2)))
-            .with_vsync(false);
+            .with_vsync(true);
         let gl_window = glutin::GlWindow::new(window, context, &events_loop).unwrap();
 
         unsafe {
@@ -298,6 +301,19 @@ impl AbstractWindow for GLWindow {
     fn enable_vertex_attrib_array(&self, pointer: &GLUint) {
         unsafe {
             gl::EnableVertexAttribArray(*pointer);
+        }
+    }
+
+    fn get_uniform_location(&self, program: &Program, name: &str) -> UniformLocation {
+        unsafe {
+            let src = CString::new(name).unwrap();
+            gl::GetUniformLocation(*program, src.as_ptr()) as UniformLocation
+        }
+    }
+
+    fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>) {
+        unsafe {
+            gl::UniformMatrix4fv(*location as i32, size, transpose as u8, mem::transmute(matrix));
         }
     }
 

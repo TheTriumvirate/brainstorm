@@ -10,12 +10,15 @@ use window::webgl::WebGLWindow as ContextImpl;
 
 use window::Event as EventWrapper;
 
+use na::{Matrix4};
+
 pub enum ShaderType {
     Vertex,
     Fragment,
 }
 // TODO: Auto-destruct Buffer, etc
 
+pub type UniformLocation = <ContextImpl as AbstractWindow>::UniformLocation;
 pub type GLEnum = <ContextImpl as AbstractWindow>::GLEnum;
 pub type GLsizeiptr = <ContextImpl as AbstractWindow>::GLsizeiptr;
 pub type GLintptr = <ContextImpl as AbstractWindow>::GLintptr;
@@ -50,6 +53,7 @@ pub trait AbstractWindow {
     type GLProgram;
     type GLVertexArray;
     type GLUint;
+    type UniformLocation;
 
     fn new(title: &str, width: u32, height: u32) -> Self;
     fn run_loop(callback: impl FnMut(f64) -> bool + 'static);
@@ -93,6 +97,9 @@ pub trait AbstractWindow {
         offset: i32,
     );
     fn enable_vertex_attrib_array(&self, pointer: &GLUint);
+    
+    fn get_uniform_location(&self, program: &Program, name: &str) -> UniformLocation;
+    fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>);
 
     fn draw_arrays(&self, type_: GLEnum, first: i32, count: i32);
 }
