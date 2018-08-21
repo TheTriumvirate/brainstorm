@@ -89,7 +89,11 @@ impl App {
         }
     }
 
-    pub fn run(&mut self) -> bool {
+    pub fn run(&mut self) {
+        Window::run_loop(|_| self.update());
+    }
+
+    fn update(&mut self) -> bool {
         let mut is_running = self.running;
         self.window.handle_events(|event| {
             //println!("Event: {:?}", event);

@@ -104,8 +104,8 @@ impl AbstractWindow for WebGLWindow {
         WebGLWindow { context, events: events.clone() }
     }
 
-    fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
-        let _ = window().request_animation_frame(move |t| {
+    fn run_loop(mut callback: impl FnMut(f64) -> bool) {
+        let _ = window().request_animation_frame(|t| {
             if (callback(t)) {
                 let _ = Self::run_loop(callback);
             }

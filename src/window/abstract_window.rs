@@ -56,7 +56,7 @@ pub trait AbstractWindow {
     type UniformLocation;
 
     fn new(title: &str, width: u32, height: u32) -> Self;
-    fn run_loop(callback: impl FnMut(f64) -> bool + 'static);
+    fn run_loop(callback: impl FnMut(f64) -> bool);
     fn handle_events<T>(&mut self, callback: T)
         where T: FnMut(EventWrapper) -> ();
 
