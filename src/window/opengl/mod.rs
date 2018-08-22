@@ -93,7 +93,7 @@ impl AbstractWindow for GLWindow {
         }
     }
 
-    fn run_loop(mut callback: impl FnMut(f64) -> bool) {
+    fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
         while callback(0.0) {
             // TODO: Proper wrapper
             // Temporary solution
