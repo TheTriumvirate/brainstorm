@@ -17,6 +17,7 @@ extern crate nalgebra as na;
 
 pub mod shaders;
 pub mod window;
+pub mod camera;
 
 extern crate rand;
 
@@ -24,7 +25,7 @@ use rand::rngs::SmallRng;
 use rand::{FromEntropy, Rng};
 use std::f32;
 
-use na::{Isometry3, Perspective3, Point3, Vector3};
+use camera::*;
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -32,6 +33,7 @@ use window::*;
 
 pub struct App {
     window: Window,
+    camera: ArcBallCamera,
     particles: Vec<f32>,
     time: f32,
     rng: SmallRng,
@@ -81,6 +83,7 @@ impl App {
 
         App {
             window,
+            camera: ArcBallCamera::new(),
             particles: data,
             time,
             rng,
@@ -89,20 +92,23 @@ impl App {
         }
     }
 
-    pub fn run(&mut self) {
-        Window::run_loop(|_| self.update());
+    pub fn run(&mut self) -> bool {
+        self.update()
     }
 
     fn update(&mut self) -> bool {
         let mut is_running = self.running;
-        self.window.handle_events(|event| {
-            //println!("Event: {:?}", event);
+        for event in self.window.get_events().iter() {
+            //println!("Event fired: {:?}", event);
             match event {
                 Event::KeyboardInput{pressed: true, key: Key::W, modifiers: ModifierKeys{ctrl: true, ..}} 
                     | Event::Quit => is_running = false,
                 _ => ()
             }
-        });
+
+            self.camera.handle_events(&event);
+        }
+            
         self.running = is_running;
         for i in 0..PARTICLE_COUNT {
             if self.rng.gen_bool(0.02) {
@@ -117,11 +123,7 @@ impl App {
         }
 
         
-        let perspective = Perspective3::new(1.0, f32::consts::PI / 4.0, 0.1, 1024.0);
-        let eye = Point3::new(self.time.sin() * 2.0, 0.75, self.time.cos() * 2.0);
-        let at = Point3::new(0.0, 0.0, 0.0);
-        let view: Isometry3<f32> = Isometry3::look_at_rh(&eye, &at, &Vector3::y());
-        let projection_matrix = perspective.as_matrix() * view.to_homogeneous();
+        let projection_matrix = self.camera.get_projection_matrix();
         self.window.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
 
         self.window.buffer_data(Window::ARRAY_BUFFER, &self.particles, Window::DYNAMIC_DRAW);

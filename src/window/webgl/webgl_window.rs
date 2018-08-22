@@ -6,12 +6,14 @@
 
 use window::abstract_window::*;
 use window::Event as EventWrapper;
+use window::MouseButton as MouseButtonWrapper;
 use window::*;
 
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
 use stdweb::web::{document, window, INode, IParentNode, TypedArray, IEventTarget};
 use stdweb::Value;
+use stdweb::web::event::MouseButton as WebMouseButton;
 use stdweb::web::event::*;
 
 use std::mem;
@@ -88,6 +90,18 @@ impl AbstractWindow for WebGLWindow {
         canvas.add_event_listener(enclose!((events) move |event: MouseMoveEvent| {
             events.borrow_mut().push(EventWrapper::CursorMoved{x: event.client_x() as f64, y: event.client_y() as f64});
         }));
+        
+        canvas.add_event_listener(enclose!((events) move |event: MouseDownEvent| {
+            events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::from(event.button()), pressed: true});
+        }));
+        
+        canvas.add_event_listener(enclose!((events) move |event: MouseUpEvent| {
+            events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::from(event.button()), pressed: false});
+        }));
+        
+        canvas.add_event_listener(enclose!((events) move |event: MouseWheelEvent| {
+            events.borrow_mut().push(EventWrapper::CursorScroll(event.delta_x() as f32, event.delta_y() as f32));
+        }));
 
         // canvas does not support key events (for some reason...)
         window().add_event_listener(enclose!((events) move |event: KeyDownEvent| {
@@ -104,7 +118,7 @@ impl AbstractWindow for WebGLWindow {
         WebGLWindow { context, events: events.clone() }
     }
 
-    fn run_loop(mut callback: impl FnMut(f64) -> bool) {
+    fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
         let _ = window().request_animation_frame(|t| {
             if (callback(t)) {
                 let _ = Self::run_loop(callback);
@@ -112,15 +126,11 @@ impl AbstractWindow for WebGLWindow {
         });
     }
 
-    fn handle_events<T>(&mut self, mut callback: T) -> ()
-        where T: FnMut(EventWrapper) -> () 
+    fn get_events(&mut self) -> Vec<EventWrapper>
     {
-        // We have to copy every event such that there won't be any multiple reference issues
-        // Data is small enough, so it shouldn't matter for performance
-        for event in self.events.borrow().iter() {
-            callback(event.clone());
-        }
+        let res = self.events.borrow().to_vec();
         self.events.borrow_mut().clear();
+        res
     }
 
     fn swap_buffers(&mut self) {
@@ -303,6 +313,18 @@ impl From<String> for Key {
             "Z" => Key::Z,
 
             _ => Key::Unknown
+        }
+    }
+}
+
+impl From<WebMouseButton> for MouseButtonWrapper {
+    fn from(key: WebMouseButton) -> Self {
+        match key {
+            WebMouseButton::Left => MouseButtonWrapper::Left,
+            WebMouseButton::Right => MouseButtonWrapper::Right,
+            WebMouseButton::Wheel => MouseButtonWrapper::Middle,
+            WebMouseButton::Button4 => MouseButtonWrapper::Other(4),
+            WebMouseButton::Button5 => MouseButtonWrapper::Other(5),
         }
     }
 }
