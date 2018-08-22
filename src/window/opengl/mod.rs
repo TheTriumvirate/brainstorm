@@ -13,6 +13,7 @@ use std::ptr;
 use window::abstract_window::*;
 use window::Event as EventWrapper;
 use window::*;
+use shaders::ShaderType;
 
 use na::{Matrix4};
 
@@ -39,6 +40,16 @@ pub struct GLWindow {
     events: glutin::EventsLoop,
 }
 
+pub type UniformLocation = i32;
+pub type GLEnum = u32;
+pub type GLsizeiptr = gl::types::GLsizeiptr;
+pub type GLintptr = gl::types::GLintptr;
+pub type GLBuffer = u32;
+pub type GLShader = u32;
+pub type GLProgram = u32;
+pub type GLVertexArray = u32;
+pub type GLUint = u32;
+
 impl AbstractWindow for GLWindow {
     const FLOAT: u32 = gl::FLOAT;
     const COLOR_BUFFER_BIT: u32 = gl::COLOR_BUFFER_BIT;
@@ -55,17 +66,7 @@ impl AbstractWindow for GLWindow {
     const TRIANGLE_STRIP: u32 = gl::TRIANGLE_STRIP;
     const TRIANGLE_FAN: u32 = gl::TRIANGLE_FAN;
     const TRIANGLES: u32 = gl::TRIANGLES;
-
-    type UniformLocation = i32;
-    type GLEnum = u32;
-    type GLsizeiptr = gl::types::GLsizeiptr;
-    type GLintptr = gl::types::GLintptr;
-    type GLBuffer = u32;
-    type GLShader = u32;
-    type GLProgram = u32;
-    type GLVertexArray = u32;
-    type GLUint = u32;
-
+    
     fn new(title: &str, width: u32, height: u32) -> Self {
         let events_loop = glutin::EventsLoop::new();
         let window = glutin::WindowBuilder::new()

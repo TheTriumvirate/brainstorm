@@ -4,29 +4,25 @@
  */
 
 #[cfg(not(target_arch = "wasm32"))]
-use window::opengl::GLWindow as ContextImpl;
+use window::opengl as Context;
 #[cfg(target_arch = "wasm32")]
-use window::webgl::WebGLWindow as ContextImpl;
+use window::webgl as Context;
 
 use window::Event as EventWrapper;
+use shaders::ShaderType;
+use na::Matrix4;
 
-use na::{Matrix4};
-
-pub enum ShaderType {
-    Vertex,
-    Fragment,
-}
 // TODO: Auto-destruct Buffer, etc
 
-pub type UniformLocation = <ContextImpl as AbstractWindow>::UniformLocation;
-pub type GLEnum = <ContextImpl as AbstractWindow>::GLEnum;
-pub type GLsizeiptr = <ContextImpl as AbstractWindow>::GLsizeiptr;
-pub type GLintptr = <ContextImpl as AbstractWindow>::GLintptr;
-pub type Buffer = <ContextImpl as AbstractWindow>::GLBuffer;
-pub type Shader = <ContextImpl as AbstractWindow>::GLShader;
-pub type Program = <ContextImpl as AbstractWindow>::GLProgram;
-pub type VertexArray = <ContextImpl as AbstractWindow>::GLVertexArray;
-pub type GLUint = <ContextImpl as AbstractWindow>::GLUint;
+pub type UniformLocation = Context::UniformLocation;
+pub type GLEnum = Context::GLEnum;
+pub type GLsizeiptr = Context::GLsizeiptr;
+pub type GLintptr = Context::GLintptr;
+pub type Buffer = Context::GLBuffer;
+pub type Shader = Context::GLShader;
+pub type Program = Context::GLProgram;
+pub type VertexArray = Context::GLVertexArray;
+pub type GLUint = Context::GLUint;
 
 pub trait AbstractWindow {
     const FLOAT: u32;
@@ -44,16 +40,6 @@ pub trait AbstractWindow {
     const TRIANGLE_STRIP: u32;
     const TRIANGLE_FAN: u32;
     const TRIANGLES: u32;
-
-    type GLEnum;
-    type GLsizeiptr;
-    type GLintptr;
-    type GLBuffer;
-    type GLShader;
-    type GLProgram;
-    type GLVertexArray;
-    type GLUint;
-    type UniformLocation;
 
     fn new(title: &str, width: u32, height: u32) -> Self;
     fn run_loop(callback: impl FnMut(f64) -> bool);

@@ -25,6 +25,16 @@ use super::webgl_bindings::{
     WebGLRenderingContext, WebGLShader, WebGLVertexArrayObject, WebGLUniformLocation
 };
 
+pub type UniformLocation = WebGLUniformLocation;
+pub type GLEnum = GLenum;
+pub type GLsizeiptr = GLsizeiptr;
+pub type GLintptr = GLintptr;
+pub type GLBuffer = WebGLBuffer;
+pub type GLShader = WebGLShader;
+pub type GLProgram = WebGLProgram;
+pub type GLVertexArray = WebGLVertexArrayObject;
+pub type GLUint = u32;
+
 // Shamelessly stolen from stdweb, 
 // Shamelessly stolen from webplatform's TodoMVC example.
 macro_rules! enclose {
@@ -57,16 +67,6 @@ impl AbstractWindow for WebGLWindow {
     const TRIANGLE_STRIP: u32 = WebGL2RenderingContext::TRIANGLE_STRIP;
     const TRIANGLE_FAN: u32 = WebGL2RenderingContext::TRIANGLE_FAN;
     const TRIANGLES: u32 = WebGL2RenderingContext::TRIANGLES;
-
-    type UniformLocation = WebGLUniformLocation;
-    type GLEnum = GLenum;
-    type GLsizeiptr = GLsizeiptr;
-    type GLintptr = GLintptr;
-    type GLBuffer = WebGLBuffer;
-    type GLShader = WebGLShader;
-    type GLProgram = WebGLProgram;
-    type GLVertexArray = WebGLVertexArrayObject;
-    type GLUint = u32;
 
     fn new(_: &str, width: u32, height: u32) -> Self {
         let canvas: CanvasElement = document()
