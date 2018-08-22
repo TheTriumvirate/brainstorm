@@ -6,9 +6,11 @@ The goal of this project is to create a data-independent particle visualization 
 
 This project is written in the Rust programming language. We use OpenGL in order to create the desktop application, and WebGL in order to create the web browser version. WebGL compiles to WebAssembly (webasm), which can run in the web browser, whereas the OpenGL code compiles to a regular executable file. We use the Cargo package manager to handle project dependencies and to build and run the project. The technologies we are using in order to export this for the web browser is currently under development, and we thus require Rust Nightly in order to build this version of the project.
 
-## Build instructions
+## Run instructions
 
 You will need to have rust installed, this can be found and downloaded from [here](https://www.rust-lang.org/en-US/).
+
+Note: The first build will take a long time to compile.
 
 ### As a native desktop app
 
@@ -18,9 +20,12 @@ cargo run --release
 
 ### As a web application
 
+Note: Your browser of choice requires support for WebGL2 to run in web. Both Firefox and Chrome should work fine.
+
 Prerequisites: (Only done once)
 
 ```
+rustup install nightly
 cargo install cargo-web
 rustup target install wasm32-unknown-unknown
 ```
