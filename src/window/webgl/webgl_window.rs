@@ -9,6 +9,9 @@ use window::Event as EventWrapper;
 use window::MouseButton as MouseButtonWrapper;
 use window::*;
 
+use shaders::ShaderType;
+
+
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
 use stdweb::web::{document, window, INode, IParentNode, TypedArray, IEventTarget};
@@ -22,15 +25,13 @@ use std::cell::RefCell;
 
 use na::{Matrix4};
 
-use super::webgl_bindings::{
+pub use super::webgl_bindings::{
     GLenum, GLintptr, GLsizeiptr, WebGL2RenderingContext, WebGLBuffer, WebGLProgram,
     WebGLRenderingContext, WebGLShader, WebGLVertexArrayObject, WebGLUniformLocation
 };
 
 pub type UniformLocation = WebGLUniformLocation;
 pub type GLEnum = GLenum;
-pub type GLsizeiptr = GLsizeiptr;
-pub type GLintptr = GLintptr;
 pub type GLBuffer = WebGLBuffer;
 pub type GLShader = WebGLShader;
 pub type GLProgram = WebGLProgram;

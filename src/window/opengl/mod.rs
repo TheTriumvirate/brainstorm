@@ -38,8 +38,6 @@ fn translate_event(event: WindowEvent) -> Option<EventWrapper> {
     }
 }
 
-// allow dead code until events are implemented
-#[allow(dead_code)]
 pub struct GLWindow {
     window: glutin::GlWindow,
     events: glutin::EventsLoop,

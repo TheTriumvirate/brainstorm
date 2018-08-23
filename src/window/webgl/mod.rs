@@ -10,3 +10,7 @@ pub use self::webgl_window::WebGLWindow;
 mod webgl_bindings;
 
 mod webgl_window;
+
+pub use self::webgl_window::{
+    UniformLocation, GLEnum, GLsizeiptr, GLintptr, GLBuffer, GLShader, GLProgram, GLVertexArray, GLUint
+};
