@@ -14,6 +14,7 @@ pub use self::webgl::WebGLWindow as Window;
 pub use self::opengl::GLWindow as Window;
 
 pub mod abstract_window;
+pub mod ui;
 
 #[cfg(target_arch = "wasm32")]
 mod webgl;

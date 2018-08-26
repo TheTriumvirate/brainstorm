@@ -37,6 +37,7 @@ use camera::*;
 use gl_context::shaders::OurShader;
 use window::*;
 use particles::fieldprovider::{SphereFieldProvider, FieldProvider};
+use window::ui::*;
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -50,6 +51,23 @@ pub struct App {
     mvp_uniform: gl_context::UniformLocation,
     shaders: OurShader,
     field_provider: SphereFieldProvider
+    mvp_uniform: UniformLocation,
+    buttons: Vec<Button>,
+    state: State,
+}
+
+pub struct State { 
+    mouse_x: f64,
+    mouse_y: f64,
+}
+
+impl State {
+    pub fn new() -> Self {
+        State {
+            mouse_x: 0.0,
+            mouse_y: 0.0,
+        }
+    }
 }
 
 impl App {
@@ -108,8 +126,10 @@ impl App {
             rng,
             running,
             mvp_uniform,
+            buttons: Vec::new(),
             shaders,
             field_provider: SphereFieldProvider::new()
+            state: State::new()
         }
     }
 
@@ -125,7 +145,18 @@ impl App {
             match event {
                 Event::KeyboardInput{pressed: true, key: Key::W, modifiers: ModifierKeys{ctrl: true, ..}} 
                     | Event::Quit => is_running = false,
-                _ => ()
+                Event::CursorMoved{x, y} => {
+                    self.state.mouse_x = *x;
+                    self.state.mouse_y = *y;
+                }
+                Event::CursorInput {pressed: true, button: MouseButton::Left, ..} => {
+                    for button in self.buttons.iter_mut() {
+                        if button.was_clicked(self.state.mouse_x, self.state.mouse_y) {
+                            button.click(&mut self.state);
+                        }
+                    }
+                }
+                _ => (),
             }
 
             self.camera.handle_events(&event);
