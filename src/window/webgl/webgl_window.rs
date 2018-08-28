@@ -82,7 +82,7 @@ impl AbstractWindow for WebGLWindow {
 
     fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
         let _ = window().request_animation_frame(|t| {
-            if (callback(t)) {
+            if callback(t) {
                 let _ = Self::run_loop(callback);
             }
         });
@@ -101,7 +101,7 @@ impl AbstractWindow for WebGLWindow {
 
 }
 
-
+// TODO: Microoptimization: use hash table
 impl From<String> for Key {
     fn from(key: String) -> Self {
         match key.to_uppercase().as_str() {

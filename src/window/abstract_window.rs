@@ -3,9 +3,6 @@
  * link: https://github.com/sebcrozet/kiss3d
  */
 
-#[cfg(not(target_arch = "wasm32"))]
-use window::opengl as Window;
-
 use window::Event as EventWrapper;
 
 pub trait AbstractWindow {

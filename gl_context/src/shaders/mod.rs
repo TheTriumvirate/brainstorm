@@ -5,8 +5,10 @@ use std::{
     ops::Drop,
 };
 
-// TODO: proper imports
-use context::*;
+use Shader;
+use Program;
+use AbstractContext;
+use Context;
 
 /// Vertex shader
 pub const VERTEX_SHADER: &[u8] = include_bytes!("vertex.glslv");

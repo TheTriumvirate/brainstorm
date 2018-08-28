@@ -11,7 +11,13 @@ use shaders::ShaderType;
 
 use na::{Matrix4};
 
-use context::*;
+use Program;
+use Shader;
+use AbstractContext;
+use VertexArray;
+use Buffer;
+use Context;
+
 
 pub type GLShader = u32;
 pub type GLProgram = u32;

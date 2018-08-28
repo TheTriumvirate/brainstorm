@@ -1,13 +1,10 @@
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
 extern crate noise;
 
-#[macro_use]
 #[cfg(target_arch = "wasm32")]
 extern crate stdweb;
-#[macro_use]
 #[cfg(target_arch = "wasm32")]
 extern crate stdweb_derive;
-#[macro_use]
 #[cfg(target_arch = "wasm32")]
 extern crate serde_derive;
 #[cfg(target_arch = "wasm32")]
@@ -16,16 +13,15 @@ extern crate serde;
 extern crate nalgebra as na;
 extern crate rand;
 
-#[macro_use]
+extern crate gl_context;
+
 extern crate lazy_static;
 
-pub mod shaders;
 pub mod window;
 pub mod camera;
-pub mod context;
 
-use context::AbstractContext;
-use context::Context;
+use gl_context::AbstractContext;
+use gl_context::Context;
 
 use rand::rngs::SmallRng;
 use rand::{FromEntropy, Rng};
@@ -35,10 +31,10 @@ use std::{
 };
 
 use camera::*;
-use shaders::OurShader;
+use gl_context::shaders::OurShader;
 use window::*;
 
-const PARTICLE_COUNT: usize = 100_000;
+const PARTICLE_COUNT: usize = 100_001;
 
 pub struct App {
     camera: ArcBallCamera,
@@ -47,7 +43,7 @@ pub struct App {
     time: f32,
     rng: SmallRng,
     running: bool,
-    mvp_uniform: context::UniformLocation,
+    mvp_uniform: gl_context::UniformLocation,
     shaders: OurShader,
 }
 
@@ -69,10 +65,10 @@ impl App {
 
         // Set up shaders
         let vertex_shader =
-                str::from_utf8(shaders::VERTEX_SHADER).expect("Failed to read vertex shader");
+                str::from_utf8(gl_context::shaders::VERTEX_SHADER).expect("Failed to read vertex shader");
         let fragment_shader =
-                str::from_utf8(shaders::FRAGMENT_SHADER).expect("Failed to read fragment shader");
-        let shaders = shaders::OurShader::new(vertex_shader, fragment_shader);
+                str::from_utf8(gl_context::shaders::FRAGMENT_SHADER).expect("Failed to read fragment shader");
+        let shaders = gl_context::shaders::OurShader::new(vertex_shader, fragment_shader);
 
         // Bind the window buffer.
         let vb = context

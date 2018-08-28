@@ -4,10 +4,7 @@
  */
 #![allow(unused_results)]
 
-use window::abstract_window::*;
-
 use shaders::ShaderType;
-
 
 use stdweb::unstable::TryInto;
 use stdweb::web::html_element::CanvasElement;
@@ -18,9 +15,14 @@ use std::mem;
 
 use na::{Matrix4};
 
-use context::*;
+use Program;
+use Shader;
+use AbstractContext;
+use VertexArray;
+use Buffer;
+use Context;
 
-pub use context::webgl_bindings::{
+pub use webgl_bindings::{
     GLenum, GLintptr, GLsizeiptr, WebGL2RenderingContext, WebGLBuffer, WebGLProgram,
     WebGLRenderingContext, WebGLShader, WebGLVertexArrayObject, WebGLUniformLocation
 };
