@@ -63,7 +63,7 @@ impl AbstractWindow for WebGLWindow {
         }));
         
         canvas.add_event_listener(enclose!((events) move |event: MouseWheelEvent| {
-            events.borrow_mut().push(EventWrapper::CursorScroll(event.delta_x() as f32, event.delta_y() as f32));
+            events.borrow_mut().push(EventWrapper::CursorScroll(event.delta_x() as f32, -event.delta_y() as f32));
         }));
 
         // canvas does not support key events (for some reason...)

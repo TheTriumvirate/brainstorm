@@ -4,8 +4,10 @@ extern crate noise;
 #[cfg(target_arch = "wasm32")]
 extern crate stdweb;
 #[cfg(target_arch = "wasm32")]
+#[macro_use]
 extern crate stdweb_derive;
 #[cfg(target_arch = "wasm32")]
+#[macro_use]
 extern crate serde_derive;
 #[cfg(target_arch = "wasm32")]
 extern crate serde;
@@ -19,6 +21,7 @@ extern crate lazy_static;
 
 pub mod window;
 pub mod camera;
+pub mod particles;
 
 use gl_context::AbstractContext;
 use gl_context::Context;
@@ -33,6 +36,7 @@ use std::{
 use camera::*;
 use gl_context::shaders::OurShader;
 use window::*;
+use particles::fieldprovider::{SphereFieldProvider, FieldProvider};
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -45,6 +49,7 @@ pub struct App {
     running: bool,
     mvp_uniform: gl_context::UniformLocation,
     shaders: OurShader,
+    field_provider: SphereFieldProvider
 }
 
 impl App {
@@ -52,13 +57,13 @@ impl App {
         // Set up window
         let window = Window::new("Particles!", 1000, 1000);
         
+        let mut rng = SmallRng::from_entropy();
         // Set up particles.
         let mut data = Vec::new();
-        for i in 0..PARTICLE_COUNT {
-            let x: f32 = (i as f32) / PARTICLE_COUNT as f32 - 0.5;
-            data.push(x);
-            data.push(-0.5);
-            data.push(0.0);
+        for _ in 0..PARTICLE_COUNT {
+            data.push(rng.gen_range::<f32>(-0.5, 0.5));
+            data.push(rng.gen_range::<f32>(-0.5, 0.5));
+            data.push(rng.gen_range::<f32>(-0.5, 0.5));
         }
 
         let context = Context::get_context();
@@ -93,7 +98,6 @@ impl App {
 
         // Run main loop.
         let time: f32 = 0.0;
-        let rng = SmallRng::from_entropy();
         let running = true;
 
         App {
@@ -105,6 +109,7 @@ impl App {
             running,
             mvp_uniform,
             shaders,
+            field_provider: SphereFieldProvider::new()
         }
     }
 
@@ -130,13 +135,13 @@ impl App {
         for i in 0..PARTICLE_COUNT {
             if self.rng.gen_bool(0.02) {
                 self.particles[i * 3] = self.rng.gen_range::<f32>(-0.5, 0.5);
-                self.particles[i * 3 + 1] = self.rng.gen_range::<f32>(-0.5, -0.47);
-                self.particles[i * 3 + 2] = 0.0;
+                self.particles[i * 3 + 1] = self.rng.gen_range::<f32>(-0.5, 0.5);
+                self.particles[i * 3 + 2] = self.rng.gen_range::<f32>(-0.5, 0.5);;
             }
-            let (dx, dy, dz) = field((self.particles[i * 3], self.particles[i * 3 + 1], self.particles[i * 3 + 2]));
+            let (dx, dy, dz) = self.field_provider.delta((self.particles[i * 3] * 100.0 + 50.0, self.particles[i * 3 + 1] * 100.0 + 50.0, self.particles[i * 3 + 2] * 100.0 + 50.0));
             self.particles[i * 3] += dx * 0.001;
-            self.particles[i * 3 + 1] += dy * 0.001;
-            self.particles[i * 3 + 2] += dz * 0.001;
+            self.particles[i * 3 + 1] += dy * 0.01;
+            self.particles[i * 3 + 2] += dz * 0.01;
         }
 
         
@@ -152,19 +157,3 @@ impl App {
         self.running
     }
 }
-
-/// Gets the new position for a particle at a given position.
-/// Assumes normalized vector return.
-pub fn field((x, y, z): (f32, f32, f32)) -> (f32, f32, f32) {
-   /* let angle = noise.get([x as f64, y as f64, z as f64, time as f64]) as f32 * f32::consts::PI * 2.0;
-    let strength = noise
-        .get([x as f64 + 4000.0, y as f64 + 2000.0, z as f64 + 8000.0, time as f64])
-        .abs() as f32 * 9.0 + 1.0;*/
-        let strength = 4.0;
-    (
-        -z * strength * 5.0,
-        strength * (y.abs() + 1.0),
-        x * strength * 5.0
-    )
-}
-

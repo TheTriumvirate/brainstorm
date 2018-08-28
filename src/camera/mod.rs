@@ -70,7 +70,7 @@ impl Camera for ArcBallCamera {
                 }
             },
             Event::CursorScroll(_, dt) => {
-                self.distance += dt / 40.0;
+                self.distance -= dt / 4.0;
                 self.recalculate_matrices();
             }
             _ => ()
