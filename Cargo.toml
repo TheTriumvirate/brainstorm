@@ -9,6 +9,7 @@ homepage = "https://github.com/stisol/particles"
 [dependencies]
 noise = "0.5"
 nalgebra = "0.16"
+lazy_static = "1.1.0"
 
 [build-dependencies]
 webgl_generator = "0.1"

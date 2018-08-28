@@ -3,11 +3,10 @@
 use std::{
     str,
     ops::Drop,
-    rc::Rc,
-    cell::RefCell,
 };
-use window::{self, Window, AbstractWindow};
 
+// TODO: proper imports
+use context::*;
 
 /// Vertex shader
 pub const VERTEX_SHADER: &[u8] = include_bytes!("vertex.glslv");
@@ -21,28 +20,26 @@ pub enum ShaderType {
 }
 
 pub struct OurShader {
-    context: Rc<RefCell<Window>>,
-    pub program: window::Program,
-    vs: window::Shader,
-    fs: window::Shader,
+    pub program: Program,
+    vs: Shader,
+    fs: Shader,
 }
 
 impl OurShader {
     pub fn new(
-        context: Rc<RefCell<Window>>,
         vertex_shader: &str,
         fragment_shader: &str) -> Self {
         
+        let context = Context::get_context();
         // Compile vertex shader
         let vs = {
-            let shader_mut = context.borrow_mut();
-            let vs = shader_mut
+            let vs = context
                 .create_shader(ShaderType::Vertex)
                 .expect("Failed to create vertex shader.");
-            shader_mut.shader_source(&vs, vertex_shader);
-            shader_mut.compile_shader(&vs);
+            context.shader_source(&vs, vertex_shader);
+            context.compile_shader(&vs);
 
-            if let Some(log) = shader_mut.get_shader_info_log(&vs) {
+            if let Some(log) = context.get_shader_info_log(&vs) {
                 println!("vertex shader log: {}", log);
             }
 
@@ -51,15 +48,13 @@ impl OurShader {
 
         // Compile fragment shader
         let fs = {
-            let shader_mut = context.borrow_mut();
-
-            let fs = shader_mut
+            let fs = context
                 .create_shader(ShaderType::Fragment)
                 .expect("Failed to create fragment shader.");
-            shader_mut.shader_source(&fs, fragment_shader);
-            shader_mut.compile_shader(&fs);
+            context.shader_source(&fs, fragment_shader);
+            context.compile_shader(&fs);
 
-            if let Some(log) = shader_mut.get_shader_info_log(&fs) {
+            if let Some(log) = context.get_shader_info_log(&fs) {
                 println!("fragment shader log: {}", log);
             }
 
@@ -68,21 +63,18 @@ impl OurShader {
 
         // Link program
         let program = {
-            let shader_mut = context.borrow_mut();
-
-            let program = shader_mut
+            let program = context
                 .create_program()
                 .expect("Failed to create shader program.");
-            shader_mut.attach_shader(&program, &vs);
-            shader_mut.attach_shader(&program, &fs);
-            shader_mut.link_program(&program);
-            shader_mut.use_program(&program);
+            context.attach_shader(&program, &vs);
+            context.attach_shader(&program, &fs);
+            context.link_program(&program);
+            context.use_program(&program);
 
             program
         };
 
         OurShader {
-            context,
             program,
             fs,
             vs,
@@ -92,7 +84,7 @@ impl OurShader {
 
 impl Drop for OurShader {
     fn drop(&mut self) {
-        let context = self.context.borrow_mut();
+        let context = Context::get_context();
         context.delete_program(&self.program);
         context.delete_shader(&self.vs);
         context.delete_shader(&self.fs);

@@ -16,17 +16,22 @@ extern crate serde;
 extern crate nalgebra as na;
 extern crate rand;
 
+#[macro_use]
+extern crate lazy_static;
+
 pub mod shaders;
 pub mod window;
 pub mod camera;
+pub mod context;
+
+use context::AbstractContext;
+use context::Context;
 
 use rand::rngs::SmallRng;
 use rand::{FromEntropy, Rng};
 use std::{
     f32,
     str,
-    rc::Rc,
-    cell::RefCell,
 };
 
 use camera::*;
@@ -37,12 +42,12 @@ const PARTICLE_COUNT: usize = 100_000;
 
 pub struct App {
     camera: ArcBallCamera,
-    window: Rc<RefCell<Window>>,
+    window: Window,
     particles: Vec<f32>,
     time: f32,
     rng: SmallRng,
     running: bool,
-    mvp_uniform: UniformLocation,
+    mvp_uniform: context::UniformLocation,
     shaders: OurShader,
 }
 
@@ -60,36 +65,34 @@ impl App {
             data.push(0.0);
         }
 
+        let context = Context::get_context();
+
         // Set up shaders
-        let window = Rc::new(RefCell::new(window));
         let vertex_shader =
                 str::from_utf8(shaders::VERTEX_SHADER).expect("Failed to read vertex shader");
         let fragment_shader =
                 str::from_utf8(shaders::FRAGMENT_SHADER).expect("Failed to read fragment shader");
-        let shaders = shaders::OurShader::new(window.clone(), vertex_shader, fragment_shader);
+        let shaders = shaders::OurShader::new(vertex_shader, fragment_shader);
 
         // Bind the window buffer.
-        let vb = window
-            .borrow_mut()
+        let vb = context
             .create_buffer()
             .expect("Failed to create window buffer.");
-        window.borrow_mut().bind_buffer(Window::ARRAY_BUFFER, &vb);
-        window.borrow_mut().buffer_data(Window::ARRAY_BUFFER, &data, Window::DYNAMIC_DRAW);
+        context.bind_buffer(Context::ARRAY_BUFFER, &vb);
+        context.buffer_data(Context::ARRAY_BUFFER, &data, Context::DYNAMIC_DRAW);
 
         // Bind the vertex array.
-        let vao = window
-            .borrow_mut()
+        let vao = context
             .create_vertex_array()
             .expect("Failed to create vertex array.");
-        window.borrow_mut().bind_vertex_array(&vao);
+        context.bind_vertex_array(&vao);
         
         // Enable the attribute arrays.
         let mvp_uniform = {
-            let window_mut = window.borrow_mut();
-            let pos_attrib = window_mut.get_attrib_location(&shaders.program, "position");
-            window_mut.vertex_attrib_pointer(&pos_attrib, 3, Window::FLOAT, false, 3, 0);
-            window_mut.enable_vertex_attrib_array(&pos_attrib);        
-            window_mut.get_uniform_location(&shaders.program, "MVP")
+            let pos_attrib = context.get_attrib_location(&shaders.program, "position");
+            context.vertex_attrib_pointer(&pos_attrib, 3, Context::FLOAT, false, 3, 0);
+            context.enable_vertex_attrib_array(&pos_attrib);        
+            context.get_uniform_location(&shaders.program, "MVP")
         };
 
         // Run main loop.
@@ -114,9 +117,9 @@ impl App {
     }
 
     fn update(&mut self) -> bool {
+        let context = Context::get_context();
         let mut is_running = self.running;
-        let mut window = self.window.borrow_mut();
-        for event in window.get_events().iter() {
+        for event in self.window.get_events().iter() {
             //println!("Event fired: {:?}", event);
             match event {
                 Event::KeyboardInput{pressed: true, key: Key::W, modifiers: ModifierKeys{ctrl: true, ..}} 
@@ -142,13 +145,13 @@ impl App {
 
         
         let projection_matrix = self.camera.get_projection_matrix();
-        window.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
+        context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
 
-        window.buffer_data(Window::ARRAY_BUFFER, &self.particles, Window::DYNAMIC_DRAW);
-        window.clear_color(0.0, 0.0, 0.0, 1.0);
-        window.clear(Window::COLOR_BUFFER_BIT);
-        window.draw_arrays(Window::POINTS, 0, PARTICLE_COUNT as i32);
-        window.swap_buffers();
+        context.buffer_data(Context::ARRAY_BUFFER, &self.particles, Context::DYNAMIC_DRAW);
+        context.clear_color(0.0, 0.0, 0.0, 1.0);
+        context.clear(Context::COLOR_BUFFER_BIT);
+        context.draw_arrays(Context::POINTS, 0, PARTICLE_COUNT as i32);
+        self.window.swap_buffers();
         self.time += 0.01;
         self.running
     }
