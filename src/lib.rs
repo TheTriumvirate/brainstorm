@@ -34,7 +34,7 @@ use camera::*;
 use gl_context::shaders::OurShader;
 use window::*;
 
-const PARTICLE_COUNT: usize = 100_001;
+const PARTICLE_COUNT: usize = 100_000;
 
 pub struct App {
     camera: ArcBallCamera,
