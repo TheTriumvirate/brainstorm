@@ -1,3 +1,4 @@
+
 //! Contains the shaders for rendering.
 
 use std::{
@@ -10,11 +11,17 @@ use Program;
 use AbstractContext;
 use Context;
 
-/// Vertex shader
-pub const VERTEX_SHADER: &[u8] = include_bytes!("vertex.glslv");
+/// Vertex shader for particles
+pub const PARTICLES_VERTEX_SHADER: &[u8] = include_bytes!("particles_vertex.glslv");
 
-/// Fragment shader
-pub const FRAGMENT_SHADER: &[u8] = include_bytes!("fragment.glslf");
+/// Fragment shader for particles
+pub const PARTICLES_FRAGMENT_SHADER: &[u8] = include_bytes!("particles_fragment.glslf");
+
+/// Vertex shader for triangles
+pub const TRIANGLES_VERTEX_SHADER: &[u8] = include_bytes!("triangles_vertex.glslv");
+
+/// Fragment shader for triangles
+pub const TRIANGLES_FRAGMENT_SHADER: &[u8] = include_bytes!("triangles_fragment.glslf");
 
 pub enum ShaderType {
     Vertex,

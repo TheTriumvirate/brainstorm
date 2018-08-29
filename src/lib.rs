@@ -46,10 +46,12 @@ pub struct App {
     time: f32,
     rng: SmallRng,
     mvp_uniform: gl_context::UniformLocation,
-    shaders: OurShader,
+    _shaders: OurShader,
     field_provider: SphereFieldProvider,
     gui: Gui,
     state: State,
+    vb: gl_context::VertexArray,
+    vao: gl_context::VertexArray,
 }
 
 pub struct State {
@@ -85,16 +87,16 @@ impl App {
         let context = Context::get_context();
 
         // Set up shaders
-        let vertex_shader = str::from_utf8(gl_context::shaders::VERTEX_SHADER)
+        let vertex_shader = str::from_utf8(gl_context::shaders::PARTICLES_VERTEX_SHADER)
             .expect("Failed to read vertex shader");
-        let fragment_shader = str::from_utf8(gl_context::shaders::FRAGMENT_SHADER)
+        let fragment_shader = str::from_utf8(gl_context::shaders::PARTICLES_FRAGMENT_SHADER)
             .expect("Failed to read fragment shader");
         let shaders = gl_context::shaders::OurShader::new(vertex_shader, fragment_shader);
 
         // Bind the data buffer.
         let vb = context
             .create_buffer()
-            .expect("Failed to create window buffer.");
+            .expect("Failed to create data buffer.");
         context.bind_buffer(Context::ARRAY_BUFFER, &vb);
         context.buffer_data(Context::ARRAY_BUFFER, &data, Context::DYNAMIC_DRAW);
 
@@ -138,10 +140,12 @@ impl App {
             time,
             rng,
             mvp_uniform,
-            shaders,
+            _shaders: shaders,
             field_provider: SphereFieldProvider::new(),
             gui,
             state,
+            vb,
+            vao,
         }
     }
 
@@ -175,13 +179,20 @@ impl App {
         let projection_matrix = self.camera.get_projection_matrix();
         context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
 
+        context.clear_color(0.0, 0.0, 0.0, 1.0);
+        context.clear(Context::COLOR_BUFFER_BIT);
+
+        // Render GUI
+        self.gui.draw();
+
+        // Render particles
+        context.bind_buffer(Context::ARRAY_BUFFER, &self.vb);
         context.buffer_data(
             Context::ARRAY_BUFFER,
             &self.particles,
             Context::DYNAMIC_DRAW,
         );
-        context.clear_color(0.0, 0.0, 0.0, 1.0);
-        context.clear(Context::COLOR_BUFFER_BIT);
+        context.bind_vertex_array(&self.vao);
         context.draw_arrays(Context::POINTS, 0, PARTICLE_COUNT as i32);
         self.window.swap_buffers();
         self.time += 0.01;
