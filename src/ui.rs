@@ -2,14 +2,13 @@ use std::str;
 
 use super::State;
 use window::*;
-use gl_context::{AbstractContext, Context, shaders::*, UniformLocation, VertexArray};
+use gl_context::{AbstractContext, Context, shaders::*, VertexArray};
 
 pub struct Gui {
     pub buttons: Vec<Button>,
     vb: VertexArray,
     vao: VertexArray,
     shaders: OurShader,
-    mvp_uniform: UniformLocation,
 }
 
 impl Gui {
@@ -31,19 +30,11 @@ impl Gui {
             .expect("Failed to read vertex shader");
         let fragment_shader = str::from_utf8(TRIANGLES_FRAGMENT_SHADER)
             .expect("Failed to read fragment shader");
-        let shaders = OurShader::new(vertex_shader, fragment_shader);
+        let shaders = OurShader::new(vertex_shader, fragment_shader, 2);
         
-        // Enable the attribute arrays.
-        let mvp_uniform = {
-            let pos_attrib = context.get_attrib_location(&shaders.program, "position");
-            context.vertex_attrib_pointer(&pos_attrib, 3, Context::FLOAT, false, 3, 0);
-            context.enable_vertex_attrib_array(&pos_attrib);
-            context.get_uniform_location(&shaders.program, "MVP")
-        };
-
         let buttons = Vec::new();
 
-        Gui { buttons, vb, vao, shaders, mvp_uniform }
+        Gui { buttons, vb, vao, shaders }
     }
 
     pub fn draw(&self) {
@@ -66,10 +57,11 @@ impl Gui {
         context.buffer_data(
             Context::ARRAY_BUFFER,
             &triangles,
-            Context::DYNAMIC_DRAW,
+            Context::STATIC_DRAW,
         );
         context.bind_vertex_array(&self.vao);
-        context.draw_arrays(Context::TRIANGLES, 0, (triangles.len() / 6) as i32);
+        self.shaders.set_active();
+        context.draw_arrays(Context::TRIANGLES, 0, (triangles.len() / 2) as i32);
     }
 
     pub fn handle_event(&mut self, event: &Event, state: &mut State) {

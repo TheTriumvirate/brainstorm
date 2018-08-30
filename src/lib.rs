@@ -46,7 +46,7 @@ pub struct App {
     time: f32,
     rng: SmallRng,
     mvp_uniform: gl_context::UniformLocation,
-    _shaders: OurShader,
+    shaders: OurShader,
     field_provider: SphereFieldProvider,
     gui: Gui,
     state: State,
@@ -86,13 +86,6 @@ impl App {
 
         let context = Context::get_context();
 
-        // Set up shaders
-        let vertex_shader = str::from_utf8(gl_context::shaders::PARTICLES_VERTEX_SHADER)
-            .expect("Failed to read vertex shader");
-        let fragment_shader = str::from_utf8(gl_context::shaders::PARTICLES_FRAGMENT_SHADER)
-            .expect("Failed to read fragment shader");
-        let shaders = gl_context::shaders::OurShader::new(vertex_shader, fragment_shader);
-
         // Bind the data buffer.
         let vb = context
             .create_buffer()
@@ -106,13 +99,14 @@ impl App {
             .expect("Failed to create vertex array.");
         context.bind_vertex_array(&vao);
 
-        // Enable the attribute arrays.
-        let mvp_uniform = {
-            let pos_attrib = context.get_attrib_location(&shaders.program, "position");
-            context.vertex_attrib_pointer(&pos_attrib, 3, Context::FLOAT, false, 3, 0);
-            context.enable_vertex_attrib_array(&pos_attrib);
-            context.get_uniform_location(&shaders.program, "MVP")
-        };
+        // Set up shaders
+        let vertex_shader = str::from_utf8(gl_context::shaders::PARTICLES_VERTEX_SHADER)
+            .expect("Failed to read vertex shader");
+        let fragment_shader = str::from_utf8(gl_context::shaders::PARTICLES_FRAGMENT_SHADER)
+            .expect("Failed to read fragment shader");
+        let shaders = gl_context::shaders::OurShader::new(vertex_shader, fragment_shader, 3);
+
+        let mvp_uniform = shaders.get_uniform_location();
 
         // Run main loop.
         let time: f32 = 0.0;
@@ -140,7 +134,7 @@ impl App {
             time,
             rng,
             mvp_uniform,
-            _shaders: shaders,
+            shaders,
             field_provider: SphereFieldProvider::new(),
             gui,
             state,
@@ -176,14 +170,9 @@ impl App {
             self.particles[i * 3 + 2] += dz * 0.01;
         }
 
-        let projection_matrix = self.camera.get_projection_matrix();
-        context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
-
+        // Clear screen
         context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(Context::COLOR_BUFFER_BIT);
-
-        // Render GUI
-        self.gui.draw();
 
         // Render particles
         context.bind_buffer(Context::ARRAY_BUFFER, &self.vb);
@@ -193,7 +182,14 @@ impl App {
             Context::DYNAMIC_DRAW,
         );
         context.bind_vertex_array(&self.vao);
+        self.shaders.set_active();
+        let projection_matrix = self.camera.get_projection_matrix();
+        context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
         context.draw_arrays(Context::POINTS, 0, PARTICLE_COUNT as i32);
+
+        // Render GUI
+        self.gui.draw();
+
         self.window.swap_buffers();
         self.time += 0.01;
 
