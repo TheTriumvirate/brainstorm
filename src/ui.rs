@@ -19,25 +19,25 @@ impl Gui {
         let vb = context
             .create_buffer()
             .expect("Failed to create data buffer.");
-        
+
         // Bind the vertex array.
         let vao = context
             .create_vertex_array()
             .expect("Failed to create vertex array.");
-        
+
         // Set up shaders
         let vertex_shader = str::from_utf8(TRIANGLES_VERTEX_SHADER)
             .expect("Failed to read vertex shader");
         let fragment_shader = str::from_utf8(TRIANGLES_FRAGMENT_SHADER)
             .expect("Failed to read fragment shader");
         let shaders = OurShader::new(vertex_shader, fragment_shader, 2);
-        
+
         let mut buttons = Vec::new();
         buttons.push(Button {
-            x1: 400.0,
-            x2: 600.0,
-            y1: 400.0,
-            y2: 600.0,
+            x1: -0.90,
+            x2: -0.60,
+            y1: -0.80,
+            y2: -0.90,
             color: (1.0, 1.0, 1.0),
             func: Box::new(|ref mut _context| {
                 //println!("Hello, SPACE!");
@@ -52,17 +52,22 @@ impl Gui {
 
         // Render particles
         let mut triangles = Vec::new();
-        //for button in &self.buttons {
-            triangles.push(-0.1);
-            triangles.push(0.1);
+        for b in &self.buttons {
+            let coords = [                
+                (b.x1, b.y1),
+                (b.x1, b.y2),
+                (b.x2, b.y2),
+                (b.x1, b.y1),
+                (b.x2, b.y2),
+                (b.x2, b.y1),
+            ];
 
-            triangles.push(-0.1);
-            triangles.push(-0.1);
+            for c in coords {
+                triangles.push(c.1);
+                triangles.push(c.2);
+            }
+        }
 
-            triangles.push(0.1);
-            triangles.push(-0.1);
-        //}
-        
         context.bind_buffer(Context::ARRAY_BUFFER, &self.vb);
         context.buffer_data(
             Context::ARRAY_BUFFER,
@@ -74,7 +79,7 @@ impl Gui {
         context.draw_arrays(Context::TRIANGLES, 0, (triangles.len() / 2) as i32);
     }
 
-    pub fn handle_event(&mut self, event: &Event, state: &mut State) {
+    pub fn handle_event(&mut self, event: &Event, state: &mut State, size: (u32, u32)) {
         match event {
             Event::KeyboardInput {
                 pressed: true,
@@ -83,8 +88,8 @@ impl Gui {
             }
             | Event::Quit => state.is_running = false,
             Event::CursorMoved { x, y } => {
-                state.mouse_x = *x;
-                state.mouse_y = *y;
+                state.mouse_x = (x - (x/2.0)) / size.0 as f64;
+                state.mouse_y = (y - (x/2.0)) / size.1 as f64;
             }
             Event::CursorInput {
                 pressed: true,

@@ -30,13 +30,13 @@ macro_rules! enclose {
 }
 
 pub struct WebGLWindow {
-    events: Rc<RefCell<Vec<EventWrapper>>>
+    events: Rc<RefCell<Vec<EventWrapper>>>,
+    width: u32,
+    height: u32,
 }
 
 impl AbstractWindow for WebGLWindow {
-
     fn new(_: &str, width: u32, height: u32) -> Self {
-
         let canvas: CanvasElement = document()
             .query_selector("#canvas")
             .expect("No canvas found")
@@ -76,8 +76,7 @@ impl AbstractWindow for WebGLWindow {
                 modifiers: ModifierKeys{ctrl: event.ctrl_key(), shift: event.shift_key(), alt: event.alt_key(), logo: event.meta_key()}})
         }));
 
-
-        WebGLWindow { events: events.clone() }
+        WebGLWindow { events: events.clone(), width, height }
     }
 
     fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
@@ -99,6 +98,9 @@ impl AbstractWindow for WebGLWindow {
         // No need to swap buffers on webgl
     }
 
+    fn get_size(&self) -> (u32, u32) {
+        (self.width, self.height)
+    }
 }
 
 // TODO: Microoptimization: use hash table

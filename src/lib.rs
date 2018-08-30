@@ -80,7 +80,7 @@ impl App {
     fn update(&mut self) -> bool {
         let context = Context::get_context();
         for event in self.window.get_events().iter() {
-            self.gui.handle_event(&event, &mut self.state);
+            self.gui.handle_event(&event, &mut self.state, self.window.get_size());
             self.camera.handle_events(&event);
         }
         self.camera.update();

@@ -30,12 +30,13 @@ fn translate_event(event: WindowEvent) -> Option<EventWrapper> {
 }
 
 pub struct GLWindow {
+    height: u32,
+    width: u32,
     window: glutin::GlWindow,
     events: glutin::EventsLoop,
 }
 
-impl AbstractWindow for GLWindow {
-    
+impl AbstractWindow for GLWindow {    
     fn new(title: &str, width: u32, height: u32) -> Self {
         let events_loop = glutin::EventsLoop::new();
         let window = glutin::WindowBuilder::new()
@@ -55,6 +56,8 @@ impl AbstractWindow for GLWindow {
         GLWindow {
             window: gl_window,
             events: events_loop,
+            width,
+            height
         }
     }
     
@@ -88,7 +91,9 @@ impl AbstractWindow for GLWindow {
         self.window.swap_buffers().unwrap();
     }
 
-    
+    fn get_size(&self) -> (u32, u32) {
+        (self.width, self.height)
+    }
 }
 
 impl From<glutin::MouseButton> for MouseButtonWrapper {
