@@ -9,12 +9,19 @@ use Shader;
 use Program;
 use AbstractContext;
 use Context;
+use context::{UniformLocation, GLUint};
 
-/// Vertex shader
-pub const VERTEX_SHADER: &[u8] = include_bytes!("vertex.glslv");
+/// Vertex shader for particles
+pub const PARTICLES_VERTEX_SHADER: &[u8] = include_bytes!("particles_vertex.glslv");
 
-/// Fragment shader
-pub const FRAGMENT_SHADER: &[u8] = include_bytes!("fragment.glslf");
+/// Fragment shader for particles
+pub const PARTICLES_FRAGMENT_SHADER: &[u8] = include_bytes!("particles_fragment.glslf");
+
+/// Vertex shader for triangles
+pub const TRIANGLES_VERTEX_SHADER: &[u8] = include_bytes!("triangles_vertex.glslv");
+
+/// Fragment shader for triangles
+pub const TRIANGLES_FRAGMENT_SHADER: &[u8] = include_bytes!("triangles_fragment.glslf");
 
 pub enum ShaderType {
     Vertex,
@@ -25,62 +32,70 @@ pub struct OurShader {
     pub program: Program,
     vs: Shader,
     fs: Shader,
+    pos_attrib: GLUint,
+    shader_dimensions: i32,
 }
 
 impl OurShader {
+    /// PREREQ: shader dimension isn't wrong.
     pub fn new(
         vertex_shader: &str,
-        fragment_shader: &str) -> Self {
+        fragment_shader: &str,
+        shader_dimensions: i32) -> Self {
         
         let context = Context::get_context();
         // Compile vertex shader
-        let vs = {
-            let vs = context
-                .create_shader(ShaderType::Vertex)
-                .expect("Failed to create vertex shader.");
-            context.shader_source(&vs, vertex_shader);
-            context.compile_shader(&vs);
+        let vs = context
+            .create_shader(ShaderType::Vertex)
+            .expect("Failed to create vertex shader.");
+        context.shader_source(&vs, vertex_shader);
+        context.compile_shader(&vs);
 
-            if let Some(log) = context.get_shader_info_log(&vs) {
-                println!("vertex shader log: {}", log);
-            }
-
-            vs
-        };
+        if let Some(log) = context.get_shader_info_log(&vs) {
+            println!("vertex shader log: {}", log);
+        }
 
         // Compile fragment shader
-        let fs = {
-            let fs = context
-                .create_shader(ShaderType::Fragment)
-                .expect("Failed to create fragment shader.");
-            context.shader_source(&fs, fragment_shader);
-            context.compile_shader(&fs);
+        let fs = context
+            .create_shader(ShaderType::Fragment)
+            .expect("Failed to create fragment shader.");
+        context.shader_source(&fs, fragment_shader);
+        context.compile_shader(&fs);
 
-            if let Some(log) = context.get_shader_info_log(&fs) {
-                println!("fragment shader log: {}", log);
-            }
-
-            fs
-        };
+        if let Some(log) = context.get_shader_info_log(&fs) {
+            println!("fragment shader log: {}", log);
+        }
 
         // Link program
-        let program = {
-            let program = context
-                .create_program()
-                .expect("Failed to create shader program.");
-            context.attach_shader(&program, &vs);
-            context.attach_shader(&program, &fs);
-            context.link_program(&program);
-            context.use_program(&program);
+        let program = context
+            .create_program()
+            .expect("Failed to create shader program.");
+        context.attach_shader(&program, &vs);
+        context.attach_shader(&program, &fs);
+        context.link_program(&program);
 
-            program
-        };
-
+        // Enable the attribute arrays.
+        context.use_program(&program);
+        let pos_attrib = context.get_attrib_location(&program, "position");
+        
         OurShader {
             program,
             fs,
             vs,
+            pos_attrib,
+            shader_dimensions,
         }
+    }
+
+    pub fn set_active(&self) {
+        let context = Context::get_context();
+        context.use_program(&self.program);
+        context.vertex_attrib_pointer(&self.pos_attrib, self.shader_dimensions, Context::FLOAT, false, self.shader_dimensions, 0);
+        context.enable_vertex_attrib_array(&self.pos_attrib);
+    }
+
+    pub fn get_uniform_location(&self) -> UniformLocation {
+        Context::get_context().get_uniform_location(&self.program, "MVP")
     }
 }
 

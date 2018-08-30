@@ -29,13 +29,9 @@ use gl_context::Context;
 
 use particles::ParticleEngine;
 
-use std::{
-    f32,
-    str,
-};
+use std::f32;
 
 use camera::*;
-use gl_context::shaders::OurShader;
 use ui::*;
 use window::*;
 
@@ -43,8 +39,7 @@ pub struct App {
     camera: ArcBallCamera,
     window: Window,
     time: f32,
-    mvp_uniform: gl_context::UniformLocation,
-    shaders: OurShader,
+    
     gui: Gui,
     state: State,
     particles: ParticleEngine,
@@ -68,55 +63,13 @@ impl State {
 
 impl App {
     pub fn new() -> App {
-        // Set up window
-        let window = Window::new("Particles!", 1000, 1000);
-        
-        let context = Context::get_context();
-        let particles = ParticleEngine::new();
-
-        // Set up shaders
-        let vertex_shader = str::from_utf8(gl_context::shaders::VERTEX_SHADER)
-            .expect("Failed to read vertex shader");
-        let fragment_shader = str::from_utf8(gl_context::shaders::FRAGMENT_SHADER)
-            .expect("Failed to read fragment shader");
-        let shaders = gl_context::shaders::OurShader::new(vertex_shader, fragment_shader);
-        
-        // Enable the attribute arrays.
-        let mvp_uniform = {
-            let pos_attrib = context.get_attrib_location(&shaders.program, "position");
-            context.vertex_attrib_pointer(&pos_attrib, 3, Context::FLOAT, false, 3, 0);
-            context.enable_vertex_attrib_array(&pos_attrib);
-            context.get_uniform_location(&shaders.program, "MVP")
-        };
-
-        // Run main loop.
-        let time: f32 = 0.0;
-
-        // Define initial state
-        let state = State::new();
-
-        // Add test button
-        let mut gui = Gui::new();
-        gui.buttons.push(Button {
-            x1: 400.0,
-            x2: 600.0,
-            y1: 400.0,
-            y2: 600.0,
-            color: (1.0, 1.0, 1.0),
-            func: Box::new(|ref mut _context| {
-                //println!("Hello, SPACE!");
-            }),
-        });
-
         App {
-            window,
+            window: Window::new("Particles!", 1000, 1000),
             camera: ArcBallCamera::new(),
-            time,
-            mvp_uniform,
-            shaders,
-            gui,
-            state,
-            particles 
+            time: 0.0,
+            gui: Gui::new(),
+            state: State::new(),
+            particles: ParticleEngine::new(),
         }
     }
 
@@ -133,13 +86,14 @@ impl App {
         self.camera.update();
         self.particles.update();
 
-        let projection_matrix = self.camera.get_projection_matrix();
-        context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
-
+        // Clear screen
         context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(Context::COLOR_BUFFER_BIT);
-        
-        self.particles.draw();
+
+        // Draw everything
+        let projection_matrix = self.camera.get_projection_matrix();
+        self.particles.draw(&projection_matrix);
+        self.gui.draw();
 
         self.window.swap_buffers();
         self.time += 0.01;

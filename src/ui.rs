@@ -1,19 +1,77 @@
+use std::str;
+
 use super::State;
 use window::*;
+use gl_context::{AbstractContext, Context, shaders::*, VertexArray};
 
 pub struct Gui {
     pub buttons: Vec<Button>,
+    vb: VertexArray,
+    vao: VertexArray,
+    shaders: OurShader,
 }
 
 impl Gui {
     pub fn new() -> Self {
-        Gui {
-            buttons: Vec::new(),
-        }
+        let context = Context::get_context();
+
+        // Bind the data buffer.
+        let vb = context
+            .create_buffer()
+            .expect("Failed to create data buffer.");
+        
+        // Bind the vertex array.
+        let vao = context
+            .create_vertex_array()
+            .expect("Failed to create vertex array.");
+        
+        // Set up shaders
+        let vertex_shader = str::from_utf8(TRIANGLES_VERTEX_SHADER)
+            .expect("Failed to read vertex shader");
+        let fragment_shader = str::from_utf8(TRIANGLES_FRAGMENT_SHADER)
+            .expect("Failed to read fragment shader");
+        let shaders = OurShader::new(vertex_shader, fragment_shader, 2);
+        
+        let mut buttons = Vec::new();
+        buttons.push(Button {
+            x1: 400.0,
+            x2: 600.0,
+            y1: 400.0,
+            y2: 600.0,
+            color: (1.0, 1.0, 1.0),
+            func: Box::new(|ref mut _context| {
+                //println!("Hello, SPACE!");
+            }),
+        });
+
+        Gui { buttons, vb, vao, shaders }
     }
 
     pub fn draw(&self) {
-        unimplemented!()
+        let context = Context::get_context();
+
+        // Render particles
+        let mut triangles = Vec::new();
+        //for button in &self.buttons {
+            triangles.push(-0.1);
+            triangles.push(0.1);
+
+            triangles.push(-0.1);
+            triangles.push(-0.1);
+
+            triangles.push(0.1);
+            triangles.push(-0.1);
+        //}
+        
+        context.bind_buffer(Context::ARRAY_BUFFER, &self.vb);
+        context.buffer_data(
+            Context::ARRAY_BUFFER,
+            &triangles,
+            Context::STATIC_DRAW,
+        );
+        context.bind_vertex_array(&self.vao);
+        self.shaders.set_active();
+        context.draw_arrays(Context::TRIANGLES, 0, (triangles.len() / 2) as i32);
     }
 
     pub fn handle_event(&mut self, event: &Event, state: &mut State) {
