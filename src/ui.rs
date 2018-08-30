@@ -2,12 +2,12 @@ use rand::{rngs::SmallRng, FromEntropy, Rng};
 use std::str;
 
 use super::State;
-use gl_context::{shaders::*, AbstractContext, Context, VertexArray};
+use gl_context::{shaders::*, AbstractContext, Context, VertexArray, Buffer};
 use window::*;
 
 pub struct Gui {
     pub buttons: Vec<Button>,
-    vb: VertexArray,
+    vb: Buffer,
     vao: VertexArray,
     shaders: OurShader,
 }

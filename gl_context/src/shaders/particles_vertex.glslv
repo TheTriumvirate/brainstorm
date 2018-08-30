@@ -8,6 +8,6 @@ uniform mat4 MVP;
 
 void main() {
     gl_Position = MVP * vec4(position, 1.0);
-    gl_PointSize = 2.0;
+    gl_PointSize = 1.0;
     dist = gl_Position.z;
 }

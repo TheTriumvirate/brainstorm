@@ -206,7 +206,7 @@ impl AbstractContext for WebGLContext {
         self.context.get_uniform_location(program, name).expect("Uniform location could not be found or does not exist")
     }
 
-    fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>) {
+    fn uniform_matrix_4fv(&self, location: &UniformLocation, _size: i32, transpose: bool, matrix: &Matrix4<f32>) {
         self.context.uniform_matrix4fv_1(Some(location), transpose, matrix.as_slice())
     }
 

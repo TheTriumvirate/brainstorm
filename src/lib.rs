@@ -4,10 +4,8 @@ extern crate noise;
 #[cfg(target_arch = "wasm32")]
 extern crate stdweb;
 #[cfg(target_arch = "wasm32")]
-#[macro_use]
 extern crate stdweb_derive;
 #[cfg(target_arch = "wasm32")]
-#[macro_use]
 extern crate serde_derive;
 #[cfg(target_arch = "wasm32")]
 extern crate serde;
