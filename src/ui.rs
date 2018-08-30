@@ -1,9 +1,9 @@
+use rand::{rngs::SmallRng, FromEntropy, Rng};
 use std::str;
-use rand::{FromEntropy, Rng, rngs::SmallRng};
 
 use super::State;
+use gl_context::{shaders::*, AbstractContext, Context, VertexArray};
 use window::*;
-use gl_context::{AbstractContext, Context, shaders::*, VertexArray};
 
 pub struct Gui {
     pub buttons: Vec<Button>,
@@ -27,10 +27,10 @@ impl Gui {
             .expect("Failed to create vertex array.");
 
         // Set up shaders
-        let vertex_shader = str::from_utf8(TRIANGLES_VERTEX_SHADER)
-            .expect("Failed to read vertex shader");
-        let fragment_shader = str::from_utf8(TRIANGLES_FRAGMENT_SHADER)
-            .expect("Failed to read fragment shader");
+        let vertex_shader =
+            str::from_utf8(TRIANGLES_VERTEX_SHADER).expect("Failed to read vertex shader");
+        let fragment_shader =
+            str::from_utf8(TRIANGLES_FRAGMENT_SHADER).expect("Failed to read fragment shader");
         let shaders = OurShader::new(vertex_shader, fragment_shader, 2, true);
 
         let mut buttons = Vec::new();
@@ -45,12 +45,17 @@ impl Gui {
                 context.ui_color = (
                     rng.gen_range::<f32>(0.0, 1.0),
                     rng.gen_range::<f32>(0.0, 1.0),
-                    rng.gen_range::<f32>(0.0, 1.0)
+                    rng.gen_range::<f32>(0.0, 1.0),
                 );
             }),
         });
 
-        Gui { buttons, vb, vao, shaders }
+        Gui {
+            buttons,
+            vb,
+            vao,
+            shaders,
+        }
     }
 
     pub fn draw(&self, state: &State) {
@@ -59,7 +64,7 @@ impl Gui {
         // Render particles
         let mut triangles = Vec::new();
         for b in &self.buttons {
-            let coords = [                
+            let coords = [
                 (b.x1, b.y1),
                 (b.x1, b.y2),
                 (b.x2, b.y2),
@@ -78,11 +83,7 @@ impl Gui {
         }
 
         context.bind_buffer(Context::ARRAY_BUFFER, &self.vb);
-        context.buffer_data(
-            Context::ARRAY_BUFFER,
-            &triangles,
-            Context::STATIC_DRAW,
-        );
+        context.buffer_data(Context::ARRAY_BUFFER, &triangles, Context::STATIC_DRAW);
         context.bind_vertex_array(&self.vao);
         self.shaders.set_active();
         context.draw_arrays(Context::TRIANGLES, 0, (triangles.len() / 5) as i32);
@@ -98,7 +99,7 @@ impl Gui {
             | Event::Quit => state.is_running = false,
             Event::CursorMoved { x, y } => {
                 state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
-                state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;                
+                state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
             }
             Event::CursorInput {
                 pressed: true,
@@ -127,10 +128,7 @@ pub struct Button {
 
 impl Button {
     pub fn was_clicked(&self, x: f64, y: f64) -> bool {
-        x > self.x1.into() &&
-            x < self.x2.into() &&
-            y < self.y1.into() &&
-            y > self.y2.into()
+        x > self.x1.into() && x < self.x2.into() && y < self.y1.into() && y > self.y2.into()
     }
 
     pub fn click(&mut self, state: &mut State) {

@@ -4,8 +4,8 @@ use rand::{FromEntropy, Rng};
 
 use std::str;
 
-use gl_context::{Buffer, VertexArray, AbstractContext, Context, UniformLocation, shaders};
-use particles::fieldprovider::{SphereFieldProvider, FieldProvider};
+use gl_context::{shaders, AbstractContext, Buffer, Context, UniformLocation, VertexArray};
+use particles::fieldprovider::{FieldProvider, SphereFieldProvider};
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -45,8 +45,8 @@ impl ParticleEngine {
         context.bind_vertex_array(&vao);
 
         // Set up shaders
-        let vertex_shader = str::from_utf8(shaders::PARTICLES_VERTEX_SHADER)
-            .expect("Failed to read vertex shader");
+        let vertex_shader =
+            str::from_utf8(shaders::PARTICLES_VERTEX_SHADER).expect("Failed to read vertex shader");
         let fragment_shader = str::from_utf8(shaders::PARTICLES_FRAGMENT_SHADER)
             .expect("Failed to read fragment shader");
         let shader = shaders::OurShader::new(vertex_shader, fragment_shader, 3, false);
@@ -71,17 +71,25 @@ impl ParticleEngine {
                 self.particles[i * 3 + 1] = self.rng.gen_range::<f32>(-0.5, 0.5);
                 self.particles[i * 3 + 2] = self.rng.gen_range::<f32>(-0.5, 0.5);;
             }
-            let (dx, dy, dz) = self.field_provider.delta((self.particles[i * 3] * 100.0 + 50.0, self.particles[i * 3 + 1] * 100.0 + 50.0, self.particles[i * 3 + 2] * 100.0 + 50.0));
+            let (dx, dy, dz) = self.field_provider.delta((
+                self.particles[i * 3] * 100.0 + 50.0,
+                self.particles[i * 3 + 1] * 100.0 + 50.0,
+                self.particles[i * 3 + 2] * 100.0 + 50.0,
+            ));
             self.particles[i * 3] += dx * 0.001;
             self.particles[i * 3 + 1] += dy * 0.01;
             self.particles[i * 3 + 2] += dz * 0.01;
-        }        
+        }
     }
 
     pub fn draw(&mut self, projection_matrix: &Matrix4<f32>) {
         let context = Context::get_context();
         context.bind_buffer(Context::ARRAY_BUFFER, &self.vertex_buffer);
-        context.buffer_data(Context::ARRAY_BUFFER, &self.particles, Context::DYNAMIC_DRAW);
+        context.buffer_data(
+            Context::ARRAY_BUFFER,
+            &self.particles,
+            Context::DYNAMIC_DRAW,
+        );
         context.bind_vertex_array(&self.vertex_array);
         self.shader.set_active();
         context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);

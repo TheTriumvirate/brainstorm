@@ -1,7 +1,7 @@
+use na::{Isometry3, Matrix4, Perspective3, Point3, Vector2, Vector3};
+use std::f32;
 use window::Event;
 use window::MouseButton;
-use na::{Matrix4, Point3, Vector3, Perspective3, Isometry3, Vector2};
-use std::f32;
 
 pub trait Camera {
     fn update(&mut self);
@@ -17,7 +17,7 @@ pub struct ArcBallCamera {
     projection: Matrix4<f32>,
     last_cursor_pos: Vector2<f32>,
     is_pressed: bool,
-    idle: f32
+    idle: f32,
 }
 
 impl ArcBallCamera {
@@ -30,12 +30,12 @@ impl ArcBallCamera {
             projection: Matrix4::identity(),
             last_cursor_pos: Vector2::new(0.0, 0.0),
             is_pressed: false,
-            idle: 0.0
+            idle: 0.0,
         };
         res.recalculate_matrices();
         res
     }
-    
+
     fn recalculate_matrices(&mut self) {
         let ex = self.target.x + self.distance * self.yaw.cos() * self.pitch.sin();
         let ey = self.target.y + self.distance * self.pitch.cos();
@@ -48,7 +48,6 @@ impl ArcBallCamera {
 }
 
 impl Camera for ArcBallCamera {
-
     fn update(&mut self) {
         if self.idle > 60.0 {
             self.yaw += 0.02;
@@ -60,7 +59,7 @@ impl Camera for ArcBallCamera {
 
     fn handle_events(&mut self, event: &Event) {
         match event {
-            Event::CursorMoved {x, y} => {
+            Event::CursorMoved { x, y } => {
                 // do stuff
                 let mouse = Vector2::new(*x as f32, *y as f32);
                 if self.is_pressed {
@@ -71,17 +70,19 @@ impl Camera for ArcBallCamera {
                     self.idle = 0.0;
                 }
                 self.last_cursor_pos = mouse;
-            },
-            Event::CursorInput {button, pressed, ..} => {
+            }
+            Event::CursorInput {
+                button, pressed, ..
+            } => {
                 if *button == MouseButton::Left {
                     self.is_pressed = *pressed;
                 }
-            },
+            }
             Event::CursorScroll(_, dt) => {
                 self.distance -= dt / 4.0;
                 self.recalculate_matrices();
             }
-            _ => ()
+            _ => (),
         }
     }
 

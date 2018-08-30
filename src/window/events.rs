@@ -1,10 +1,20 @@
 #[derive(Debug, Clone)]
 pub enum Event {
     Quit,
-    CursorMoved {x: f64, y: f64},
-    CursorInput {button: MouseButton, pressed: bool}, // TODO: scroll modes (e.g pixel vs line vs page)
+    CursorMoved {
+        x: f64,
+        y: f64,
+    },
+    CursorInput {
+        button: MouseButton,
+        pressed: bool,
+    }, // TODO: scroll modes (e.g pixel vs line vs page)
     CursorScroll(f32, f32),
-    KeyboardInput {pressed: bool, key: Key, modifiers: ModifierKeys}
+    KeyboardInput {
+        pressed: bool,
+        key: Key,
+        modifiers: ModifierKeys,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -12,7 +22,7 @@ pub struct ModifierKeys {
     pub shift: bool,
     pub ctrl: bool,
     pub alt: bool,
-    pub logo: bool
+    pub logo: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -20,9 +30,8 @@ pub enum MouseButton {
     Left,
     Right,
     Middle,
-    Other(u8)
+    Other(u8),
 }
-
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Key {
@@ -64,5 +73,5 @@ pub enum Key {
     Y,
     Z,
 
-    Unknown
+    Unknown,
 }

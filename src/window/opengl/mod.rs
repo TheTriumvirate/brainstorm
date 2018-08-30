@@ -10,22 +10,50 @@ use window::MouseButton as MouseButtonWrapper;
 use window::*;
 
 use self::glutin::dpi::*;
-use self::glutin::WindowEvent::{KeyboardInput, CursorMoved, MouseInput, CloseRequested, MouseWheel};
 use self::glutin::Api::OpenGl;
-use self::glutin::{GlContext, MouseScrollDelta, GlRequest, WindowEvent, VirtualKeyCode, ElementState, ModifiersState};
 use self::glutin::KeyboardInput as KeyboardData;
+use self::glutin::WindowEvent::{
+    CloseRequested, CursorMoved, KeyboardInput, MouseInput, MouseWheel,
+};
+use self::glutin::{
+    ElementState, GlContext, GlRequest, ModifiersState, MouseScrollDelta, VirtualKeyCode,
+    WindowEvent,
+};
 
 fn translate_event(event: WindowEvent) -> Option<EventWrapper> {
     match event {
         CloseRequested => Some(EventWrapper::Quit),
-        CursorMoved{position: LogicalPosition{x, y}, ..} => Some(EventWrapper::CursorMoved {x, y}),
-        MouseInput {state, button, ..} => 
-            Some(EventWrapper::CursorInput{pressed: state == ElementState::Pressed, button: MouseButtonWrapper::from(button)}),
-        MouseWheel {delta: MouseScrollDelta::LineDelta(x, y), ..} => Some(EventWrapper::CursorScroll(x as f32, y as f32)),
-        MouseWheel {delta: MouseScrollDelta::PixelDelta(LogicalPosition{x, y}), ..} => Some(EventWrapper::CursorScroll(x as f32, y as f32)),
-        KeyboardInput{input: KeyboardData{state, virtual_keycode, modifiers, ..}, ..} => 
-            Some(EventWrapper::KeyboardInput {pressed: state == ElementState::Pressed, key: Key::from(virtual_keycode), modifiers: ModifierKeys::from(modifiers)}),
-        _ => None // Unknown or Unhandled event
+        CursorMoved {
+            position: LogicalPosition { x, y },
+            ..
+        } => Some(EventWrapper::CursorMoved { x, y }),
+        MouseInput { state, button, .. } => Some(EventWrapper::CursorInput {
+            pressed: state == ElementState::Pressed,
+            button: MouseButtonWrapper::from(button),
+        }),
+        MouseWheel {
+            delta: MouseScrollDelta::LineDelta(x, y),
+            ..
+        } => Some(EventWrapper::CursorScroll(x as f32, y as f32)),
+        MouseWheel {
+            delta: MouseScrollDelta::PixelDelta(LogicalPosition { x, y }),
+            ..
+        } => Some(EventWrapper::CursorScroll(x as f32, y as f32)),
+        KeyboardInput {
+            input:
+                KeyboardData {
+                    state,
+                    virtual_keycode,
+                    modifiers,
+                    ..
+                },
+            ..
+        } => Some(EventWrapper::KeyboardInput {
+            pressed: state == ElementState::Pressed,
+            key: Key::from(virtual_keycode),
+            modifiers: ModifierKeys::from(modifiers),
+        }),
+        _ => None, // Unknown or Unhandled event
     }
 }
 
@@ -36,7 +64,7 @@ pub struct GLWindow {
     events: glutin::EventsLoop,
 }
 
-impl AbstractWindow for GLWindow {    
+impl AbstractWindow for GLWindow {
     fn new(title: &str, width: u32, height: u32) -> Self {
         let events_loop = glutin::EventsLoop::new();
         let window = glutin::WindowBuilder::new()
@@ -57,10 +85,10 @@ impl AbstractWindow for GLWindow {
             window: gl_window,
             events: events_loop,
             width,
-            height
+            height,
         }
     }
-    
+
     fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
         while callback(0.0) {
             // TODO: Proper wrapper
@@ -74,14 +102,14 @@ impl AbstractWindow for GLWindow {
     }
 
     fn get_events(&mut self) -> Vec<EventWrapper> {
-        let mut events : Vec<EventWrapper> = Vec::new();
+        let mut events: Vec<EventWrapper> = Vec::new();
         self.events.poll_events(|event| {
             match event {
-                glutin::Event::WindowEvent{ event, .. } => match translate_event(event) {
+                glutin::Event::WindowEvent { event, .. } => match translate_event(event) {
                     Some(x) => events.push(x),
-                    _ => () // Unhandled or unknown event
+                    _ => (), // Unhandled or unknown event
                 },
-                _ => ()
+                _ => (),
             }
         });
         events
@@ -102,7 +130,7 @@ impl From<glutin::MouseButton> for MouseButtonWrapper {
             glutin::MouseButton::Left => MouseButtonWrapper::Left,
             glutin::MouseButton::Right => MouseButtonWrapper::Right,
             glutin::MouseButton::Middle => MouseButtonWrapper::Middle,
-            glutin::MouseButton::Other(d) => MouseButtonWrapper::Other(d)
+            glutin::MouseButton::Other(d) => MouseButtonWrapper::Other(d),
         }
     }
 }
@@ -150,14 +178,26 @@ impl From<Option<VirtualKeyCode>> for Key {
                 VirtualKeyCode::Y => Key::Y,
                 VirtualKeyCode::Z => Key::Z,
 
-                _ => Key::Unknown
-            }
+                _ => Key::Unknown,
+            },
         }
     }
 }
 
 impl From<ModifiersState> for ModifierKeys {
-    fn from(ModifiersState{ctrl, shift, alt, logo}: ModifiersState) -> Self {
-        ModifierKeys {ctrl, shift, alt, logo}
+    fn from(
+        ModifiersState {
+            ctrl,
+            shift,
+            alt,
+            logo,
+        }: ModifiersState,
+    ) -> Self {
+        ModifierKeys {
+            ctrl,
+            shift,
+            alt,
+            logo,
+        }
     }
 }

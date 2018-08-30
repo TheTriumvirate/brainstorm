@@ -1,6 +1,6 @@
 extern crate particles;
-use particles::*;
 use particles::window::AbstractWindow;
+use particles::*;
 
 fn main() {
     let mut app = App::new();

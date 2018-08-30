@@ -21,8 +21,8 @@ extern crate lazy_static;
 
 pub mod camera;
 pub mod particles;
-pub mod window;
 pub mod ui;
+pub mod window;
 
 use gl_context::AbstractContext;
 use gl_context::Context;
@@ -39,7 +39,7 @@ pub struct App {
     camera: ArcBallCamera,
     window: Window,
     time: f32,
-    
+
     gui: Gui,
     state: State,
     particles: ParticleEngine,
@@ -49,7 +49,7 @@ pub struct State {
     mouse_x: f64,
     mouse_y: f64,
     is_running: bool,
-    ui_color: (f32, f32, f32)
+    ui_color: (f32, f32, f32),
 }
 
 impl State {
@@ -75,14 +75,15 @@ impl App {
         }
     }
 
-    pub fn run(&mut self) -> bool{
+    pub fn run(&mut self) -> bool {
         self.update()
     }
 
     fn update(&mut self) -> bool {
         let context = Context::get_context();
         for event in self.window.get_events().iter() {
-            self.gui.handle_event(&event, &mut self.state, self.window.get_size());
+            self.gui
+                .handle_event(&event, &mut self.state, self.window.get_size());
             self.camera.handle_events(&event);
         }
         self.camera.update();
