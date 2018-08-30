@@ -2,9 +2,10 @@
 extern crate gl;
 
 use std::ffi::CString;
+use std::ffi::CStr;
 use std::iter;
 use std::mem;
-use std::os::raw::c_void;
+use std::os::raw::{c_void, c_char};
 use std::ptr;
 
 use shaders::ShaderType;
@@ -30,10 +31,30 @@ pub type GLVertexArray = u32;
 pub type GLUint = u32;
 
 lazy_static! {
-    static ref CONTEXT: Context = GLContext{};
+    static ref CONTEXT: Context = GLContext::new();
 }
 
 pub struct GLContext {}
+
+impl GLContext {
+    fn new() -> Self {
+        unsafe {
+            gl::Enable(gl::DEBUG_OUTPUT);
+            gl::DebugMessageCallback(callaback, 0 as *const _);
+        }
+        GLContext {}
+    }
+
+}
+
+extern "system" fn callaback(source: GLEnum, type_: GLEnum, id: GLUint, severity: GLEnum, _length: i32, message: *const c_char, _user_param: *mut c_void) {
+    unsafe {
+        let m = CStr::from_ptr(message);
+        println!("source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}", source, type_, id, severity, m);
+
+        if type_ == gl::DEBUG_TYPE_ERROR {panic!("GL ERROR");}
+    }
+}
 
 impl AbstractContext for GLContext {
     const VERTEX_SHADER: u32 = gl::VERTEX_SHADER;
