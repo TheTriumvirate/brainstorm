@@ -49,7 +49,7 @@ impl ParticleEngine {
             .expect("Failed to read vertex shader");
         let fragment_shader = str::from_utf8(shaders::PARTICLES_FRAGMENT_SHADER)
             .expect("Failed to read fragment shader");
-        let shader = shaders::OurShader::new(vertex_shader, fragment_shader, 3);
+        let shader = shaders::OurShader::new(vertex_shader, fragment_shader, 3, false);
 
         let mvp_uniform = shader.get_uniform_location();
 

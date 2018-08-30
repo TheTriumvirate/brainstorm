@@ -2,8 +2,9 @@
 
 precision mediump float;
 
-out vec4 o_color;
+in vec3 o_color;
+out vec4 color;
 
 void main() {
-    o_color = vec4(0.8,0.1, 0.2,0.4);
+    color = vec4(o_color, 1.0);
 }

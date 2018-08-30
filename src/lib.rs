@@ -49,6 +49,7 @@ pub struct State {
     mouse_x: f64,
     mouse_y: f64,
     is_running: bool,
+    ui_color: (f32, f32, f32)
 }
 
 impl State {
@@ -57,6 +58,7 @@ impl State {
             mouse_x: 0.0,
             mouse_y: 0.0,
             is_running: true,
+            ui_color: (0.47, 0.53, 0.6),
         }
     }
 }
@@ -93,7 +95,7 @@ impl App {
         // Draw everything
         let projection_matrix = self.camera.get_projection_matrix();
         self.particles.draw(&projection_matrix);
-        self.gui.draw();
+        self.gui.draw(&self.state);
 
         self.window.swap_buffers();
         self.time += 0.01;

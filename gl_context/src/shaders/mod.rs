@@ -33,6 +33,7 @@ pub struct OurShader {
     vs: Shader,
     fs: Shader,
     pos_attrib: GLUint,
+    color_attrib: Option<GLUint>,
     shader_dimensions: i32,
 }
 
@@ -41,8 +42,9 @@ impl OurShader {
     pub fn new(
         vertex_shader: &str,
         fragment_shader: &str,
-        shader_dimensions: i32) -> Self {
-        
+        shader_dimensions: i32,
+        has_color_attrib: bool) -> Self {
+
         let context = Context::get_context();
         // Compile vertex shader
         let vs = context
@@ -77,12 +79,20 @@ impl OurShader {
         // Enable the attribute arrays.
         context.use_program(&program);
         let pos_attrib = context.get_attrib_location(&program, "position");
-        
+
+        // And for colors
+        let color_attrib = if has_color_attrib {
+            Some(context.get_attrib_location(&program, "color"))
+        } else {
+            None
+        };
+
         OurShader {
             program,
             fs,
             vs,
             pos_attrib,
+            color_attrib,
             shader_dimensions,
         }
     }
@@ -90,8 +100,19 @@ impl OurShader {
     pub fn set_active(&self) {
         let context = Context::get_context();
         context.use_program(&self.program);
-        context.vertex_attrib_pointer(&self.pos_attrib, self.shader_dimensions, Context::FLOAT, false, self.shader_dimensions, 0);
+
+        let total_size = match self.color_attrib.is_some() {
+            true => self.shader_dimensions + 3,
+            false => self.shader_dimensions,
+        };
+
+        context.vertex_attrib_pointer(&self.pos_attrib, self.shader_dimensions, Context::FLOAT, false, total_size, 0);
         context.enable_vertex_attrib_array(&self.pos_attrib);
+        
+        if let Some(ref color_attrib) = self.color_attrib {
+            context.vertex_attrib_pointer(color_attrib, 3, Context::FLOAT, false, total_size, self.shader_dimensions);
+            context.enable_vertex_attrib_array(color_attrib);
+        }
     }
 
     pub fn get_uniform_location(&self) -> UniformLocation {

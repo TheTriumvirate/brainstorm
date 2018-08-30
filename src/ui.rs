@@ -1,4 +1,5 @@
 use std::str;
+use rand::{FromEntropy, Rng, rngs::SmallRng};
 
 use super::State;
 use window::*;
@@ -30,7 +31,7 @@ impl Gui {
             .expect("Failed to read vertex shader");
         let fragment_shader = str::from_utf8(TRIANGLES_FRAGMENT_SHADER)
             .expect("Failed to read fragment shader");
-        let shaders = OurShader::new(vertex_shader, fragment_shader, 2);
+        let shaders = OurShader::new(vertex_shader, fragment_shader, 2, true);
 
         let mut buttons = Vec::new();
         buttons.push(Button {
@@ -39,15 +40,20 @@ impl Gui {
             y1: -0.80,
             y2: -0.90,
             color: (1.0, 1.0, 1.0),
-            func: Box::new(|ref mut _context| {
-                //println!("Hello, SPACE!");
+            func: Box::new(|ref mut context| {
+                let mut rng = SmallRng::from_entropy();
+                context.ui_color = (
+                    rng.gen_range::<f32>(0.0, 1.0),
+                    rng.gen_range::<f32>(0.0, 1.0),
+                    rng.gen_range::<f32>(0.0, 1.0)
+                );
             }),
         });
 
         Gui { buttons, vb, vao, shaders }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, state: &State) {
         let context = Context::get_context();
 
         // Render particles
@@ -62,9 +68,12 @@ impl Gui {
                 (b.x2, b.y1),
             ];
 
-            for c in coords {
+            for c in coords.iter() {
+                triangles.push(c.0);
                 triangles.push(c.1);
-                triangles.push(c.2);
+                triangles.push(state.ui_color.0);
+                triangles.push(state.ui_color.1);
+                triangles.push(state.ui_color.2);
             }
         }
 
@@ -76,7 +85,7 @@ impl Gui {
         );
         context.bind_vertex_array(&self.vao);
         self.shaders.set_active();
-        context.draw_arrays(Context::TRIANGLES, 0, (triangles.len() / 2) as i32);
+        context.draw_arrays(Context::TRIANGLES, 0, (triangles.len() / 5) as i32);
     }
 
     pub fn handle_event(&mut self, event: &Event, state: &mut State, size: (u32, u32)) {
@@ -88,8 +97,8 @@ impl Gui {
             }
             | Event::Quit => state.is_running = false,
             Event::CursorMoved { x, y } => {
-                state.mouse_x = (x - (x/2.0)) / size.0 as f64;
-                state.mouse_y = (y - (x/2.0)) / size.1 as f64;
+                state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
+                state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;                
             }
             Event::CursorInput {
                 pressed: true,
@@ -118,7 +127,10 @@ pub struct Button {
 
 impl Button {
     pub fn was_clicked(&self, x: f64, y: f64) -> bool {
-        x > self.x1.into() && x < self.x2.into() && y > self.y1.into() && y < self.y2.into()
+        x > self.x1.into() &&
+            x < self.x2.into() &&
+            y < self.y1.into() &&
+            y > self.y2.into()
     }
 
     pub fn click(&mut self, state: &mut State) {
