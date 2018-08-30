@@ -16,7 +16,8 @@ pub struct ArcBallCamera {
     distance: f32,
     projection: Matrix4<f32>,
     last_cursor_pos: Vector2<f32>,
-    is_pressed: bool
+    is_pressed: bool,
+    idle: f32
 }
 
 impl ArcBallCamera {
@@ -28,7 +29,8 @@ impl ArcBallCamera {
             distance: 5.0,
             projection: Matrix4::identity(),
             last_cursor_pos: Vector2::new(0.0, 0.0),
-            is_pressed: false
+            is_pressed: false,
+            idle: 0.0
         };
         res.recalculate_matrices();
         res
@@ -48,7 +50,12 @@ impl ArcBallCamera {
 impl Camera for ArcBallCamera {
 
     fn update(&mut self) {
+        if self.idle > 60.0 {
+            self.yaw += 0.02;
+            self.recalculate_matrices();
+        }
 
+        self.idle += 1.0;
     }
 
     fn handle_events(&mut self, event: &Event) {
@@ -61,6 +68,7 @@ impl Camera for ArcBallCamera {
                     self.yaw = self.yaw + dt.x * 0.005;
                     self.pitch = self.pitch - dt.y * 0.005;
                     self.recalculate_matrices();
+                    self.idle = 0.0;
                 }
                 self.last_cursor_pos = mouse;
             },
