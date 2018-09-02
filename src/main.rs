@@ -1,3 +1,5 @@
+// #![windows_subsystem = "windows"]
+
 extern crate particles;
 use particles::window::AbstractWindow;
 use particles::*;
