@@ -94,9 +94,9 @@ impl AbstractWindow for GLWindow {
             // TODO: Proper wrapper
             // Temporary solution
             unsafe {
-                gl::PointSize(1.0);
                 gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
                 gl::Enable(gl::BLEND);
+                gl::Enable(gl::PROGRAM_POINT_SIZE);
             }
         }
     }

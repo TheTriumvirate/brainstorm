@@ -71,14 +71,14 @@ impl ParticleEngine {
                 self.particles[i * 3 + 1] = self.rng.gen_range::<f32>(-0.5, 0.5);
                 self.particles[i * 3 + 2] = self.rng.gen_range::<f32>(-0.5, 0.5);;
             }
-            let (dx, dy, dz) = self.field_provider.delta((
+            let data = self.field_provider.delta((
                 self.particles[i * 3] * 100.0 + 50.0,
                 self.particles[i * 3 + 1] * 100.0 + 50.0,
                 self.particles[i * 3 + 2] * 100.0 + 50.0,
             ));
-            self.particles[i * 3] += dx * 0.001;
-            self.particles[i * 3 + 1] += dy * 0.01;
-            self.particles[i * 3 + 2] += dz * 0.01;
+            self.particles[i * 3] += data.0 * 0.001;
+            self.particles[i * 3 + 1] += data.1 * 0.01;
+            self.particles[i * 3 + 2] += data.2 * 0.01;
         }
     }
 

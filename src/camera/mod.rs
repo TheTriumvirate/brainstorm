@@ -50,7 +50,7 @@ impl ArcBallCamera {
 impl Camera for ArcBallCamera {
     fn update(&mut self) {
         if self.idle > 60.0 {
-            self.yaw += 0.02;
+            self.yaw += 0.002;
             self.recalculate_matrices();
         }
 

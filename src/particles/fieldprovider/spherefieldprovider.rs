@@ -1,4 +1,4 @@
-use super::{Field, FieldProvider};
+use super::{FieldProvider};
 
 use std::f32;
 
@@ -14,7 +14,7 @@ fn lerp((ax, ay, az): Vector3, (bx, by, bz): Vector3, t: f32) -> Vector3 {
 
 fn lerp2d(lxly: Vector3, lxuy: Vector3, uxly: Vector3, uxuy: Vector3, t1: f32, t2: f32) -> Vector3 {
     let s = lerp(lxly, lxuy, t1);
-    let v = lerp(uxly, uxuy, t1);
+    let v = lerp(uxly, uxuy, t2);
     lerp(s, v, t2)
 }
 
@@ -37,36 +37,26 @@ fn lerp3d(
 }
 
 pub struct SphereFieldProvider {
-    data: Field,
+    data: Vec<(f32, f32, f32)>,
 }
 
 impl SphereFieldProvider {
-    fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> Option<(f32, f32, f32)> {
-        let data_x = self.data.get(fx);
-        if data_x == None {
-            return None;
-        }
-        let data_x = data_x.unwrap();
-        let data_y = data_x.get(fy);
-        if data_y == None {
-            return None;
-        }
-        let data_y = data_y.unwrap();
-        let vec = data_y.get(fz);
-        if vec == None {
-            return None;
-        }
-        Some(*vec.unwrap())
+    fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> &(f32, f32, f32) {
+        let fx = fx.min(99);
+        let fy = fy.min(99);
+        let fz = fz.min(99);
+        let index = fz + fy * 100 + fx * 100 * 100;
+        &self.data[index]
+        //(0.0, 0.0, 0.0)
     }
 }
 
 impl FieldProvider for SphereFieldProvider {
     fn new() -> Self {
-        let mut data: Field = Vec::new();
+        let mut data = Vec::new();
+        
         for i in 0..100 {
-            let mut y = Vec::new();
             for j in 0..100 {
-                let mut z = Vec::new();
                 for k in 0..100 {
                     let fx = i as f32 / 100.0 - 0.5;
                     let fy = j as f32 / 100.0 - 0.5;
@@ -75,9 +65,9 @@ impl FieldProvider for SphereFieldProvider {
                     let max = (fx * fx + fy * fy + fz * fz).sqrt();
 
                     if max < 0.4 {
-                        z.push((fx, fy, fz));
+                        data.push((fx, fy, fz));
                     } else {
-                        z.push((-fx, -fy, -fz));
+                        data.push((-fx, -fy, -fz));
                     }
                     /*
                     let vx = -(fx - 0.2).abs();
@@ -85,9 +75,7 @@ impl FieldProvider for SphereFieldProvider {
                     let vz = -(fz - 0.2).abs();
                     z.push((vx, vy, vz));*/
                 }
-                y.push(z);
             }
-            data.push(y);
         }
         SphereFieldProvider { data }
     }
@@ -99,19 +87,19 @@ impl FieldProvider for SphereFieldProvider {
         let ux = x.ceil() as usize;
         let uy = y.ceil() as usize;
         let uz = z.ceil() as usize;
-        let v1 = self.get_vec((lx, ly, lz)).unwrap_or((0.0, 0.0, 0.0));
-        let v2 = self.get_vec((lx, ly, uz)).unwrap_or((0.0, 0.0, 0.0));
-        let v3 = self.get_vec((lx, uy, lz)).unwrap_or((0.0, 0.0, 0.0));
-        let v4 = self.get_vec((lx, uy, uz)).unwrap_or((0.0, 0.0, 0.0));
-        let v5 = self.get_vec((ux, ly, lz)).unwrap_or((0.0, 0.0, 0.0));
-        let v6 = self.get_vec((ux, ly, uz)).unwrap_or((0.0, 0.0, 0.0));
-        let v7 = self.get_vec((ux, uy, lz)).unwrap_or((0.0, 0.0, 0.0));
-        let v8 = self.get_vec((ux, uy, uz)).unwrap_or((0.0, 0.0, 0.0));
+        let v1 = self.get_vec((lx, ly, lz));
+        let v2 = self.get_vec((lx, ly, uz));
+        let v3 = self.get_vec((lx, uy, lz));
+        let v4 = self.get_vec((lx, uy, uz));
+        let v5 = self.get_vec((ux, ly, lz));
+        let v6 = self.get_vec((ux, ly, uz));
+        let v7 = self.get_vec((ux, uy, lz));
+        let v8 = self.get_vec((ux, uy, uz));
 
         let t1 = x - x.floor();
         let t2 = y - y.floor();
         let t3 = z - z.floor();
-        let res = lerp3d(v1, v2, v3, v4, v5, v6, v7, v8, t1, t2, t3);
+        let res = lerp3d(*v1, *v2, *v3, *v4, *v5, *v6, *v7, *v8, t1, t2, t3);
 
         res
     }
