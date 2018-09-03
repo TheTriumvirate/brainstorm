@@ -13,8 +13,8 @@ fn lerp((ax, ay, az): Vector3, (bx, by, bz): Vector3, t: f32) -> Vector3 {
 }
 
 fn lerp2d(lxly: Vector3, lxuy: Vector3, uxly: Vector3, uxuy: Vector3, t1: f32, t2: f32) -> Vector3 {
-    let s = lerp(lxly, lxuy, t1);
-    let v = lerp(uxly, uxuy, t2);
+    let s = lerp(uxly, lxuy, t1);
+    let v = lerp(lxly, uxuy, t2);
     lerp(s, v, t2)
 }
 
@@ -41,12 +41,12 @@ pub struct SphereFieldProvider {
 }
 
 impl SphereFieldProvider {
-    fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> &(f32, f32, f32) {
+    fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> (f32, f32, f32) {
         let fx = fx.min(99);
         let fy = fy.min(99);
         let fz = fz.min(99);
         let index = fz + fy * 100 + fx * 100 * 100;
-        &self.data[index]
+        self.data[index]
         //(0.0, 0.0, 0.0)
     }
 }
@@ -58,9 +58,15 @@ impl FieldProvider for SphereFieldProvider {
         for i in 0..100 {
             for j in 0..100 {
                 for k in 0..100 {
-                    let fx = i as f32 / 100.0 - 0.5;
-                    let fy = j as f32 / 100.0 - 0.5;
-                    let fz = k as f32 / 100.0 - 0.5;
+                    let mut fx = i as f32 / 100.0 - 0.5;
+                    let mut fy = j as f32 / 100.0 - 0.5;
+                    let mut fz = k as f32 / 100.0 - 0.5;
+
+                    if fx == 0.0 && fy == 0.0 && fz == 0.0 {
+                        fx = 0.1;
+                        fy = 0.1;
+                        fz = 0.1;
+                    }
 
                     let max = (fx * fx + fy * fy + fz * fz).sqrt();
 
@@ -81,6 +87,9 @@ impl FieldProvider for SphereFieldProvider {
     }
 
     fn delta(&self, (x, y, z): (f32, f32, f32)) -> (f32, f32, f32) {
+        let x = x * 100.0 + 50.0;
+        let y = y * 100.0 + 50.0;
+        let z = z * 100.0 + 50.0;
         let lx = x.floor() as usize;
         let ly = y.floor() as usize;
         let lz = z.floor() as usize;
@@ -99,7 +108,7 @@ impl FieldProvider for SphereFieldProvider {
         let t1 = x - x.floor();
         let t2 = y - y.floor();
         let t3 = z - z.floor();
-        let res = lerp3d(*v1, *v2, *v3, *v4, *v5, *v6, *v7, *v8, t1, t2, t3);
+        let res = lerp3d(v1, v2, v3, v4, v5, v6, v7, v8, t1, t2, t3);
 
         res
     }
