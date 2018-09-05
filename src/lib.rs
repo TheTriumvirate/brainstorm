@@ -2,13 +2,13 @@
 extern crate noise;
 
 #[cfg(target_arch = "wasm32")]
-extern crate stdweb;
-#[cfg(target_arch = "wasm32")]
-extern crate stdweb_derive;
+extern crate serde;
 #[cfg(target_arch = "wasm32")]
 extern crate serde_derive;
 #[cfg(target_arch = "wasm32")]
-extern crate serde;
+extern crate stdweb;
+#[cfg(target_arch = "wasm32")]
+extern crate stdweb_derive;
 
 extern crate nalgebra as na;
 extern crate rand;

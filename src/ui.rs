@@ -2,7 +2,7 @@ use rand::{rngs::SmallRng, FromEntropy, Rng};
 use std::str;
 
 use super::State;
-use gl_context::{shaders::*, AbstractContext, Context, VertexArray, Buffer};
+use gl_context::{shaders::*, AbstractContext, Buffer, Context, VertexArray};
 use window::*;
 
 pub struct Gui {
@@ -12,11 +12,11 @@ pub struct Gui {
     shaders: OurShader,
 }
 
- impl Default for Gui {
-     fn default() -> Self {
-         Self::new()
-     }
- }
+impl Default for Gui {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl Gui {
     pub fn new() -> Self {
