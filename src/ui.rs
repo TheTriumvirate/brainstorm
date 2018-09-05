@@ -2,7 +2,7 @@ use rand::{rngs::SmallRng, FromEntropy, Rng};
 use std::str;
 
 use super::State;
-use gl_context::{shaders::*, AbstractContext, Context, VertexArray, Buffer};
+use gl_context::{shaders::*, AbstractContext, Buffer, Context, VertexArray};
 use window::*;
 
 pub struct Gui {
@@ -10,6 +10,12 @@ pub struct Gui {
     vb: Buffer,
     vao: VertexArray,
     shaders: OurShader,
+}
+
+impl Default for Gui {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Gui {
@@ -77,7 +83,7 @@ impl Gui {
                 (b.x2, b.y1),
             ];
 
-            for c in coords.iter() {
+            for c in &coords {
                 triangles.push(c.0);
                 triangles.push(c.1);
                 triangles.push(state.ui_color.0);
@@ -110,7 +116,7 @@ impl Gui {
                 button: MouseButton::Left,
                 ..
             } => {
-                for button in self.buttons.iter_mut() {
+                for button in &mut self.buttons {
                     if button.was_clicked(state.mouse_x, state.mouse_y) {
                         button.click(state);
                     }

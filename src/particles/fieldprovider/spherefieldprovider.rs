@@ -1,4 +1,4 @@
-use super::{FieldProvider};
+use super::FieldProvider;
 
 use std::f32;
 
@@ -18,6 +18,7 @@ fn lerp2d(lxly: Vector3, lxuy: Vector3, uxly: Vector3, uxuy: Vector3, t1: f32, t
     lerp(s, v, t2)
 }
 
+#[allow(unknown_lints, too_many_arguments)]
 fn lerp3d(
     v1: Vector3,
     v2: Vector3,
@@ -54,7 +55,7 @@ impl SphereFieldProvider {
 impl FieldProvider for SphereFieldProvider {
     fn new() -> Self {
         let mut data = Vec::new();
-        
+
         for i in 0..100 {
             for j in 0..100 {
                 for k in 0..100 {
@@ -108,8 +109,7 @@ impl FieldProvider for SphereFieldProvider {
         let t1 = x - x.floor();
         let t2 = y - y.floor();
         let t3 = z - z.floor();
-        let res = lerp3d(v1, v2, v3, v4, v5, v6, v7, v8, t1, t2, t3);
 
-        res
+        lerp3d(v1, v2, v3, v4, v5, v6, v7, v8, t1, t2, t3)
     }
 }

@@ -12,8 +12,8 @@ const PARTICLE_COUNT: usize = 100_000;
 #[derive(Clone, Debug)]
 struct ParticleData {
     position: (f32, f32, f32),
-    isAlive: bool,
-    lifetime: f32
+    is_alive: bool,
+    lifetime: f32,
 }
 
 pub struct ParticleEngine {
@@ -28,6 +28,12 @@ pub struct ParticleEngine {
     alive_count: usize,
 }
 
+impl Default for ParticleEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ParticleEngine {
     pub fn new() -> Self {
         let context = Context::get_context();
@@ -37,9 +43,17 @@ impl ParticleEngine {
         data.resize(PARTICLE_COUNT * 4, 0.0);
         let mut particles = Vec::with_capacity(PARTICLE_COUNT);
         for i in 0..PARTICLE_COUNT {
-            particles.push(ParticleData {position: (rng.gen_range::<f32>(-0.5, 0.5), rng.gen_range::<f32>(-0.5, 0.5),rng.gen_range::<f32>(-0.5, 0.5)), isAlive: true, lifetime: (i as f32 / PARTICLE_COUNT as f32) * 100.0});
+            particles.push(ParticleData {
+                position: (
+                    rng.gen_range::<f32>(-0.5, 0.5),
+                    rng.gen_range::<f32>(-0.5, 0.5),
+                    rng.gen_range::<f32>(-0.5, 0.5),
+                ),
+                is_alive: true,
+                lifetime: (i as f32 / PARTICLE_COUNT as f32) * 100.0,
+            });
         }
-        //particles.resize(PARTICLE_COUNT, ParticleData {position: (0.0, 0.0, 0.0), isAlive: true, lifetime: 0.0});
+        //particles.resize(PARTICLE_COUNT, ParticleData {position: (0.0, 0.0, 0.0), is_alive: true, lifetime: 0.0});
 
         // Bind the window buffer.
         let vb = context
@@ -76,12 +90,17 @@ impl ParticleEngine {
             rng,
             shader,
             mvp_uniform,
-            alive_count: 0
+            alive_count: 0,
         }
     }
 
     pub fn update(&mut self) {
-        let mut end = self.alive_count-1;
+        let mut end = if self.alive_count > 0 {
+            self.alive_count - 1
+        } else {
+            0
+        };
+
         self.alive_count = 0;
         for i in 0..PARTICLE_COUNT {
 
@@ -89,17 +108,19 @@ impl ParticleEngine {
                 {
                     let mut data = &mut self.particles[i];
                     data.lifetime = 0.0;
-                    data.position = (self.rng.gen_range::<f32>(-0.5, 0.5), self.rng.gen_range::<f32>(-0.5, 0.5),self.rng.gen_range::<f32>(-0.5, 0.5));
+                    data.position = (
+                        self.rng.gen_range::<f32>(-0.5, 0.5),
+                        self.rng.gen_range::<f32>(-0.5, 0.5),
+                        self.rng.gen_range::<f32>(-0.5, 0.5),
+                    );
                 }
               //  self.particles.swap(i, end);
                 end -= 1;
-
             }
 
             let mut data = &mut self.particles[i];
 
-            if data.isAlive {
-
+            if data.is_alive {
                 let delta = self.field_provider.delta(data.position);
                 data.position.0 += delta.0 * 0.01;
                 data.position.1 += delta.1 * 0.01;

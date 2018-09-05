@@ -64,8 +64,8 @@ impl Camera for ArcBallCamera {
                 let mouse = Vector2::new(*x as f32, *y as f32);
                 if self.is_pressed {
                     let dt = mouse - self.last_cursor_pos;
-                    self.yaw = self.yaw + dt.x * 0.005;
-                    self.pitch = self.pitch - dt.y * 0.005;
+                    self.yaw += dt.x * 0.005;
+                    self.pitch -= dt.y * 0.005;
                     self.recalculate_matrices();
                     self.idle = 0.0;
                 }
@@ -91,9 +91,15 @@ impl Camera for ArcBallCamera {
     }
 }
 
+impl Default for ArcBallCamera {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /*
 
-        
+
         let perspective = Perspective3::new(1.0, f32::consts::PI / 4.0, 0.1, 1024.0);
         let eye = Point3::new(self.time.sin() * 2.0, 0.75, self.time.cos() * 2.0);
         let at = Point3::new(0.0, 0.0, 0.0);
