@@ -201,6 +201,10 @@ impl AbstractContext for WebGLContext {
     fn enable_vertex_attrib_array(&self, pointer: &GLUint) {
         self.context.enable_vertex_attrib_array(*pointer)
     }
+    
+    fn bind_attrib_location(&self, program: &Program, index: GLUint, name: &str) {
+        self.context.bind_attrib_location(program, index, name)
+    }
 
     fn get_uniform_location(&self, program: &Program, name: &str) -> UniformLocation {
         self.context.get_uniform_location(program, name).expect("Uniform location could not be found or does not exist")
