@@ -1,21 +1,16 @@
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
+#[cfg(not(target_arch = "wasm32"))]
+extern crate gl;
+#[cfg(not(target_arch = "wasm32"))]
+extern crate glutin;
+extern crate lazy_static;
+extern crate nalgebra as na;
 extern crate noise;
-
-#[cfg(target_arch = "wasm32")]
-extern crate serde;
-#[cfg(target_arch = "wasm32")]
-extern crate serde_derive;
+extern crate rand;
 #[cfg(target_arch = "wasm32")]
 extern crate stdweb;
-#[cfg(target_arch = "wasm32")]
-extern crate stdweb_derive;
-
-extern crate nalgebra as na;
-extern crate rand;
 
 extern crate gl_context;
-
-extern crate lazy_static;
 
 pub mod camera;
 pub mod particles;

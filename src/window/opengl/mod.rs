@@ -1,23 +1,16 @@
 //! Very inspired from kiss3d's implementation of window and context
 //! link: https://github.com/sebcrozet/kiss3d
 
-extern crate gl;
-extern crate glutin;
+use window::{abstract_window::*, Event as EventWrapper, MouseButton as MouseButtonWrapper, *};
 
-use window::abstract_window::*;
-use window::Event as EventWrapper;
-use window::MouseButton as MouseButtonWrapper;
-use window::*;
-
-use self::glutin::dpi::*;
-use self::glutin::Api::OpenGl;
-use self::glutin::KeyboardInput as KeyboardData;
-use self::glutin::WindowEvent::{
-    CloseRequested, CursorMoved, KeyboardInput, MouseInput, MouseWheel,
-};
-use self::glutin::{
-    ElementState, GlContext, GlRequest, ModifiersState, MouseScrollDelta, VirtualKeyCode,
-    WindowEvent,
+use gl;
+use glutin::{
+    self,
+    dpi::*,
+    Api::OpenGl,
+    ElementState, GlContext, GlRequest, KeyboardInput as KeyboardData, ModifiersState,
+    MouseScrollDelta, VirtualKeyCode,
+    WindowEvent::{self, CloseRequested, CursorMoved, KeyboardInput, MouseInput, MouseWheel},
 };
 
 fn translate_event(event: &WindowEvent) -> Option<EventWrapper> {

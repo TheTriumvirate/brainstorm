@@ -11,9 +11,6 @@ nalgebra = "0.16"
 lazy_static = "1.1.0"
 gl_context = {version = "*", path = "./gl_context"}
 
-[build-dependencies]
-webgl_generator = "0.1"
-
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 gl = "0.10"
 glutin = "0.18"
@@ -21,9 +18,6 @@ rand = "0.5"
 
 [target.wasm32-unknown-unknown.dependencies]
 stdweb = "0.4"
-stdweb-derive = "0.5"
-serde = "1.0"
-serde_derive = "1.0"
 rand = {version = "0.5", features = ["stdweb"]}
 
 [profile.dev]
