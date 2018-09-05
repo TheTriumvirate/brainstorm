@@ -33,11 +33,11 @@ impl ParticleEngine {
         let context = Context::get_context();
         let mut rng = SmallRng::from_entropy();
         // Set up particles.
-        let mut data = Vec::with_capacity(PARTICLE_COUNT * 3);
-        data.resize(PARTICLE_COUNT * 3, 0.0);
+        let mut data = Vec::with_capacity(PARTICLE_COUNT * 4);
+        data.resize(PARTICLE_COUNT * 4, 0.0);
         let mut particles = Vec::with_capacity(PARTICLE_COUNT);
         for i in 0..PARTICLE_COUNT {
-            particles.push(ParticleData {position: (rng.gen_range::<f32>(-0.5, 0.5), rng.gen_range::<f32>(-0.5, 0.5),rng.gen_range::<f32>(-0.5, 0.5)), isAlive: true, lifetime: -(i as f32 / 100.0)});
+            particles.push(ParticleData {position: (rng.gen_range::<f32>(-0.5, 0.5), rng.gen_range::<f32>(-0.5, 0.5),rng.gen_range::<f32>(-0.5, 0.5)), isAlive: true, lifetime: (i as f32 / PARTICLE_COUNT as f32) * 100.0});
         }
         //particles.resize(PARTICLE_COUNT, ParticleData {position: (0.0, 0.0, 0.0), isAlive: true, lifetime: 0.0});
 
@@ -59,7 +59,11 @@ impl ParticleEngine {
             str::from_utf8(shaders::PARTICLES_VERTEX_SHADER).expect("Failed to read vertex shader");
         let fragment_shader = str::from_utf8(shaders::PARTICLES_FRAGMENT_SHADER)
             .expect("Failed to read fragment shader");
-        let shader = shaders::OurShader::new(vertex_shader, fragment_shader, 3, false);
+
+        let mut attributes = Vec::new();
+        attributes.push(shaders::ShaderAttribute {name: "position".to_string(), size: 4});
+
+        let shader = shaders::OurShader::new(vertex_shader, fragment_shader, attributes);
 
         let mvp_uniform = shader.get_uniform_location();
 
@@ -81,13 +85,13 @@ impl ParticleEngine {
         self.alive_count = 0;
         for i in 0..PARTICLE_COUNT {
 
-            while self.particles[i].lifetime > 100.0 && self.particles[i].isAlive && end > i {
+            if self.particles[i].lifetime > 100.0 /* && self.particles[i].isAlive && end > i*/ {
                 {
                     let mut data = &mut self.particles[i];
                     data.lifetime = 0.0;
                     data.position = (self.rng.gen_range::<f32>(-0.5, 0.5), self.rng.gen_range::<f32>(-0.5, 0.5),self.rng.gen_range::<f32>(-0.5, 0.5));
                 }
-                self.particles.swap(i, end);
+              //  self.particles.swap(i, end);
                 end -= 1;
 
             }
@@ -101,28 +105,16 @@ impl ParticleEngine {
                 data.position.1 += delta.1 * 0.01;
                 data.position.2 += delta.2 * 0.01;
 
-                self.particle_data[self.alive_count*3] = data.position.0;
-                self.particle_data[self.alive_count*3 + 1] = data.position.1;
-                self.particle_data[self.alive_count*3 + 2] = data.position.2;
+                self.particle_data[self.alive_count*4] = data.position.0;
+                self.particle_data[self.alive_count*4 + 1] = data.position.1;
+                self.particle_data[self.alive_count*4 + 2] = data.position.2;
+                self.particle_data[self.alive_count*4 + 3] = data.lifetime / 100.0;
 
                 data.lifetime += 1.0;
                 self.alive_count += 1;
             } else {
                 break;
             }
-            /*if self.rng.gen_bool(0.02) {
-                self.particles[i * 3] = self.rng.gen_range::<f32>(-0.5, 0.5);
-                self.particles[i * 3 + 1] = self.rng.gen_range::<f32>(-0.5, 0.5);
-                self.particles[i * 3 + 2] = self.rng.gen_range::<f32>(-0.5, 0.5);;
-            }
-            let data = self.field_provider.delta((
-                self.particles[i * 3] * 100.0 + 50.0,
-                self.particles[i * 3 + 1] * 100.0 + 50.0,
-                self.particles[i * 3 + 2] * 100.0 + 50.0,
-            ));
-            self.particles[i * 3] += data.0 * 0.001;
-            self.particles[i * 3 + 1] += data.1 * 0.01;
-            self.particles[i * 3 + 2] += data.2 * 0.01;*/
         }
     }
 
@@ -132,7 +124,7 @@ impl ParticleEngine {
             context.bind_buffer(Context::ARRAY_BUFFER, &self.vertex_buffer);
             context.buffer_data(
                 Context::ARRAY_BUFFER,
-                &self.particle_data[0..self.alive_count * 3],
+                &self.particle_data[0..self.alive_count * 4],
                 Context::DYNAMIC_DRAW,
             );
             context.bind_vertex_array(&self.vertex_array);

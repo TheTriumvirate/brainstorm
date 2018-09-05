@@ -50,9 +50,9 @@ impl GLContext {
 extern "system" fn callaback(source: GLEnum, type_: GLEnum, id: GLUint, severity: GLEnum, _length: i32, message: *const c_char, _user_param: *mut c_void) {
     unsafe {
         let m = CStr::from_ptr(message);
+            println!("source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}", source, type_, id, severity, m);
 
         if type_ == gl::DEBUG_TYPE_ERROR {
-            println!("source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}", source, type_, id, severity, m);
             panic!("GL ERROR");
         }
     }
@@ -262,6 +262,13 @@ impl AbstractContext for GLContext {
     fn enable_vertex_attrib_array(&self, pointer: &GLUint) {
         unsafe {
             gl::EnableVertexAttribArray(*pointer);
+        }
+    }
+    
+    fn bind_attrib_location(&self, program: &Program, index: GLUint, name: &str) {
+        unsafe {
+            let src = CString::new(name).unwrap();
+            gl::BindAttribLocation(*program, index, src.as_ptr());
         }
     }
 

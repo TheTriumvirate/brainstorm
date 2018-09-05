@@ -10,6 +10,7 @@ use Program;
 use AbstractContext;
 use Context;
 use context::{UniformLocation, GLUint};
+use std::mem;
 
 /// Vertex shader for particles
 pub const PARTICLES_VERTEX_SHADER: &[u8] = include_bytes!("particles_vertex.glslv");
@@ -28,22 +29,25 @@ pub enum ShaderType {
     Fragment,
 }
 
+pub struct ShaderAttribute {
+    pub name: String,
+    pub size: usize,
+}
+
 pub struct OurShader {
     pub program: Program,
     vs: Shader,
     fs: Shader,
-    pos_attrib: GLUint,
-    color_attrib: Option<GLUint>,
-    shader_dimensions: i32,
+    attributes: Vec<ShaderAttribute>,
+    attribute_locations: Vec<GLUint>,
+    attribute_size: usize,
 }
 
 impl OurShader {
-    /// PREREQ: shader dimension isn't wrong.
     pub fn new(
         vertex_shader: &str,
         fragment_shader: &str,
-        shader_dimensions: i32,
-        has_color_attrib: bool) -> Self {
+        attributes: Vec<ShaderAttribute>) -> Self {
 
         let context = Context::get_context();
         // Compile vertex shader
@@ -76,24 +80,27 @@ impl OurShader {
         context.attach_shader(&program, &fs);
         context.link_program(&program);
 
-        // Enable the attribute arrays.
+        let mut attribute_locations : Vec<GLUint> = Vec::new();
         context.use_program(&program);
-        let pos_attrib = context.get_attrib_location(&program, "position");
-
-        // And for colors
-        let color_attrib = if has_color_attrib {
-            Some(context.get_attrib_location(&program, "color"))
-        } else {
-            None
-        };
+        let mut attribute_size = 0;
+        let mut index = 0;
+        
+        for attrib in &attributes {
+            context.bind_attrib_location(&program, index, &attrib.name);
+            //let attrib_loc : i32 = context.get_attrib_location(&program, &attrib.name) as i32;
+            let attrib_loc : i32 = index as i32;
+            attribute_locations.push(attrib_loc as GLUint);
+            attribute_size += attrib.size;
+            index = index + 1;
+        }
 
         OurShader {
             program,
             fs,
             vs,
-            pos_attrib,
-            color_attrib,
-            shader_dimensions,
+            attributes,
+            attribute_locations,
+            attribute_size,
         }
     }
 
@@ -101,17 +108,15 @@ impl OurShader {
         let context = Context::get_context();
         context.use_program(&self.program);
 
-        let total_size = match self.color_attrib.is_some() {
-            true => self.shader_dimensions + 3,
-            false => self.shader_dimensions,
-        };
-
-        context.vertex_attrib_pointer(&self.pos_attrib, self.shader_dimensions, Context::FLOAT, false, total_size, 0);
-        context.enable_vertex_attrib_array(&self.pos_attrib);
-        
-        if let Some(ref color_attrib) = self.color_attrib {
-            context.vertex_attrib_pointer(color_attrib, 3, Context::FLOAT, false, total_size, self.shader_dimensions);
-            context.enable_vertex_attrib_array(color_attrib);
+        let mut offset : usize = 0;
+        for i in 0..self.attributes.len() {
+            let attrib = &self.attributes[i];
+            let attrib_pos = self.attribute_locations[i];
+            let float_size = mem::size_of::<i32>() as i32; 
+            let off = offset as i32;
+            context.vertex_attrib_pointer(&attrib_pos, attrib.size as i32, Context::FLOAT, false, self.attribute_size as i32, off);
+            context.enable_vertex_attrib_array(&attrib_pos);
+            offset += attrib.size;
         }
     }
 

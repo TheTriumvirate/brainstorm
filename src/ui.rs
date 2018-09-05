@@ -31,7 +31,11 @@ impl Gui {
             str::from_utf8(TRIANGLES_VERTEX_SHADER).expect("Failed to read vertex shader");
         let fragment_shader =
             str::from_utf8(TRIANGLES_FRAGMENT_SHADER).expect("Failed to read fragment shader");
-        let shaders = OurShader::new(vertex_shader, fragment_shader, 2, true);
+            
+        let mut attributes = Vec::new();
+        attributes.push(ShaderAttribute {name: "position".to_string(), size: 2});
+        attributes.push(ShaderAttribute {name: "color".to_string(), size: 3});
+        let shaders = OurShader::new(vertex_shader, fragment_shader, attributes);
 
         let mut buttons = Vec::new();
         buttons.push(Button {

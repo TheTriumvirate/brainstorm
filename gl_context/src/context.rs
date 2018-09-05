@@ -74,6 +74,7 @@ pub trait AbstractContext {
         offset: i32,
     );
     fn enable_vertex_attrib_array(&self, pointer: &GLUint);
+    fn bind_attrib_location(&self, program: &Program, index: GLUint, name: &str);
     
     fn get_uniform_location(&self, program: &Program, name: &str) -> UniformLocation;
     fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>);
