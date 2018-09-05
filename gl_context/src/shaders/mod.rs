@@ -101,9 +101,10 @@ impl OurShader {
         let context = Context::get_context();
         context.use_program(&self.program);
 
-        let total_size = match self.color_attrib.is_some() {
-            true => self.shader_dimensions + 3,
-            false => self.shader_dimensions,
+        let total_size = if self.color_attrib.is_some() {
+            self.shader_dimensions + 3
+        } else {
+            self.shader_dimensions
         };
 
         context.vertex_attrib_pointer(&self.pos_attrib, self.shader_dimensions, Context::FLOAT, false, total_size, 0);

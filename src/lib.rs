@@ -61,6 +61,12 @@ impl State {
     }
 }
 
+impl Default for State {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl App {
     pub fn new() -> App {
         App {
@@ -79,7 +85,7 @@ impl App {
 
     fn update(&mut self) -> bool {
         let context = Context::get_context();
-        for event in self.window.get_events().iter() {
+        for event in &self.window.get_events() {
             self.gui
                 .handle_event(&event, &mut self.state, self.window.get_size());
             self.camera.handle_events(&event);
@@ -100,5 +106,11 @@ impl App {
         self.time += 0.01;
 
         self.state.is_running
+    }
+}
+
+impl Default for App {
+    fn default() -> Self {
+        Self::new()
     }
 }

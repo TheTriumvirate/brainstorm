@@ -10,7 +10,7 @@ use std::ptr;
 
 use shaders::ShaderType;
 
-use na::{Matrix4};
+use na::{self, Matrix4};
 
 use Program;
 use Shader;
@@ -40,7 +40,7 @@ impl GLContext {
     fn new() -> Self {
         unsafe {
             gl::Enable(gl::DEBUG_OUTPUT);
-            gl::DebugMessageCallback(callaback, 0 as *const _);
+            gl::DebugMessageCallback(callaback, ptr::null());
         }
         GLContext {}
     }
@@ -274,7 +274,7 @@ impl AbstractContext for GLContext {
 
     fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>) {
         unsafe {
-            gl::UniformMatrix4fv(*location as i32, size, transpose as u8, mem::transmute(matrix));
+            gl::UniformMatrix4fv(*location as i32, size, transpose as u8, matrix as *const na::Matrix<f32, na::U4, na::U4, na::MatrixArray<f32, na::U4, na::U4>> as *const f32);
         }
     }
 

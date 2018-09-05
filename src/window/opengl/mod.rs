@@ -20,8 +20,8 @@ use self::glutin::{
     WindowEvent,
 };
 
-fn translate_event(event: WindowEvent) -> Option<EventWrapper> {
-    match event {
+fn translate_event(event: &WindowEvent) -> Option<EventWrapper> {
+    match *event {
         CloseRequested => Some(EventWrapper::Quit),
         CursorMoved {
             position: LogicalPosition { x, y },
@@ -104,13 +104,11 @@ impl AbstractWindow for GLWindow {
     fn get_events(&mut self) -> Vec<EventWrapper> {
         let mut events: Vec<EventWrapper> = Vec::new();
         self.events.poll_events(|event| {
-            match event {
-                glutin::Event::WindowEvent { event, .. } => match translate_event(event) {
-                    Some(x) => events.push(x),
-                    _ => (), // Unhandled or unknown event
-                },
-                _ => (),
-            }
+            if let glutin::Event::WindowEvent { event, .. } = event {
+                if let Some(x) = translate_event(&event) {
+                    events.push(x);
+                }
+            };
         });
         events
     }
