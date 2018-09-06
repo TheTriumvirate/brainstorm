@@ -37,6 +37,19 @@ impl ArcBallCamera {
     }
 
     fn recalculate_matrices(&mut self) {
+        if self.distance < 0.00001 {
+            self.distance = 0.00001;
+        }
+
+        if self.pitch < 0.01 {
+            self.pitch = 0.01;
+        }
+
+        let _pi: f32 = f32::consts::PI;
+        if self.pitch > _pi - 0.01 {
+            self.pitch = _pi - 0.01
+        }
+
         let ex = self.target.x + self.distance * self.yaw.cos() * self.pitch.sin();
         let ey = self.target.y + self.distance * self.pitch.cos();
         let ez = self.target.z + self.distance * self.yaw.sin() * self.pitch.sin();
