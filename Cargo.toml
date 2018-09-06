@@ -10,6 +10,10 @@ noise = "0.5"
 nalgebra = "0.16"
 lazy_static = "1.1.0"
 gl_context = {version = "*", path = "./gl_context"}
+serde = "1.0"
+serde_derive = "1.0"
+bincode = "1.0"
+
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 gl = "0.10"

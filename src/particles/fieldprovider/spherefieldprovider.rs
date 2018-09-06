@@ -1,8 +1,19 @@
 use super::FieldProvider;
 
 use std::f32;
+use bincode::deserialize;
+
+const TEST_DATA: &[u8] = include_bytes!("out2.bincode");  // include_bytes!("brain.bincode");
+const WIDTH:     usize = 38;  // 148;
+const HEIGHT:    usize = 39;  // 190;
+const DEPTH:     usize = 40;  // 160;
 
 type Vector3 = (f32, f32, f32);
+
+#[derive(Serialize, Deserialize)]
+struct VectorField {
+    vectors: Vec<Vec<Vec<Vector3>>>,
+}
 
 fn lerpf(a: f32, b: f32, t: f32) -> f32 {
     a * (1.0 - t) + b * t
@@ -43,10 +54,10 @@ pub struct SphereFieldProvider {
 
 impl SphereFieldProvider {
     fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> (f32, f32, f32) {
-        let fx = fx.min(99);
-        let fy = fy.min(99);
-        let fz = fz.min(99);
-        let index = fz + fy * 100 + fx * 100 * 100;
+        let fx = fx.min(WIDTH);
+        let fy = fy.min(HEIGHT);
+        let fz = fz.min(DEPTH);
+        let index = fz + fy * HEIGHT + fx * WIDTH * HEIGHT;
         self.data[index]
         //(0.0, 0.0, 0.0)
     }
@@ -55,32 +66,11 @@ impl SphereFieldProvider {
 impl FieldProvider for SphereFieldProvider {
     fn new() -> Self {
         let mut data = Vec::new();
-
-        for i in 0..100 {
-            for j in 0..100 {
-                for k in 0..100 {
-                    let mut fx = i as f32 / 100.0 - 0.5;
-                    let mut fy = j as f32 / 100.0 - 0.5;
-                    let mut fz = k as f32 / 100.0 - 0.5;
-
-                    if fx == 0.0 && fy == 0.0 && fz == 0.0 {
-                        fx = 0.1;
-                        fy = 0.1;
-                        fz = 0.1;
-                    }
-
-                    let max = (fx * fx + fy * fy + fz * fz).sqrt();
-
-                    if max < 0.4 {
-                        data.push((fx, fy, fz));
-                    } else {
-                        data.push((-fx, -fy, -fz));
-                    }
-                    /*
-                    let vx = -(fx - 0.2).abs();
-                    let vy = -(fy - 0.2).abs();
-                    let vz = -(fz - 0.2).abs();
-                    z.push((vx, vy, vz));*/
+        let x : VectorField = deserialize(TEST_DATA).unwrap();
+        for plane in x.vectors {
+            for row in plane {
+                for elem in row {
+                    data.push(elem);
                 }
             }
         }
@@ -88,9 +78,9 @@ impl FieldProvider for SphereFieldProvider {
     }
 
     fn delta(&self, (x, y, z): (f32, f32, f32)) -> (f32, f32, f32) {
-        let x = x * 100.0 + 50.0;
-        let y = y * 100.0 + 50.0;
-        let z = z * 100.0 + 50.0;
+        let x = x * (WIDTH as f32) + (WIDTH as f32)/2.0;
+        let y = y * (HEIGHT as f32) + (HEIGHT as f32)/2.0;
+        let z = z * (DEPTH as f32) + (DEPTH as f32)/2.0;
         let lx = x.floor() as usize;
         let ly = y.floor() as usize;
         let lz = z.floor() as usize;
@@ -105,6 +95,19 @@ impl FieldProvider for SphereFieldProvider {
         let v6 = self.get_vec((ux, ly, uz));
         let v7 = self.get_vec((ux, uy, lz));
         let v8 = self.get_vec((ux, uy, uz));
+
+        use std::f32;
+        // remove noise
+        if  v1 == (0.0,0.0,0.0) &&
+            v2 == (0.0,0.0,0.0) &&
+            v3 == (0.0,0.0,0.0) &&
+            v4 == (0.0,0.0,0.0) &&
+            v5 == (0.0,0.0,0.0) &&
+            v6 == (0.0,0.0,0.0) && 
+            v7 == (0.0,0.0,0.0) &&
+            v8 == (0.0,0.0,0.0) {
+            return (f32::NAN,f32::NAN,f32::NAN);
+        }
 
         let t1 = x - x.floor();
         let t2 = y - y.floor();
