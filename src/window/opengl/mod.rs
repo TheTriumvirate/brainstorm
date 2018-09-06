@@ -27,11 +27,11 @@ fn translate_event(event: &WindowEvent) -> Option<EventWrapper> {
         MouseWheel {
             delta: MouseScrollDelta::LineDelta(x, y),
             ..
-        } => Some(EventWrapper::CursorScroll(x as f32, y as f32)),
+        } => Some(EventWrapper::CursorScroll(x.signum() as f32, y.signum() as f32)),
         MouseWheel {
             delta: MouseScrollDelta::PixelDelta(LogicalPosition { x, y }),
             ..
-        } => Some(EventWrapper::CursorScroll(x as f32, y as f32)),
+        } => Some(EventWrapper::CursorScroll(x.signum() as f32, y.signum() as f32)),
         KeyboardInput {
             input:
                 KeyboardData {
