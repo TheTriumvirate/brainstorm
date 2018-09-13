@@ -1,5 +1,5 @@
+#![cfg_attr(target_arch = "wasm32", feature(extern_prelude))]
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
-#![feature(extern_prelude)]
 
 #[macro_use]
 #[cfg(target_arch = "wasm32")]
