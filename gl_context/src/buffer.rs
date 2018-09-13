@@ -43,15 +43,20 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
     pub fn len(&self) -> usize {
         self.data.len()
     }
+    
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
 
     pub fn set_data(&mut self, data: &[T]) {
         self.data = data.to_vec()
     }
 
     pub fn upload_data(&mut self, offset: usize, length: usize, is_static: bool) {
-        let alloc_type = match is_static {
-            true => Context::STATIC_DRAW,
-            false => Context::DYNAMIC_DRAW,
+        let alloc_type = if is_static {
+            Context::STATIC_DRAW
+        } else {
+            Context::DYNAMIC_DRAW
         };
 
         let context = Context::get_context();
@@ -67,13 +72,13 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
 impl<T: Clone+GlPrimitive> Index<usize> for Buffer<T> {
     type Output = T;
 
-    fn index<'a>(&'a self, index: usize) -> &'a T {
+    fn index(&self, index: usize) -> &T {
         &self.data[index]
     }
 }
 
 impl<T: Clone+GlPrimitive> IndexMut<usize> for Buffer<T> {
-    fn index_mut<'a>(&'a mut self, index: usize) -> &'a mut T {
+    fn index_mut(&mut self, index: usize) -> &mut T {
         &mut self.data[index]
     }
 }

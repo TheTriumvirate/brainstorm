@@ -108,15 +108,12 @@ impl OurShader {
         let mut attribute_locations : Vec<GLUint> = Vec::new();
         context.use_program(&program);
         let mut attribute_size = 0;
-        let mut index = 0;
-        
-        for attrib in attributes {
-            context.bind_attrib_location(&program, index, &attrib.name);
+        for (index, attrib) in attributes.iter().enumerate() {
+            context.bind_attrib_location(&program, index as u32, &attrib.name);
             //let attrib_loc : i32 = context.get_attrib_location(&program, &attrib.name) as i32;
-            let attrib_loc : i32 = index as i32;
+            let attrib_loc: i32 = index as i32;
             attribute_locations.push(attrib_loc as GLUint);
             attribute_size += attrib.size;
-            index = index + 1;
         }
 
         OurShader {
