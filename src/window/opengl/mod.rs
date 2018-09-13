@@ -2,12 +2,12 @@
 //! link: https://github.com/sebcrozet/kiss3d
 
 use window::{abstract_window::*, Event as EventWrapper, MouseButton as MouseButtonWrapper, *};
+use graphics::RenderTarget;
 
 use gl;
 use glutin::{
     self,
     dpi::*,
-    Api::OpenGl,
     ElementState, GlContext, GlRequest, KeyboardInput as KeyboardData, ModifiersState,
     MouseScrollDelta, VirtualKeyCode,
     WindowEvent::{self, CloseRequested, CursorMoved, KeyboardInput, MouseInput, MouseWheel},
@@ -57,6 +57,8 @@ pub struct GLWindow {
     events: glutin::EventsLoop,
 }
 
+impl RenderTarget for GLWindow {}
+
 impl AbstractWindow for GLWindow {
     fn new(title: &str, width: u32, height: u32) -> Self {
         let events_loop = glutin::EventsLoop::new();
@@ -64,15 +66,25 @@ impl AbstractWindow for GLWindow {
             .with_title(title)
             .with_dimensions(LogicalSize::new(width as f64, height as f64));
         let context = glutin::ContextBuilder::new()
-            .with_gl(GlRequest::Specific(OpenGl, (3, 2)))
+            .with_gl(GlRequest::GlThenGles {
+                opengl_version: (3, 2),
+                opengles_version: (2, 0),
+            })
             .with_vsync(true);
         let gl_window = glutin::GlWindow::new(window, context, &events_loop).unwrap();
-
+        
         unsafe {
             gl_window.make_current().unwrap();
         }
 
         gl::load_with(|symbol| gl_window.get_proc_address(symbol) as *const _);
+
+        unsafe {
+            // Global vertex array buffer to keep state... Don't ask...
+            let mut vao = 0;
+            gl::GenVertexArrays(1, &mut vao);
+            gl::BindVertexArray(vao);
+        }
 
         GLWindow {
             window: gl_window,

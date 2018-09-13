@@ -10,7 +10,6 @@ use Program;
 use AbstractContext;
 use Context;
 use context::{UniformLocation, GLUint};
-use std::mem;
 
 /// Vertex shader for particles
 pub const PARTICLES_VERTEX_SHADER: &[u8] = include_bytes!("particles_vertex.glslv");
@@ -24,11 +23,27 @@ pub const TRIANGLES_VERTEX_SHADER: &[u8] = include_bytes!("triangles_vertex.glsl
 /// Fragment shader for triangles
 pub const TRIANGLES_FRAGMENT_SHADER: &[u8] = include_bytes!("triangles_fragment.glslf");
 
+const DEFAULT_VERTEX_SHADER: &[u8] = include_bytes!("default.vert");
+const DEFAULT_FRAGMENT_SHADER: &[u8] = include_bytes!("default.frag");
+
+lazy_static! {
+    static ref DEFAULT: OurShader = OurShader::new(
+        str::from_utf8(DEFAULT_VERTEX_SHADER).expect("Failed to read vertex shader"), 
+        str::from_utf8(DEFAULT_FRAGMENT_SHADER).expect("Failed to read fragment shader"), 
+        &[
+            ShaderAttribute{name: "a_position".to_string(), size: 2},
+            ShaderAttribute{name: "a_color".to_string(), size: 3},
+            ShaderAttribute{name: "a_texture".to_string(), size: 2},
+        ]
+    );
+}
+
 pub enum ShaderType {
     Vertex,
     Fragment,
 }
 
+#[derive(Clone)]
 pub struct ShaderAttribute {
     pub name: String,
     pub size: usize,
@@ -47,9 +62,10 @@ impl OurShader {
     pub fn new(
         vertex_shader: &str,
         fragment_shader: &str,
-        attributes: Vec<ShaderAttribute>) -> Self {
+        attributes: &[ShaderAttribute]) -> Self {
 
         let context = Context::get_context();
+
         // Compile vertex shader
         let vs = context
             .create_shader(ShaderType::Vertex)
@@ -57,10 +73,14 @@ impl OurShader {
         context.shader_source(&vs, vertex_shader);
         context.compile_shader(&vs);
 
-        if let Some(log) = context.get_shader_info_log(&vs) {
-            println!("vertex shader log: {}", log);
+        let compiles = context.get_shader_parameter(&vs, Context::COMPILE_STATUS);
+        if compiles == Some(0) {
+            if let Some(log) = context.get_shader_info_log(&vs) {
+                println!("vertex shader log: {}", log);
+            } else {
+                println!("Some error occured while compiling vertex shader");
+            }
         }
-
         // Compile fragment shader
         let fs = context
             .create_shader(ShaderType::Fragment)
@@ -68,8 +88,13 @@ impl OurShader {
         context.shader_source(&fs, fragment_shader);
         context.compile_shader(&fs);
 
-        if let Some(log) = context.get_shader_info_log(&fs) {
-            println!("fragment shader log: {}", log);
+        let compiles = context.get_shader_parameter(&fs, Context::COMPILE_STATUS);
+        if compiles == Some(0) {
+            if let Some(log) = context.get_shader_info_log(&fs) {
+                println!("fragment shader log: {}", log);
+            } else {
+                println!("Some error occured while compiling fragment shader");
+            }
         }
 
         // Link program
@@ -85,7 +110,7 @@ impl OurShader {
         let mut attribute_size = 0;
         let mut index = 0;
         
-        for attrib in &attributes {
+        for attrib in attributes {
             context.bind_attrib_location(&program, index, &attrib.name);
             //let attrib_loc : i32 = context.get_attrib_location(&program, &attrib.name) as i32;
             let attrib_loc : i32 = index as i32;
@@ -98,21 +123,29 @@ impl OurShader {
             program,
             fs,
             vs,
-            attributes,
+            attributes: attributes.to_vec(),
             attribute_locations,
             attribute_size,
         }
     }
 
-    pub fn set_active(&self) {
+    pub fn default() -> &'static Self {
+        &DEFAULT
+    }
+
+    pub fn use_program(&self) {
         let context = Context::get_context();
         context.use_program(&self.program);
+
+    }
+
+    pub fn bind_attribs(&self) {
+        let context = Context::get_context();
 
         let mut offset : usize = 0;
         for i in 0..self.attributes.len() {
             let attrib = &self.attributes[i];
             let attrib_pos = self.attribute_locations[i];
-            let float_size = mem::size_of::<i32>() as i32; 
             let off = offset as i32;
             context.vertex_attrib_pointer(&attrib_pos, attrib.size as i32, Context::FLOAT, false, self.attribute_size as i32, off);
             context.enable_vertex_attrib_array(&attrib_pos);

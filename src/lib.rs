@@ -16,9 +16,12 @@ pub mod camera;
 pub mod particles;
 pub mod ui;
 pub mod window;
+pub mod graphics;
 
 use gl_context::AbstractContext;
 use gl_context::Context;
+
+use graphics::{RenderTarget, Rectangle};
 
 use particles::ParticleEngine;
 
@@ -36,6 +39,7 @@ pub struct App {
     gui: Gui,
     state: State,
     particles: ParticleEngine,
+    rectangle: Rectangle,
 }
 
 pub struct State {
@@ -71,6 +75,7 @@ impl App {
             gui: Gui::new(),
             state: State::new(),
             particles: ParticleEngine::new(),
+            rectangle: Rectangle::new(0.0, 0.0, 0.5, 0.5),
         }
     }
 
@@ -96,6 +101,8 @@ impl App {
         let projection_matrix = self.camera.get_projection_matrix();
         self.particles.draw(&projection_matrix);
         self.gui.draw(&self.state);
+
+        self.window.draw(&self.rectangle);
 
         self.window.swap_buffers();
         self.time += 0.01;

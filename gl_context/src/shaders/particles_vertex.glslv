@@ -1,8 +1,8 @@
-#version 300 es
+#version 100
 
 precision mediump float;
-in vec4 position;
-out float lifetime;
+attribute vec4 position;
+varying float lifetime;
 uniform mat4 MVP;
 
 void main() {

@@ -17,20 +17,21 @@ use stdweb::web::html_element::CanvasElement;
 use stdweb::web::{document, IParentNode, TypedArray};
 use stdweb::Value;
 
-use std::mem;
+use std::{mem};
 
 use na::{Matrix4};
+
+use context::{GlPrimitive, GlPrimitiveArray};
 
 use Program;
 use Shader;
 use AbstractContext;
-use VertexArray;
-use Buffer;
+use NativeBuffer;
 use Context;
 
 use self::webgl_bindings::{
-    WebGL2RenderingContext, WebGLBuffer, WebGLProgram,
-    WebGLRenderingContext, WebGLShader, WebGLVertexArrayObject, WebGLUniformLocation
+    WebGLRenderingContext, WebGLBuffer, WebGLProgram,
+    WebGLShader, WebGLUniformLocation
 };
 
 pub use self::webgl_bindings::{
@@ -42,7 +43,6 @@ pub type GLProgram = WebGLProgram;
 pub type UniformLocation = WebGLUniformLocation;
 pub type GLEnum = GLenum;
 pub type GLBuffer = WebGLBuffer;
-pub type GLVertexArray = WebGLVertexArrayObject;
 pub type GLUint = u32;
 
 lazy_static! {
@@ -50,11 +50,12 @@ lazy_static! {
 }
 
 pub struct WebGLContext {
-    context: WebGL2RenderingContext
+    context: WebGLRenderingContext
 }
 
 impl WebGLContext {
     fn new() -> Self {
+        stdweb::initialize();
         let canvas: CanvasElement = document()
             .query_selector("#canvas")
             .expect("No canvas found")
@@ -62,27 +63,29 @@ impl WebGLContext {
             .try_into()
             .unwrap();
 
-        let context = js!(return @{canvas}.getContext("webgl2", {alpha: false});).try_into().unwrap();
+        let context = js!(return @{canvas}.getContext("webgl", {alpha: false});).try_into().unwrap();
         WebGLContext { context }
     }
 }
 
 impl AbstractContext for WebGLContext {
     const FLOAT: u32 = WebGLRenderingContext::FLOAT;
-    const COLOR_BUFFER_BIT: u32 = WebGL2RenderingContext::COLOR_BUFFER_BIT;
-    const VERTEX_SHADER: u32 = WebGL2RenderingContext::VERTEX_SHADER;
-    const FRAGMENT_SHADER: u32 = WebGL2RenderingContext::FRAGMENT_SHADER;
-    const ARRAY_BUFFER: u32 = WebGL2RenderingContext::ARRAY_BUFFER;
-    const STATIC_DRAW: u32 = WebGL2RenderingContext::STATIC_DRAW;
-    const DYNAMIC_DRAW: u32 = WebGL2RenderingContext::STATIC_DRAW;
-    const COMPILE_STATUS: u32 = WebGL2RenderingContext::COMPILE_STATUS;
-    const POINTS: u32 = WebGL2RenderingContext::POINTS;
-    const LINE_STRIP: u32 = WebGL2RenderingContext::LINE_STRIP;
-    const LINE_LOOP: u32 = WebGL2RenderingContext::LINE_LOOP;
-    const LINES: u32 = WebGL2RenderingContext::LINES;
-    const TRIANGLE_STRIP: u32 = WebGL2RenderingContext::TRIANGLE_STRIP;
-    const TRIANGLE_FAN: u32 = WebGL2RenderingContext::TRIANGLE_FAN;
-    const TRIANGLES: u32 = WebGL2RenderingContext::TRIANGLES;
+    const COLOR_BUFFER_BIT: u32 = WebGLRenderingContext::COLOR_BUFFER_BIT;
+    const VERTEX_SHADER: u32 = WebGLRenderingContext::VERTEX_SHADER;
+    const FRAGMENT_SHADER: u32 = WebGLRenderingContext::FRAGMENT_SHADER;
+    const ARRAY_BUFFER: u32 = WebGLRenderingContext::ARRAY_BUFFER;
+    const ELEMENT_ARRAY_BUFFER: u32 = WebGLRenderingContext::ELEMENT_ARRAY_BUFFER;
+    const STATIC_DRAW: u32 = WebGLRenderingContext::STATIC_DRAW;
+    const DYNAMIC_DRAW: u32 = WebGLRenderingContext::STATIC_DRAW;
+    const COMPILE_STATUS: u32 = WebGLRenderingContext::COMPILE_STATUS;
+    const POINTS: u32 = WebGLRenderingContext::POINTS;
+    const LINE_STRIP: u32 = WebGLRenderingContext::LINE_STRIP;
+    const LINE_LOOP: u32 = WebGLRenderingContext::LINE_LOOP;
+    const LINES: u32 = WebGLRenderingContext::LINES;
+    const TRIANGLE_STRIP: u32 = WebGLRenderingContext::TRIANGLE_STRIP;
+    const TRIANGLE_FAN: u32 = WebGLRenderingContext::TRIANGLE_FAN;
+    const TRIANGLES: u32 = WebGLRenderingContext::TRIANGLES;
+    const UNSIGNED_SHORT: u32 = WebGLRenderingContext::UNSIGNED_SHORT;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -145,34 +148,31 @@ impl AbstractContext for WebGLContext {
         self.context.delete_program(Some(program));
     }
 
-    fn create_buffer(&self) -> Option<Buffer> {
+    fn create_buffer(&self) -> Option<NativeBuffer> {
         self.context.create_buffer()
     }
 
-    fn bind_buffer(&self, target: GLEnum, buffer: &Buffer) {
+    fn bind_buffer(&self, target: GLEnum, buffer: &NativeBuffer) {
         self.context.bind_buffer(target, Some(buffer));
     }
 
-    fn buffer_data(&self, target: GLEnum, data: &[f32], usage: GLEnum) {
-        let abuf = TypedArray::<f32>::from(data);
-        self.context
-            .buffer_data_1(target, Some(&abuf.buffer()), usage);
+    fn buffer_data<T: GlPrimitive>(&self, target: GLEnum, data: &[T], usage: GLEnum) {
+        match T::into(data) {
+            GlPrimitiveArray::F32(data) => {
+                let abuf = TypedArray::<f32>::from(data);
+                self.context
+                    .buffer_data_1(target, Some(&abuf.buffer()), usage);
+            },
+            GlPrimitiveArray::U16(data) => {
+                let abuf = TypedArray::<u16>::from(data);
+                self.context
+                    .buffer_data_1(target, Some(&abuf.buffer()), usage);
+            }
+        }
     }
 
-    fn delete_buffer(&self, buffer: &Buffer) {
+    fn delete_buffer(&self, buffer: &NativeBuffer) {
         self.context.delete_buffer(Some(buffer));
-    }
-
-    fn create_vertex_array(&self) -> Option<VertexArray> {
-        self.context.create_vertex_array()
-    }
-
-    fn bind_vertex_array(&self, vbo: &VertexArray) {
-        self.context.bind_vertex_array(Some(vbo));
-    }
-
-    fn delete_vertex_array(&self, vbo: &VertexArray) {
-        self.context.delete_vertex_array(Some(vbo));
     }
 
     fn get_attrib_location(&self, program: &Program, name: &str) -> GLUint {
@@ -201,6 +201,10 @@ impl AbstractContext for WebGLContext {
     fn enable_vertex_attrib_array(&self, pointer: &GLUint) {
         self.context.enable_vertex_attrib_array(*pointer)
     }
+
+    fn disable_vertex_attrib_array(&self, pointer: &GLUint) {
+        self.context.disable_vertex_attrib_array(*pointer)
+    }
     
     fn bind_attrib_location(&self, program: &Program, index: GLUint, name: &str) {
         self.context.bind_attrib_location(program, index, name)
@@ -211,15 +215,19 @@ impl AbstractContext for WebGLContext {
     }
 
     fn uniform_matrix_4fv(&self, location: &UniformLocation, _size: i32, transpose: bool, matrix: &Matrix4<f32>) {
-        self.context.uniform_matrix4fv_1(Some(location), transpose, matrix.as_slice())
+        self.context.uniform_matrix4fv(Some(location), transpose, matrix.as_slice())
     }
 
     fn draw_arrays(&self, type_: GLEnum, first: i32, count: i32) {
-        self.context.enable(WebGL2RenderingContext::BLEND);
+        self.context.enable(WebGLRenderingContext::BLEND);
         self.context.blend_func(
-            WebGL2RenderingContext::SRC_ALPHA,
-            WebGL2RenderingContext::ONE_MINUS_SRC_ALPHA,
+            WebGLRenderingContext::SRC_ALPHA,
+            WebGLRenderingContext::ONE_MINUS_SRC_ALPHA,
         );
         self.context.draw_arrays(type_, first, count)
+    }
+
+    fn draw_elements(&self, mode: GLEnum, count: i32, type_: GLEnum, offset: GLintptr) {
+        self.context.draw_elements(mode, count, type_, offset);
     }
 }

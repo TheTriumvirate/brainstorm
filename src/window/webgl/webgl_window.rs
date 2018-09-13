@@ -4,6 +4,8 @@
  */
 #![allow(unused_results)]
 
+use graphics::RenderTarget;
+
 use window::abstract_window::*;
 use window::Event as EventWrapper;
 use window::MouseButton as MouseButtonWrapper;
@@ -34,6 +36,8 @@ pub struct WebGLWindow {
     width: u32,
     height: u32,
 }
+
+impl RenderTarget for WebGLWindow {}
 
 impl AbstractWindow for WebGLWindow {
     fn new(_: &str, width: u32, height: u32) -> Self {

@@ -6,7 +6,7 @@ use webgl_generator::*;
 fn main() {
     let mut file = File::create("../target/webgl_rendering_context.rs").unwrap();
 
-    Registry::new(Api::WebGl2, Exts::NONE)
+    Registry::new(Api::WebGl, Exts::NONE)
         .write_bindings(StdwebGenerator, &mut file)
         .unwrap();
 }

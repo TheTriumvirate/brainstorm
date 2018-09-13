@@ -2,13 +2,12 @@ use rand::{rngs::SmallRng, FromEntropy, Rng};
 use std::str;
 
 use super::State;
-use gl_context::{shaders::*, AbstractContext, Buffer, Context, VertexArray};
+use gl_context::{shaders::*, Buffer, BufferType, Context, AbstractContext};
 use window::*;
 
 pub struct Gui {
     pub buttons: Vec<Button>,
-    vb: Buffer,
-    vao: VertexArray,
+    vb: Buffer<f32>,
     shaders: OurShader,
 }
 
@@ -20,17 +19,8 @@ impl Default for Gui {
 
 impl Gui {
     pub fn new() -> Self {
-        let context = Context::get_context();
-
         // Bind the data buffer.
-        let vb = context
-            .create_buffer()
-            .expect("Failed to create data buffer.");
-
-        // Bind the vertex array.
-        let vao = context
-            .create_vertex_array()
-            .expect("Failed to create vertex array.");
+        let vb = Buffer::new(BufferType::Array);
 
         // Set up shaders
         let vertex_shader =
@@ -41,7 +31,7 @@ impl Gui {
         let mut attributes = Vec::new();
         attributes.push(ShaderAttribute {name: "position".to_string(), size: 2});
         attributes.push(ShaderAttribute {name: "color".to_string(), size: 3});
-        let shaders = OurShader::new(vertex_shader, fragment_shader, attributes);
+        let shaders = OurShader::new(vertex_shader, fragment_shader, &attributes);
 
         let mut buttons = Vec::new();
         buttons.push(Button {
@@ -63,14 +53,11 @@ impl Gui {
         Gui {
             buttons,
             vb,
-            vao,
             shaders,
         }
     }
 
-    pub fn draw(&self, state: &State) {
-        let context = Context::get_context();
-
+    pub fn draw(&mut self, state: &State) {
         // Render particles
         let mut triangles = Vec::new();
         for b in &self.buttons {
@@ -91,11 +78,14 @@ impl Gui {
                 triangles.push(state.ui_color.2);
             }
         }
+        let context = Context::get_context();
 
-        context.bind_buffer(Context::ARRAY_BUFFER, &self.vb);
-        context.buffer_data(Context::ARRAY_BUFFER, &triangles, Context::STATIC_DRAW);
-        context.bind_vertex_array(&self.vao);
-        self.shaders.set_active();
+        let len = triangles.len();
+        self.vb.set_data(&triangles);
+        self.vb.bind();
+        self.vb.upload_data(0, len, false);
+        self.shaders.use_program();
+        self.shaders.bind_attribs();
         context.draw_arrays(Context::TRIANGLES, 0, (triangles.len() / 5) as i32);
     }
 

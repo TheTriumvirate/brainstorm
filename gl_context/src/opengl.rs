@@ -15,10 +15,8 @@ use na::{self, Matrix4};
 use Program;
 use Shader;
 use AbstractContext;
-use VertexArray;
-use Buffer;
+use NativeBuffer;
 use Context;
-
 
 pub type GLShader = u32;
 pub type GLProgram = u32;
@@ -50,7 +48,7 @@ impl GLContext {
 extern "system" fn callaback(source: GLEnum, type_: GLEnum, id: GLUint, severity: GLEnum, _length: i32, message: *const c_char, _user_param: *mut c_void) {
     unsafe {
         let m = CStr::from_ptr(message);
-            println!("source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}", source, type_, id, severity, m);
+        println!("source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}", source, type_, id, severity, m);
 
         if type_ == gl::DEBUG_TYPE_ERROR {
             panic!("GL ERROR");
@@ -64,6 +62,7 @@ impl AbstractContext for GLContext {
     const FLOAT: u32 = gl::FLOAT;
     const COLOR_BUFFER_BIT: u32 = gl::COLOR_BUFFER_BIT;
     const ARRAY_BUFFER: u32 = gl::ARRAY_BUFFER;
+    const ELEMENT_ARRAY_BUFFER: u32 = gl::ELEMENT_ARRAY_BUFFER;
     const STATIC_DRAW: u32 = gl::STATIC_DRAW;
     const DYNAMIC_DRAW: u32 = gl::DYNAMIC_DRAW;
     const COMPILE_STATUS: u32 = gl::COMPILE_STATUS;
@@ -74,6 +73,7 @@ impl AbstractContext for GLContext {
     const TRIANGLE_STRIP: u32 = gl::TRIANGLE_STRIP;
     const TRIANGLE_FAN: u32 = gl::TRIANGLE_FAN;
     const TRIANGLES: u32 = gl::TRIANGLES;
+    const UNSIGNED_SHORT: u32 = gl::UNSIGNED_SHORT;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -180,7 +180,7 @@ impl AbstractContext for GLContext {
         }
     }
 
-    fn create_buffer(&self) -> Option<Buffer> {
+    fn create_buffer(&self) -> Option<NativeBuffer> {
         let mut buffer = 0;
         unsafe {
             gl::GenBuffers(1, &mut buffer);
@@ -188,46 +188,26 @@ impl AbstractContext for GLContext {
         Some(buffer)
     }
 
-    fn bind_buffer(&self, target: GLEnum, buffer: &Buffer) {
+    fn bind_buffer(&self, target: GLEnum, buffer: &NativeBuffer) {
         unsafe {
             gl::BindBuffer(target, *buffer);
         }
     }
 
-    fn buffer_data(&self, target: GLEnum, data: &[f32], usage: GLEnum) {
+    fn buffer_data<T>(&self, target: GLEnum, data: &[T], usage: GLEnum) {
         unsafe {
             gl::BufferData(
                 target,
-                (data.len() * mem::size_of::<f32>()) as GLsizeiptr,
-                &data[0] as *const f32 as *const c_void,
+                (data.len() * mem::size_of::<T>()) as GLsizeiptr,
+                mem::transmute(&data[0]),
                 usage,
-            )
+            );  
         }
     }
 
-    fn delete_buffer(&self, buffer: &Buffer) {
+    fn delete_buffer(&self, buffer: &NativeBuffer) {
         unsafe {
             gl::DeleteBuffers(1, buffer);
-        }
-    }
-
-    fn create_vertex_array(&self) -> Option<VertexArray> {
-        let mut vertex_array = 0;
-        unsafe {
-            gl::GenVertexArrays(1, &mut vertex_array);
-        }
-        Some(vertex_array)
-    }
-
-    fn bind_vertex_array(&self, vbo: &VertexArray) {
-        unsafe {
-            gl::BindVertexArray(*vbo);
-        }
-    }
-
-    fn delete_vertex_array(&self, vbo: &VertexArray) {
-        unsafe {
-            gl::DeleteVertexArrays(1, vbo);
         }
     }
 
@@ -265,6 +245,12 @@ impl AbstractContext for GLContext {
         }
     }
     
+    fn disable_vertex_attrib_array(&self, pointer: &GLUint) {
+        unsafe {
+            gl::DisableVertexAttribArray(*pointer);
+        }
+    }
+    
     fn bind_attrib_location(&self, program: &Program, index: GLUint, name: &str) {
         unsafe {
             let src = CString::new(name).unwrap();
@@ -288,6 +274,12 @@ impl AbstractContext for GLContext {
     fn draw_arrays(&self, type_: GLEnum, first: i32, count: i32) {
         unsafe {
             gl::DrawArrays(type_, first, count);
+        }
+    }
+
+    fn draw_elements(&self, mode: GLEnum, count: i32, type_: GLEnum, offset: GLintptr) {
+        unsafe { 
+            gl::DrawElements(mode, count, type_, mem::transmute(offset)) 
         }
     }
 }

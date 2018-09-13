@@ -1,4 +1,5 @@
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
+#![feature(extern_prelude)]
 
 #[macro_use]
 #[cfg(target_arch = "wasm32")]
@@ -21,10 +22,14 @@ pub mod webgl;
 pub mod opengl;
 pub mod shaders;
 mod context;
+mod buffer;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use opengl::GLContext as Context;
 #[cfg(target_arch = "wasm32")]
 pub use webgl::WebGLContext as Context;
 
+pub use context::Buffer as NativeBuffer;
 pub use context::*;
+pub use buffer::Buffer;
+pub use buffer::BufferType;
