@@ -10,6 +10,11 @@ extern crate rand;
 #[cfg(target_arch = "wasm32")]
 extern crate stdweb;
 
+#[macro_use]
+extern crate serde_derive;
+extern crate serde;
+extern crate bincode;
+
 extern crate gl_context;
 
 pub mod camera;
