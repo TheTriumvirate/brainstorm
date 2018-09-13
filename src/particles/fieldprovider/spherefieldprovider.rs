@@ -3,10 +3,10 @@ use super::FieldProvider;
 use std::f32;
 use bincode::deserialize;
 
-const TEST_DATA: &[u8] = include_bytes!("brain2.bincode");  // include_bytes!("brain.bincode");
-const WIDTH:     usize = 148;  // 148; 38
-const HEIGHT:    usize = 190;  // 190; 39
-const DEPTH:     usize = 160;  // 160; 40
+const TEST_DATA: &[u8] = include_bytes!("test_spiral.bincode");
+const WIDTH:     usize = 38;  // 148; 38
+const HEIGHT:    usize = 39;  // 190; 39
+const DEPTH:     usize = 40;  // 160; 40
 
 type Vector3 = (f32, f32, f32);
 
