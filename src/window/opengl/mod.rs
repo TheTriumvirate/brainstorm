@@ -2,7 +2,6 @@
 //! link: https://github.com/sebcrozet/kiss3d
 
 use window::{abstract_window::*, Event as EventWrapper, MouseButton as MouseButtonWrapper, *};
-use graphics::RenderTarget;
 
 use gl;
 use glutin::{
@@ -56,8 +55,6 @@ pub struct GLWindow {
     window: glutin::GlWindow,
     events: glutin::EventsLoop,
 }
-
-impl RenderTarget for GLWindow {}
 
 impl AbstractWindow for GLWindow {
     fn new(title: &str, width: u32, height: u32) -> Self {

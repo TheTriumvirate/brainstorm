@@ -1,5 +1,4 @@
-use super::RenderTarget;
-
+/// Represents something that can be drawn.
 pub trait Drawable {
-    fn draw(&self, target: impl RenderTarget);
+    fn draw(&self);
 }

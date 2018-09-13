@@ -1,5 +1,5 @@
 use gl_context::{Buffer, BufferType};
-use super::{Drawable, RenderTarget};
+use graphics::{Drawable, render_target};
 
 pub struct Rectangle {
     vertices: Buffer<f32>,
@@ -33,8 +33,8 @@ impl Rectangle {
     }
 }
 
-impl<'a> Drawable for &'a Rectangle {
-    fn draw(&self, target: impl RenderTarget) {
-        target.draw_indices(&self.vertices, &self.indices);
+impl Drawable for Rectangle {
+    fn draw(&self) {
+        render_target::draw_indices(&self.vertices, &self.indices);
     }
 }

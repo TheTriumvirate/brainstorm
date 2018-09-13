@@ -19,21 +19,21 @@ extern crate gl_context;
 
 pub mod camera;
 pub mod particles;
-pub mod ui;
+pub mod gui;
 pub mod window;
 pub mod graphics;
 
 use gl_context::AbstractContext;
 use gl_context::Context;
 
-use graphics::{RenderTarget, Circle};
+use graphics::{Drawable, Circle};
 
 use particles::ParticleEngine;
 
 use std::f32;
 
 use camera::*;
-use ui::*;
+use gui::*;
 use window::*;
 
 pub struct App {
@@ -105,9 +105,8 @@ impl App {
         // Draw everything
         let projection_matrix = self.camera.get_projection_matrix();
         self.particles.draw(&projection_matrix);
-        self.gui.draw(&self.state);
-
-        self.window.draw(&self.circle);
+        self.gui.draw();
+        self.circle.draw();
 
         self.window.swap_buffers();
         self.time += 0.01;
