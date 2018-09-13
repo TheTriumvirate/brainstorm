@@ -26,7 +26,7 @@ pub mod graphics;
 use gl_context::AbstractContext;
 use gl_context::Context;
 
-use graphics::{RenderTarget, Rectangle};
+use graphics::{RenderTarget, Circle};
 
 use particles::ParticleEngine;
 
@@ -44,7 +44,7 @@ pub struct App {
     gui: Gui,
     state: State,
     particles: ParticleEngine,
-    rectangle: Rectangle,
+    circle: Circle,
 }
 
 pub struct State {
@@ -80,7 +80,7 @@ impl App {
             gui: Gui::new(),
             state: State::new(),
             particles: ParticleEngine::new(),
-            rectangle: Rectangle::new(0.0, 0.0, 0.5, 0.5),
+            circle: Circle::new(-0.8, -0.5, 0.04),
         }
     }
 
@@ -107,7 +107,7 @@ impl App {
         self.particles.draw(&projection_matrix);
         self.gui.draw(&self.state);
 
-        self.window.draw(&self.rectangle);
+        self.window.draw(&self.circle);
 
         self.window.swap_buffers();
         self.time += 0.01;

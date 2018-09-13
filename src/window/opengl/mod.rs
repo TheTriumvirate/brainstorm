@@ -70,6 +70,7 @@ impl AbstractWindow for GLWindow {
                 opengl_version: (3, 2),
                 opengles_version: (2, 0),
             })
+            .with_multisampling(4)
             .with_vsync(true);
         let gl_window = glutin::GlWindow::new(window, context, &events_loop).unwrap();
         

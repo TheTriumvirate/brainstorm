@@ -107,10 +107,12 @@ impl ParticleEngine {
                 data.position.1 += delta.1 * 0.01;
                 data.position.2 += delta.2 * 0.01;
 
+                let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
+
                 self.particle_data[self.alive_count*4] = data.position.0;
                 self.particle_data[self.alive_count*4 + 1] = data.position.1;
                 self.particle_data[self.alive_count*4 + 2] = data.position.2;
-                self.particle_data[self.alive_count*4 + 3] = data.lifetime / 100.0;
+                self.particle_data[self.alive_count*4 + 3] = dist * 4.0;
 
                 data.lifetime += 1.0;
                 self.alive_count += 1;

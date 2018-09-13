@@ -7,6 +7,6 @@ uniform mat4 MVP;
 
 void main() {
     gl_Position = MVP * vec4(position.xyz, 1.0);
-    gl_PointSize = 4.0 / length(gl_Position);
+    gl_PointSize = 8.0 / length(gl_Position);
     lifetime = position.a;
 }
