@@ -1,8 +1,8 @@
+pub use self::circle::Circle;
 pub use self::drawable::Drawable;
 pub use self::rectangle::Rectangle;
-pub use self::circle::Circle;
 
-pub mod render_target;
+mod circle;
 mod drawable;
 mod rectangle;
-mod circle;
+pub mod render_target;

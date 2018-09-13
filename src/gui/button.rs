@@ -1,5 +1,5 @@
-use gui::UiElement;
 use graphics::{Drawable, Rectangle};
+use gui::UiElement;
 use State;
 
 pub struct Button {
@@ -13,7 +13,14 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(x1: f32, x2: f32, y1: f32, y2: f32, color: (f32, f32, f32), func: Box<dyn FnMut(&mut State)>) -> Self {
+    pub fn new(
+        x1: f32,
+        x2: f32,
+        y1: f32,
+        y2: f32,
+        color: (f32, f32, f32),
+        func: Box<dyn FnMut(&mut State)>,
+    ) -> Self {
         Self {
             x1,
             x2,

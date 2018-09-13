@@ -26,11 +26,17 @@ fn translate_event(event: &WindowEvent) -> Option<EventWrapper> {
         MouseWheel {
             delta: MouseScrollDelta::LineDelta(x, y),
             ..
-        } => Some(EventWrapper::CursorScroll(x.signum() as f32, y.signum() as f32)),
+        } => Some(EventWrapper::CursorScroll(
+            x.signum() as f32,
+            y.signum() as f32,
+        )),
         MouseWheel {
             delta: MouseScrollDelta::PixelDelta(LogicalPosition { x, y }),
             ..
-        } => Some(EventWrapper::CursorScroll(x.signum() as f32, y.signum() as f32)),
+        } => Some(EventWrapper::CursorScroll(
+            x.signum() as f32,
+            y.signum() as f32,
+        )),
         KeyboardInput {
             input:
                 KeyboardData {
@@ -70,7 +76,7 @@ impl AbstractWindow for GLWindow {
             .with_multisampling(4)
             .with_vsync(true);
         let gl_window = glutin::GlWindow::new(window, context, &events_loop).unwrap();
-        
+
         unsafe {
             gl_window.make_current().unwrap();
         }

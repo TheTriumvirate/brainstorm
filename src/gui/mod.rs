@@ -3,9 +3,9 @@ mod ui_element;
 
 use rand::{rngs::SmallRng, FromEntropy, Rng};
 
-use State;
 use graphics::Drawable;
 use window::*;
+use State;
 
 pub use self::button::Button;
 pub use self::ui_element::UiElement;
@@ -36,7 +36,7 @@ impl Gui {
                     rng.gen_range::<f32>(0.0, 1.0),
                     rng.gen_range::<f32>(0.0, 1.0),
                 );
-            })
+            }),
         )));
 
         Gui { ui_elements }

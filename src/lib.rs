@@ -12,21 +12,21 @@ extern crate stdweb;
 
 #[macro_use]
 extern crate serde_derive;
-extern crate serde;
 extern crate bincode;
+extern crate serde;
 
 extern crate gl_context;
 
 pub mod camera;
-pub mod particles;
-pub mod gui;
-pub mod window;
 pub mod graphics;
+pub mod gui;
+pub mod particles;
+pub mod window;
 
 use gl_context::AbstractContext;
 use gl_context::Context;
 
-use graphics::{Drawable, Circle};
+use graphics::{Circle, Drawable};
 
 use particles::ParticleEngine;
 

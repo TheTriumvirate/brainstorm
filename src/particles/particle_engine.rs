@@ -36,7 +36,7 @@ impl ParticleEngine {
     pub fn new() -> Self {
         let mut rng = SmallRng::from_entropy();
         // Set up particles.
-        let mut data : Buffer<f32> = Buffer::new(BufferType::Array);
+        let mut data: Buffer<f32> = Buffer::new(BufferType::Array);
         data.resize(PARTICLE_COUNT * 4, 0.0);
         let mut particles = Vec::with_capacity(PARTICLE_COUNT);
         for i in 0..PARTICLE_COUNT {
@@ -64,7 +64,10 @@ impl ParticleEngine {
             .expect("Failed to read fragment shader");
 
         let mut attributes = Vec::new();
-        attributes.push(shaders::ShaderAttribute {name: "position".to_string(), size: 4});
+        attributes.push(shaders::ShaderAttribute {
+            name: "position".to_string(),
+            size: 4,
+        });
 
         let shader = shaders::OurShader::new(vertex_shader, fragment_shader, &attributes);
         shader.use_program();
@@ -85,8 +88,9 @@ impl ParticleEngine {
     pub fn update(&mut self) {
         self.alive_count = 0;
         for i in 0..PARTICLE_COUNT {
-
-            if self.particles[i].lifetime > 100.0 /* && self.particles[i].isAlive && end > i*/ {
+            if self.particles[i].lifetime > 100.0
+            /* && self.particles[i].isAlive && end > i*/
+            {
                 {
                     let mut data = &mut self.particles[i];
                     data.lifetime = 0.0;
@@ -96,7 +100,7 @@ impl ParticleEngine {
                         self.rng.gen_range::<f32>(-0.5, 0.5),
                     );
                 }
-              //  self.particles.swap(i, end);
+                //  self.particles.swap(i, end);
             }
 
             let mut data = &mut self.particles[i];
@@ -109,10 +113,10 @@ impl ParticleEngine {
 
                 let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
 
-                self.particle_data[self.alive_count*4] = data.position.0;
-                self.particle_data[self.alive_count*4 + 1] = data.position.1;
-                self.particle_data[self.alive_count*4 + 2] = data.position.2;
-                self.particle_data[self.alive_count*4 + 3] = dist * 4.0;
+                self.particle_data[self.alive_count * 4] = data.position.0;
+                self.particle_data[self.alive_count * 4 + 1] = data.position.1;
+                self.particle_data[self.alive_count * 4 + 2] = data.position.2;
+                self.particle_data[self.alive_count * 4 + 3] = dist * 4.0;
 
                 data.lifetime += 1.0;
                 self.alive_count += 1;
@@ -126,7 +130,8 @@ impl ParticleEngine {
         let context = Context::get_context();
         if self.alive_count > 0 {
             self.particle_data.bind();
-            self.particle_data.upload_data(0, self.alive_count * 4, false);
+            self.particle_data
+                .upload_data(0, self.alive_count * 4, false);
             /*context.bind_buffer(Context::ARRAY_BUFFER, &self.vertex_buffer);
             context.buffer_data(
                 Context::ARRAY_BUFFER,

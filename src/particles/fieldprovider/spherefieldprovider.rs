@@ -1,12 +1,12 @@
 use super::FieldProvider;
 
-use std::f32;
 use bincode::deserialize;
+use std::f32;
 
 const TEST_DATA: &[u8] = include_bytes!("test_spiral.bincode");
-const WIDTH:     usize = 38;  // 148; 38
-const HEIGHT:    usize = 39;  // 190; 39
-const DEPTH:     usize = 40;  // 160; 40
+const WIDTH: usize = 38; // 148; 38
+const HEIGHT: usize = 39; // 190; 39
+const DEPTH: usize = 40; // 160; 40
 
 type Vector3 = (f32, f32, f32);
 
@@ -66,7 +66,7 @@ impl SphereFieldProvider {
 impl FieldProvider for SphereFieldProvider {
     fn new() -> Self {
         let mut data = Vec::new();
-        let x : VectorField = deserialize(TEST_DATA).unwrap();
+        let x: VectorField = deserialize(TEST_DATA).unwrap();
         for plane in x.vectors {
             for row in plane {
                 for elem in row {
@@ -78,9 +78,9 @@ impl FieldProvider for SphereFieldProvider {
     }
 
     fn delta(&self, (x, y, z): (f32, f32, f32)) -> (f32, f32, f32) {
-        let x = x * (WIDTH as f32) + (WIDTH as f32)/2.0;
-        let y = y * (HEIGHT as f32) + (HEIGHT as f32)/2.0;
-        let z = z * (DEPTH as f32) + (DEPTH as f32)/2.0;
+        let x = x * (WIDTH as f32) + (WIDTH as f32) / 2.0;
+        let y = y * (HEIGHT as f32) + (HEIGHT as f32) / 2.0;
+        let z = z * (DEPTH as f32) + (DEPTH as f32) / 2.0;
         let lx = x.floor() as usize;
         let ly = y.floor() as usize;
         let lz = z.floor() as usize;
@@ -98,15 +98,16 @@ impl FieldProvider for SphereFieldProvider {
 
         use std::f32;
         // remove noise
-        if  v1 == (0.0,0.0,0.0) &&
-            v2 == (0.0,0.0,0.0) &&
-            v3 == (0.0,0.0,0.0) &&
-            v4 == (0.0,0.0,0.0) &&
-            v5 == (0.0,0.0,0.0) &&
-            v6 == (0.0,0.0,0.0) && 
-            v7 == (0.0,0.0,0.0) &&
-            v8 == (0.0,0.0,0.0) {
-            return (f32::NAN,f32::NAN,f32::NAN);
+        if v1 == (0.0, 0.0, 0.0)
+            && v2 == (0.0, 0.0, 0.0)
+            && v3 == (0.0, 0.0, 0.0)
+            && v4 == (0.0, 0.0, 0.0)
+            && v5 == (0.0, 0.0, 0.0)
+            && v6 == (0.0, 0.0, 0.0)
+            && v7 == (0.0, 0.0, 0.0)
+            && v8 == (0.0, 0.0, 0.0)
+        {
+            return (f32::NAN, f32::NAN, f32::NAN);
         }
 
         let t1 = x - x.floor();
