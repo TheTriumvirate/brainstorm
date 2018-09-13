@@ -57,7 +57,7 @@ impl SphereFieldProvider {
         let fx = fx.min(WIDTH);
         let fy = fy.min(HEIGHT);
         let fz = fz.min(DEPTH);
-        let index = fz + fy * HEIGHT + fx * WIDTH * HEIGHT;
+        let index = fz + fy * WIDTH + fx * WIDTH * HEIGHT;
         self.data[index]
         //(0.0, 0.0, 0.0)
     }
