@@ -28,17 +28,17 @@ impl Button {
             y2,
             func,
             _color: color,
-            rect: Rectangle::new(x1, y1, x2 - x1, y2 - y1),
+            rect: Rectangle::new(x1, y1, x2 - x1, y2 - y1, color),
         }
     }
 }
 
 impl UiElement for Button {
-    fn was_clicked(&self, x: f64, y: f64) -> bool {
+    fn is_within(&self, x: f64, y: f64) -> bool {
         x > self.x1.into() && x < self.x2.into() && y < self.y1.into() && y > self.y2.into()
     }
 
-    fn click(&mut self, state: &mut State) {
+    fn click(&mut self, _x: f64, _y: f64, state: &mut State) {
         let func = &mut self.func;
         func(state);
     }

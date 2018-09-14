@@ -1,13 +1,13 @@
 mod button;
+mod slider;
 mod ui_element;
-
-use rand::{rngs::SmallRng, FromEntropy, Rng};
 
 use graphics::Drawable;
 use window::*;
 use State;
 
 pub use self::button::Button;
+pub use self::slider::Slider;
 pub use self::ui_element::UiElement;
 
 pub struct Gui {
@@ -28,15 +28,15 @@ impl Gui {
             -0.60,
             -0.80,
             -0.90,
-            (1.0, 1.0, 1.0),
-            Box::new(|ref mut context| {
-                let mut rng = SmallRng::from_entropy();
-                context.ui_color = (
-                    rng.gen_range::<f32>(0.0, 1.0),
-                    rng.gen_range::<f32>(0.0, 1.0),
-                    rng.gen_range::<f32>(0.0, 1.0),
-                );
-            }),
+            (0.44, 0.5, 0.56),
+            Box::new(|ref mut _context| {}),
+        )));
+        ui_elements.push(Box::new(slider::Slider::new(
+            0.60,
+            0.90,
+            -0.80,
+            -0.90,
+            Box::new(|ref mut context, _value| {}),
         )));
 
         Gui { ui_elements }
@@ -53,6 +53,11 @@ impl Gui {
             Event::CursorMoved { x, y } => {
                 state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
                 state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
+                for element in &mut self.ui_elements {
+                    if element.is_within(state.mouse_x, state.mouse_y) {
+                        element.mouse_over(state.mouse_x, state.mouse_y, state);
+                    }
+                }
             }
             Event::CursorInput {
                 button: MouseButton::Left,
@@ -60,14 +65,14 @@ impl Gui {
                 ..
             } => {
                 if *pressed {
-                    for button in &mut self.ui_elements {
-                        button.click_release(state);
+                    for element in &mut self.ui_elements {
+                        if element.is_within(state.mouse_x, state.mouse_y) {
+                            element.click(state.mouse_x, state.mouse_y, state);
+                        }
                     }
                 } else {
-                    for button in &mut self.ui_elements {
-                        if button.was_clicked(state.mouse_x, state.mouse_y) {
-                            button.click(state);
-                        }
+                    for element in &mut self.ui_elements {
+                        element.click_release(state.mouse_x, state.mouse_y, state);
                     }
                 }
             }

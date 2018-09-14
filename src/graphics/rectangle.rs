@@ -7,37 +7,37 @@ pub struct Rectangle {
 }
 
 impl Rectangle {
-    pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
+    pub fn new(x: f32, y: f32, width: f32, height: f32, color: (f32, f32, f32)) -> Self {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
         vertices.set_data(&[
             x,
             y,
-            1.0,
-            1.0,
-            1.0,
+            color.0,
+            color.1,
+            color.2,
             0.0,
             0.0,
             x + width,
             y,
-            1.0,
-            1.0,
-            1.0,
+            color.0,
+            color.1,
+            color.2,
             0.0,
             0.0,
             x + width,
             y + height,
-            1.0,
-            1.0,
-            1.0,
+            color.0,
+            color.1,
+            color.2,
             0.0,
             0.0,
             x,
             y + height,
-            1.0,
-            1.0,
-            1.0,
+            color.0,
+            color.1,
+            color.2,
             0.0,
             0.0,
         ]);
