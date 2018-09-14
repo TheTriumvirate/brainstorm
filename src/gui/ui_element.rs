@@ -6,7 +6,7 @@ pub trait UiElement: Drawable {
         false
     }
 
-    fn mouse_over(&mut self, _x: f64, _y: f64, _state: &mut State) {}
+    fn mouse_moved(&mut self, _x: f64, _y: f64, _state: &mut State) {}
 
     fn click(&mut self, _x: f64, _y: f64, _state: &mut State) {}
 

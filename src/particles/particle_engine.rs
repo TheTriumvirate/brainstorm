@@ -6,6 +6,7 @@ use std::str;
 
 use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
 use particles::fieldprovider::{FieldProvider, SphereFieldProvider};
+use State;
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -24,6 +25,7 @@ pub struct ParticleEngine {
     mvp_uniform: UniformLocation,
     shader: shaders::OurShader,
     alive_count: usize,
+    max_dist: f32,
 }
 
 impl Default for ParticleEngine {
@@ -74,33 +76,38 @@ impl ParticleEngine {
 
         let mvp_uniform = shader.get_uniform_location();
 
+        // Find max
+        let field_provider = SphereFieldProvider::new();
+        let mut max_dist: f32 = 0.0;
+        for position in field_provider.data() {
+            let delta = field_provider.delta(*position);
+            let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
+            max_dist = max_dist.max(dist);
+        }
+
         ParticleEngine {
             particles,
             particle_data: data,
-            field_provider: SphereFieldProvider::new(),
+            field_provider,
             rng,
             shader,
             mvp_uniform,
             alive_count: 0,
+            max_dist,
         }
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, state: &State) {
         self.alive_count = 0;
         for i in 0..PARTICLE_COUNT {
-            if self.particles[i].lifetime > 100.0
-            /* && self.particles[i].isAlive && end > i*/
-            {
-                {
-                    let mut data = &mut self.particles[i];
-                    data.lifetime = 0.0;
-                    data.position = (
-                        self.rng.gen_range::<f32>(-0.5, 0.5),
-                        self.rng.gen_range::<f32>(-0.5, 0.5),
-                        self.rng.gen_range::<f32>(-0.5, 0.5),
-                    );
-                }
-                //  self.particles.swap(i, end);
+            if self.particles[i].lifetime > 100.0 {
+                let mut data = &mut self.particles[i];
+                data.lifetime = 0.0;
+                data.position = (
+                    self.rng.gen_range::<f32>(-0.5, 0.5),
+                    self.rng.gen_range::<f32>(-0.5, 0.5),
+                    self.rng.gen_range::<f32>(-0.5, 0.5),
+                );
             }
 
             let mut data = &mut self.particles[i];
@@ -120,6 +127,11 @@ impl ParticleEngine {
 
                 data.lifetime += 1.0;
                 self.alive_count += 1;
+
+                // High-pass filter
+                if dist < self.max_dist * state.highpass_filter {
+                    data.lifetime = 500.0;
+                }
             } else {
                 break;
             }

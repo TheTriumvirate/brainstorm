@@ -51,7 +51,7 @@ pub struct State {
     mouse_x: f64,
     mouse_y: f64,
     is_running: bool,
-    ui_color: (f32, f32, f32),
+    highpass_filter: f32,
 }
 
 impl State {
@@ -60,7 +60,7 @@ impl State {
             mouse_x: 0.0,
             mouse_y: 0.0,
             is_running: true,
-            ui_color: (0.47, 0.53, 0.6),
+            highpass_filter: 0.0,
         }
     }
 }
@@ -96,7 +96,7 @@ impl App {
             self.camera.handle_events(&event);
         }
         self.camera.update();
-        self.particles.update();
+        self.particles.update(&self.state);
 
         // Clear screen
         context.clear_color(0.0, 0.0, 0.0, 1.0);

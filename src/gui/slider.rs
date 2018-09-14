@@ -8,6 +8,7 @@ pub struct Slider {
     y1: f32,
     y2: f32,
     value: f32,
+    steps: f32,
     is_clicked: bool,
     rect_background: Rectangle,
     rect_track: Rectangle,
@@ -16,8 +17,15 @@ pub struct Slider {
 }
 
 impl Slider {
-    pub fn new(x1: f32, x2: f32, y1: f32, y2: f32, func: Box<dyn FnMut(&mut State, f32)>) -> Self {
-        let initial_value = 0.5;
+    pub fn new(
+        x1: f32,
+        x2: f32,
+        y1: f32,
+        y2: f32,
+        steps: u32,
+        func: Box<dyn FnMut(&mut State, f32)>,
+    ) -> Self {
+        let initial_value = 0.0;
         let height = y2 - y1;
         let width = x2 - x1;
 
@@ -35,6 +43,7 @@ impl Slider {
             func,
             is_clicked: false,
             value: initial_value,
+            steps: steps as f32,
             rect_background: Rectangle::new(x1, y1, width, height, (0.44, 0.5, 0.56)),
             rect_track: Rectangle::new(x1, track_y1, width, track_height, (0.58, 0.64, 0.7)),
             rect_slider: Rectangle::new(slider_x1, y1, slider_width, y2 - y1, (0.7, 0.75, 0.8)),
@@ -42,9 +51,16 @@ impl Slider {
     }
 
     fn update_slider_pos(&mut self, x: f64) {
-        assert!(x < self.x2.into(), x > self.x1.into());
-        self.value = (x as f32 - self.x1) / (self.x2 - self.x1);
+        // Cap to edges
+        let x = (x as f32).max(self.x1).min(self.x2);
 
+        // Quantize to set intervals.
+        // Slightly offset so it reaches the end of the slider despite rounding down.
+        let offset = (self.x2 - self.x1) / self.steps;
+        let fraction = (x as f32 - self.x1) / (self.x2 - self.x1) + offset;
+        self.value = (fraction * self.steps) as u32 as f32 / self.steps;
+
+        // Calculate new slider position
         let width = self.x2 - self.x1;
         let slider_width = width / 20.0;
         let slider_x1 = self.x1 + (width * self.value) - (slider_width / 2.0);
@@ -75,7 +91,7 @@ impl UiElement for Slider {
         self.is_clicked = false;
     }
 
-    fn mouse_over(&mut self, x: f64, y: f64, state: &mut State) {
+    fn mouse_moved(&mut self, x: f64, y: f64, state: &mut State) {
         if self.is_clicked {
             self.click(x, y, state);
         }

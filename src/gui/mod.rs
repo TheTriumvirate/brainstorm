@@ -36,7 +36,10 @@ impl Gui {
             0.90,
             -0.80,
             -0.90,
-            Box::new(|ref mut context, _value| {}),
+            10,
+            Box::new(|ref mut context, value| {
+                context.highpass_filter = value;
+            }),
         )));
 
         Gui { ui_elements }
@@ -54,9 +57,7 @@ impl Gui {
                 state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
                 state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
                 for element in &mut self.ui_elements {
-                    if element.is_within(state.mouse_x, state.mouse_y) {
-                        element.mouse_over(state.mouse_x, state.mouse_y, state);
-                    }
+                    element.mouse_moved(state.mouse_x, state.mouse_y, state);
                 }
             }
             Event::CursorInput {
