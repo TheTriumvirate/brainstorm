@@ -79,7 +79,10 @@ impl Slider {
 
 impl UiElement for Slider {
     fn is_within(&self, x: f64, y: f64) -> bool {
-        x > self.x1.into() && x < self.x2.into() && y < self.y1.into() && y > self.y2.into()
+        let slider_overflow = (self.x2 - self.x1) / 20.0;
+        let x1 = self.x1 - slider_overflow;
+        let x2 = self.x2 + slider_overflow;
+        x > x1.into() && x < x2.into() && y < self.y1.into() && y > self.y2.into()
     }
 
     fn click(&mut self, x: f64, _y: f64, state: &mut State) {
