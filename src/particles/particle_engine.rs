@@ -114,9 +114,11 @@ impl ParticleEngine {
 
             if data.is_alive {
                 let delta = self.field_provider.delta(data.position);
-                data.position.0 += delta.0 * 0.01;
-                data.position.1 += delta.1 * 0.01;
-                data.position.2 += delta.2 * 0.01;
+                let speed_multiplier = 0.02 * state.speed_multiplier;
+
+                data.position.0 += delta.0 * speed_multiplier;
+                data.position.1 += delta.1 * speed_multiplier;
+                data.position.2 += delta.2 * speed_multiplier;
 
                 let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
 

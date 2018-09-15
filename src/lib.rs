@@ -52,6 +52,7 @@ pub struct State {
     mouse_y: f64,
     is_running: bool,
     highpass_filter: f32,
+    speed_multiplier: f32,
 }
 
 impl State {
@@ -61,6 +62,7 @@ impl State {
             mouse_y: 0.0,
             is_running: true,
             highpass_filter: 0.0,
+            speed_multiplier: 0.5,
         }
     }
 }

@@ -34,11 +34,23 @@ impl Gui {
         ui_elements.push(Box::new(slider::Slider::new(
             0.60,
             0.90,
-            -0.80,
-            -0.90,
-            10,
+            -0.75,
+            -0.84,
+            20,
+            0.0,
             Box::new(|ref mut context, value| {
                 context.highpass_filter = value;
+            }),
+        )));
+        ui_elements.push(Box::new(slider::Slider::new(
+            0.60,
+            0.90,
+            -0.86,
+            -0.95,
+            10,
+            0.5,
+            Box::new(|ref mut context, value| {
+                context.speed_multiplier = value;
             }),
         )));
 

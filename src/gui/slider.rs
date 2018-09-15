@@ -17,15 +17,18 @@ pub struct Slider {
 }
 
 impl Slider {
+    /// Creates a new slider. Note that initial_value should be
+    /// between 0.0 and 1.0.
     pub fn new(
         x1: f32,
         x2: f32,
         y1: f32,
         y2: f32,
         steps: u32,
+        initial_value: f32,
         func: Box<dyn FnMut(&mut State, f32)>,
     ) -> Self {
-        let initial_value = 0.0;
+        assert!(initial_value >= 0.0 && initial_value <= 1.0);
         let height = y2 - y1;
         let width = x2 - x1;
 
