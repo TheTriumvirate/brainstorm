@@ -2,6 +2,7 @@ use graphics::{Drawable, Rectangle};
 use gui::UiElement;
 use State;
 
+/// A simple button that can be pressed.
 pub struct Button {
     x1: f32,
     x2: f32,
@@ -13,6 +14,7 @@ pub struct Button {
 }
 
 impl Button {
+    /// Creates a new button.
     pub fn new(
         x1: f32,
         x2: f32,

@@ -1,12 +1,18 @@
 use gl_context::{Buffer, BufferType};
 use graphics::{render_target, Drawable};
 
+/// Represents a drawable rectangle.
 pub struct Rectangle {
     vertices: Buffer<f32>,
     indices: Buffer<u16>,
 }
 
 impl Rectangle {
+    /// Creates a new rectangle with the chosen parameters.
+    /// Example:
+    /// ```rust
+    /// Rectangle::new(0.0, 0.0, 0.2, 0.2, (1.0, 1.0, 1.0));
+    /// ```
     pub fn new(x: f32, y: f32, width: f32, height: f32, color: (f32, f32, f32)) -> Self {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);

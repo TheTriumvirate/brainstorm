@@ -29,6 +29,8 @@ pub type GLUint = ContextImpl::GLUint;
 pub type Shader = ContextImpl::GLShader;
 pub type Program = ContextImpl::GLProgram;
 
+/// Represents the common interface of OpenGL and WebGL.
+/// Check the OpenGL and WebGL documentation for details.
 pub trait AbstractContext {
     const VERTEX_SHADER: u32;
     const FRAGMENT_SHADER: u32;

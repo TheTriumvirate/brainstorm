@@ -1,13 +1,6 @@
-/*
- * Very inspired from kiss3d's implementation of window and context
- * link: https://github.com/sebcrozet/kiss3d
- */
+//! This is heavily inspired by kiss3d's implementation of window and context.
+//! Go check out their code! https://github.com/sebcrozet/kiss3d
 #![allow(unused_results)]
-
-use window::abstract_window::*;
-use window::Event as EventWrapper;
-use window::MouseButton as MouseButtonWrapper;
-use window::*;
 
 use stdweb::unstable::TryInto;
 use stdweb::web::event::MouseButton as WebMouseButton;
@@ -17,6 +10,11 @@ use stdweb::web::{document, window, IEventTarget, IParentNode};
 
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use window::abstract_window::*;
+use window::Event as EventWrapper;
+use window::MouseButton as MouseButtonWrapper;
+use window::*;
 
 // Shamelessly stolen from stdweb,
 // Shamelessly stolen from webplatform's TodoMVC example.
@@ -36,6 +34,7 @@ struct PointerData {
     client_y: f32,
 }
 
+/// Holds GL Window state.
 pub struct WebGLWindow {
     events: Rc<RefCell<Vec<EventWrapper>>>,
     width: u32,

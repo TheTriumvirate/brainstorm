@@ -1,3 +1,6 @@
+//! Provides a seamless wrapper around OpenGL and WebGL, so that the rest of
+//! the code doesn't need to know which of the two it's running on.
+
 #![cfg_attr(target_arch = "wasm32", feature(extern_prelude))]
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
 

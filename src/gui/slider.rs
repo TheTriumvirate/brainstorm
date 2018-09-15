@@ -2,6 +2,7 @@ use graphics::{Drawable, Rectangle};
 use gui::UiElement;
 use State;
 
+/// A simple slider giving a value from 0.0 to 1.0.
 pub struct Slider {
     x1: f32,
     x2: f32,
@@ -53,6 +54,7 @@ impl Slider {
         }
     }
 
+    /// Moves the visible slider to match the `x` value.
     fn update_slider_pos(&mut self, x: f64) {
         // Cap to edges
         let x = (x as f32).max(self.x1).min(self.x2);

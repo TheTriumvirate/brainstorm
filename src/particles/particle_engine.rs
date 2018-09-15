@@ -10,13 +10,15 @@ use State;
 
 const PARTICLE_COUNT: usize = 100_000;
 
+/// Struct containing the data for a single particle.
 #[derive(Clone, Debug)]
 struct ParticleData {
     position: (f32, f32, f32),
-    is_alive: bool,
     lifetime: f32,
 }
 
+/// The particle engine itself.
+/// Hold all particles and is responsible for updating the system.
 pub struct ParticleEngine {
     particles: Vec<ParticleData>,
     particle_data: Buffer<f32>,
@@ -35,8 +37,10 @@ impl Default for ParticleEngine {
 }
 
 impl ParticleEngine {
+    /// Initializes a new particle engine.
     pub fn new() -> Self {
         let mut rng = SmallRng::from_entropy();
+
         // Set up particles.
         let mut data: Buffer<f32> = Buffer::new(BufferType::Array);
         data.resize(PARTICLE_COUNT * 4, 0.0);
@@ -48,15 +52,10 @@ impl ParticleEngine {
                     rng.gen_range::<f32>(-0.5, 0.5),
                     rng.gen_range::<f32>(-0.5, 0.5),
                 ),
-                is_alive: true,
                 lifetime: (i as f32 / PARTICLE_COUNT as f32) * 100.0,
             });
         }
-        //particles.resize(PARTICLE_COUNT, ParticleData {position: (0.0, 0.0, 0.0), is_alive: true, lifetime: 0.0});
-
-        // Bind the window buffer.
-        /*let mut vb = Buffer::new();
-        vb.set_data(&data[..], false);*/
+        
         data.bind();
 
         // Set up shaders
@@ -76,7 +75,7 @@ impl ParticleEngine {
 
         let mvp_uniform = shader.get_uniform_location();
 
-        // Find max
+        // Find the max velocity to be used with the high-pass filter later.
         let field_provider = SphereFieldProvider::new();
         let mut max_dist: f32 = 0.0;
         for position in field_provider.data() {
@@ -97,9 +96,12 @@ impl ParticleEngine {
         }
     }
 
+    /// Update the particle system, advancing 1 tick.
+    /// Uses settings from `state` to let the user interface with the system.
     pub fn update(&mut self, state: &State) {
         self.alive_count = 0;
         for i in 0..PARTICLE_COUNT {
+            // Respawn particle if it's too old.
             if self.particles[i].lifetime > 100.0 {
                 let mut data = &mut self.particles[i];
                 data.lifetime = 0.0;
@@ -112,46 +114,39 @@ impl ParticleEngine {
 
             let mut data = &mut self.particles[i];
 
-            if data.is_alive {
-                let delta = self.field_provider.delta(data.position);
-                let speed_multiplier = 0.02 * state.speed_multiplier;
+            // Update particle position
+            let delta = self.field_provider.delta(data.position);
+            let speed_multiplier = 0.02 * state.speed_multiplier;
+            data.position.0 += delta.0 * speed_multiplier;
+            data.position.1 += delta.1 * speed_multiplier;
+            data.position.2 += delta.2 * speed_multiplier;
 
-                data.position.0 += delta.0 * speed_multiplier;
-                data.position.1 += delta.1 * speed_multiplier;
-                data.position.2 += delta.2 * speed_multiplier;
+            let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
 
-                let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
+            // Send the data to the GPU.
+            self.particle_data[self.alive_count * 4] = data.position.0;
+            self.particle_data[self.alive_count * 4 + 1] = data.position.1;
+            self.particle_data[self.alive_count * 4 + 2] = data.position.2;
+            self.particle_data[self.alive_count * 4 + 3] = dist * 4.0;
 
-                self.particle_data[self.alive_count * 4] = data.position.0;
-                self.particle_data[self.alive_count * 4 + 1] = data.position.1;
-                self.particle_data[self.alive_count * 4 + 2] = data.position.2;
-                self.particle_data[self.alive_count * 4 + 3] = dist * 4.0;
+            // Update lifetime and alive count.
+            data.lifetime += 1.0;
+            self.alive_count += 1;
 
-                data.lifetime += 1.0;
-                self.alive_count += 1;
-
-                // High-pass filter
-                if dist < self.max_dist * state.highpass_filter {
-                    data.lifetime = 500.0;
-                }
-            } else {
-                break;
+            // High-pass filter
+            if dist < self.max_dist * state.highpass_filter {
+                data.lifetime = 500.0;
             }
         }
     }
 
+    /// Draw the particles to the screen using the provided (camera)
+    /// projection matrix.
     pub fn draw(&mut self, projection_matrix: &Matrix4<f32>) {
         let context = Context::get_context();
         if self.alive_count > 0 {
             self.particle_data.bind();
-            self.particle_data
-                .upload_data(0, self.alive_count * 4, false);
-            /*context.bind_buffer(Context::ARRAY_BUFFER, &self.vertex_buffer);
-            context.buffer_data(
-                Context::ARRAY_BUFFER,
-                &self.particle_data[0..self.alive_count * 4],
-                Context::DYNAMIC_DRAW,
-            );*/
+            self.particle_data.upload_data(0, self.alive_count * 4, false);
             self.shader.use_program();
             self.shader.bind_attribs();
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);

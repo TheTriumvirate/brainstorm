@@ -9,7 +9,6 @@ extern crate noise;
 extern crate rand;
 #[cfg(target_arch = "wasm32")]
 extern crate stdweb;
-
 #[macro_use]
 extern crate serde_derive;
 extern crate bincode;
@@ -25,28 +24,27 @@ pub mod window;
 
 use gl_context::AbstractContext;
 use gl_context::Context;
-
 use graphics::{Circle, Drawable};
-
 use particles::ParticleEngine;
 
 use std::f32;
 
-use camera::*;
+use camera::Camera;
 use gui::*;
 use window::*;
 
+/// Holds application resources.
 pub struct App {
-    camera: ArcBallCamera,
+    camera: camera::ArcBall,
     window: Window,
     time: f32,
-
     gui: Gui,
     state: State,
     particles: ParticleEngine,
     circle: Circle,
 }
 
+/// Holds application state.
 pub struct State {
     mouse_x: f64,
     mouse_y: f64,
@@ -56,6 +54,7 @@ pub struct State {
 }
 
 impl State {
+    /// Creates a new State instance with sane defaults.
     pub fn new() -> Self {
         State {
             mouse_x: 0.0,
@@ -74,10 +73,11 @@ impl Default for State {
 }
 
 impl App {
+    /// Starts 
     pub fn new() -> App {
         App {
-            window: Window::new("Particles!", 1000, 1000),
-            camera: ArcBallCamera::new(),
+            window: Window::new("Brainstorm!", 1000, 1000),
+            camera: camera::ArcBall::new(),
             time: 0.0,
             gui: Gui::new(),
             state: State::new(),
@@ -86,21 +86,21 @@ impl App {
         }
     }
 
+    /// Runs the application for one frame.
     pub fn run(&mut self) -> bool {
-        self.update()
-    }
-
-    fn update(&mut self) -> bool {
-        let context = Context::get_context();
+        // Handle events
         for event in &self.window.get_events() {
             self.gui
                 .handle_event(&event, &mut self.state, self.window.get_size());
             self.camera.handle_events(&event);
         }
+        
+        // Update camera and particle system
         self.camera.update();
         self.particles.update(&self.state);
 
         // Clear screen
+        let context = Context::get_context();
         context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(Context::COLOR_BUFFER_BIT);
 

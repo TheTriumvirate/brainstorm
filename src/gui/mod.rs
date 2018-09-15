@@ -1,3 +1,5 @@
+//! Module for all things GUI.
+
 mod button;
 mod slider;
 mod ui_element;
@@ -6,10 +8,11 @@ use graphics::Drawable;
 use window::*;
 use State;
 
-pub use self::button::Button;
-pub use self::slider::Slider;
-pub use self::ui_element::UiElement;
+use self::button::Button;
+use self::slider::Slider;
+use self::ui_element::UiElement;
 
+/// Represents the GUI for the application.
 pub struct Gui {
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
 }
@@ -21,9 +24,10 @@ impl Default for Gui {
 }
 
 impl Gui {
+    /// Creates the GUI for the application.
     pub fn new() -> Self {
         let mut ui_elements: Vec<Box<ui_element::UiElement>> = Vec::new();
-        ui_elements.push(Box::new(button::Button::new(
+        ui_elements.push(Box::new(Button::new(
             -0.90,
             -0.60,
             -0.80,
@@ -31,7 +35,7 @@ impl Gui {
             (0.44, 0.5, 0.56),
             Box::new(|ref mut _context| {}),
         )));
-        ui_elements.push(Box::new(slider::Slider::new(
+        ui_elements.push(Box::new(Slider::new(
             0.60,
             0.90,
             -0.75,
@@ -42,7 +46,7 @@ impl Gui {
                 context.highpass_filter = value;
             }),
         )));
-        ui_elements.push(Box::new(slider::Slider::new(
+        ui_elements.push(Box::new(Slider::new(
             0.60,
             0.90,
             -0.86,
@@ -57,6 +61,7 @@ impl Gui {
         Gui { ui_elements }
     }
 
+    /// Handles events from the window, mutating application state as needed.
     pub fn handle_event(&mut self, event: &Event, state: &mut State, size: (u32, u32)) {
         match event {
             Event::KeyboardInput {

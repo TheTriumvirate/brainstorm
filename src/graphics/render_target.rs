@@ -1,6 +1,8 @@
+//! Methods for interacting with the render target.
 use gl_context::{shaders::*, AbstractContext, Buffer, Context};
 
-/// pre-condition: correct shader is bound
+/// Draws vertices/indices to the render target.
+/// Precondition: correct shader is bound.
 pub fn draw_indices(vertex_data: &Buffer<f32>, index_data: &Buffer<u16>) {
     let context = Context::get_context();
 

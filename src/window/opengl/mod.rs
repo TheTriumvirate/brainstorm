@@ -1,5 +1,5 @@
-//! Very inspired from kiss3d's implementation of window and context
-//! link: https://github.com/sebcrozet/kiss3d
+//! This is heavily inspired by kiss3d's implementation of window and context.
+//! Go check out their code! https://github.com/sebcrozet/kiss3d
 
 use window::{abstract_window::*, Event as EventWrapper, MouseButton as MouseButtonWrapper, *};
 
@@ -12,6 +12,7 @@ use glutin::{
     WindowEvent::{self, CloseRequested, CursorMoved, KeyboardInput, MouseInput, MouseWheel},
 };
 
+/// Translates from OpenGL events to our own event enum.
 fn translate_event(event: &WindowEvent) -> Option<EventWrapper> {
     match *event {
         CloseRequested => Some(EventWrapper::Quit),
@@ -55,6 +56,7 @@ fn translate_event(event: &WindowEvent) -> Option<EventWrapper> {
     }
 }
 
+/// Holds GL Window state.
 pub struct GLWindow {
     height: u32,
     width: u32,
@@ -72,7 +74,8 @@ impl AbstractWindow for GLWindow {
             .with_gl(GlRequest::GlThenGles {
                 opengl_version: (3, 2),
                 opengles_version: (2, 0),
-            }).with_multisampling(4)
+            })
+            .with_multisampling(4)
             .with_vsync(true);
         let gl_window = glutin::GlWindow::new(window, context, &events_loop).unwrap();
 

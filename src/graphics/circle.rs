@@ -1,16 +1,21 @@
-use gl_context::{Buffer, BufferType};
 use graphics::{render_target, Drawable};
-
 use std::f32;
+use gl_context::{Buffer, BufferType};
 
 const POINTS: usize = 40;
 
+/// Represents a drawable circle.
 pub struct Circle {
     vertices: Buffer<f32>,
     indices: Buffer<u16>,
 }
 
 impl Circle {
+    /// Creates a new circle with the chosen parameters.
+    /// Example:
+    /// ```rust
+    /// Circle::new(0.0, 0.0, 0.2);
+    /// ```
     pub fn new(x: f32, y: f32, radius: f32) -> Self {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);

@@ -1,3 +1,6 @@
+//! Holds the window events and associated structs and enums.
+
+/// Defines a window event.
 #[derive(Debug, Clone)]
 pub enum Event {
     Quit,
@@ -17,6 +20,7 @@ pub enum Event {
     },
 }
 
+/// The supported modifier keys.
 #[derive(Debug, Clone)]
 pub struct ModifierKeys {
     pub shift: bool,
@@ -25,6 +29,7 @@ pub struct ModifierKeys {
     pub logo: bool,
 }
 
+/// The different mouse buttons.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum MouseButton {
     Left,
@@ -33,6 +38,7 @@ pub enum MouseButton {
     Other(u8),
 }
 
+/// The supported keyboard keys.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Key {
     Num1,
