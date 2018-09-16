@@ -282,4 +282,10 @@ impl AbstractContext for GLContext {
             gl::DrawElements(mode, count, type_, mem::transmute(offset)) 
         }
     }
+
+    fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {
+        unsafe {
+            gl::Viewport(x, y, width, height);
+        }
+    }
 }

@@ -92,6 +92,8 @@ pub trait AbstractContext {
 
     fn draw_arrays(&self, type_: GLEnum, first: i32, count: i32);
     fn draw_elements(&self, mode: GLEnum, count: i32, type_: GLEnum, offset: GLintptr);
+
+    fn viewport(&self, x: i32, y: i32, width: i32, height: i32);
 }
 
 impl GlPrimitive for f32 {

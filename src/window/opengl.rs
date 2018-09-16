@@ -9,7 +9,7 @@ use glutin::{
     dpi::*,
     ElementState, GlContext, GlRequest, KeyboardInput as KeyboardData, ModifiersState,
     MouseScrollDelta, VirtualKeyCode,
-    WindowEvent::{self, CloseRequested, CursorMoved, KeyboardInput, MouseInput, MouseWheel},
+    WindowEvent::{self, CloseRequested, CursorMoved, KeyboardInput, MouseInput, MouseWheel, Resized},
 };
 
 /// Translates from OpenGL events to our own event enum.
@@ -52,6 +52,7 @@ fn translate_event(event: &WindowEvent) -> Option<EventWrapper> {
             key: Key::from(virtual_keycode),
             modifiers: ModifierKeys::from(modifiers),
         }),
+        Resized(LogicalSize {width, height}) => Some(EventWrapper::Resized(width as f32, height as f32)),
         _ => None, // Unknown or Unhandled event
     }
 }

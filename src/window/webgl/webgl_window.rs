@@ -42,7 +42,7 @@ pub struct WebGLWindow {
 }
 
 impl AbstractWindow for WebGLWindow {
-    fn new(_: &str, width: u32, height: u32) -> Self {
+    fn new(_: &str, _width: u32, _height: u32) -> Self {
         let canvas: CanvasElement = document()
             .query_selector("#canvas")
             .expect("No canvas found")
@@ -50,10 +50,16 @@ impl AbstractWindow for WebGLWindow {
             .try_into()
             .unwrap();
 
-        canvas.set_width(width);
-        canvas.set_height(height);
-
         let events = Rc::new(RefCell::new(Vec::new()));
+
+        // TODO: Overrides specified size, this is bad...
+        let width = window().inner_width() as u32;
+        let height = window().inner_height() as u32;
+        {
+            canvas.set_width(width);
+            canvas.set_height(height);
+            events.borrow_mut().push(EventWrapper::Resized(width as f32, height as f32))
+        }
 
         let pointers = RefCell::new(Vec::new());
 
@@ -129,6 +135,21 @@ impl AbstractWindow for WebGLWindow {
         window().add_event_listener(enclose!((events) move |event: KeyUpEvent| {
             events.borrow_mut().push(EventWrapper::KeyboardInput{pressed: false, key: Key::from(event.key()),
                 modifiers: ModifierKeys{ctrl: event.ctrl_key(), shift: event.shift_key(), alt: event.alt_key(), logo: event.meta_key()}})
+        }));
+
+        window().add_event_listener(enclose!((events) move |_event: ResizeEvent| {
+            let width = window().inner_width();
+            let height = window().inner_height();
+            let canvas: CanvasElement = document()
+                .query_selector("#canvas")
+                .expect("No canvas found")
+                .unwrap()
+                .try_into()
+                .unwrap();
+
+            canvas.set_width(width as u32);
+            canvas.set_height(height as u32);
+            events.borrow_mut().push(EventWrapper::Resized(width as f32, height as f32))
         }));
 
         WebGLWindow {

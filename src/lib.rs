@@ -88,8 +88,16 @@ impl App {
 
     /// Runs the application for one frame.
     pub fn run(&mut self) -> bool {
+        let context = Context::get_context();
+
         // Handle events
         for event in &self.window.get_events() {
+            match event {
+                Event::Resized(w, h) => {
+                    context.viewport(0, 0, *w as i32, *h as i32);
+                },
+                _ => {}
+            };
             self.gui
                 .handle_event(&event, &mut self.state, self.window.get_size());
             self.camera.handle_events(&event);
@@ -100,7 +108,6 @@ impl App {
         self.particles.update(&self.state);
 
         // Clear screen
-        let context = Context::get_context();
         context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(Context::COLOR_BUFFER_BIT);
 

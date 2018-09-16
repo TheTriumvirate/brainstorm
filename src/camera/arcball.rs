@@ -14,6 +14,7 @@ pub struct ArcBall {
     last_cursor_pos: Vector2<f32>,
     is_pressed: bool,
     idle: f32,
+    aspect: f32
 }
 
 impl ArcBall {
@@ -28,6 +29,7 @@ impl ArcBall {
             last_cursor_pos: Vector2::new(0.0, 0.0),
             is_pressed: false,
             idle: 0.0,
+            aspect: 1.0,
         };
         res.recalculate_matrices();
         res
@@ -52,7 +54,7 @@ impl ArcBall {
         let ey = self.target.y + self.distance * self.pitch.cos();
         let ez = self.target.z + self.distance * self.yaw.sin() * self.pitch.sin();
         let eye = Point3::new(ex, ey, ez);
-        let perspective = Perspective3::new(1.0, f32::consts::PI / 4.0, 0.1, 1024.0);
+        let perspective = Perspective3::new(self.aspect, f32::consts::PI / 4.0, 0.1, 1024.0);
         let view: Isometry3<f32> = Isometry3::look_at_rh(&eye, &self.target, &Vector3::y());
         self.projection = perspective.as_matrix() * view.to_homogeneous();
     }
@@ -95,7 +97,11 @@ impl Camera for ArcBall {
             Event::CursorScroll(_, dt) => {
                 self.distance -= dt / 4.0;
                 self.recalculate_matrices();
-            }
+            },
+            Event::Resized(w, h) => {
+                self.aspect = w / h;
+
+            },
             _ => (),
         }
     }

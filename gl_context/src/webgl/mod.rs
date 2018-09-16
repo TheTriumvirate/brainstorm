@@ -230,4 +230,8 @@ impl AbstractContext for WebGLContext {
     fn draw_elements(&self, mode: GLEnum, count: i32, type_: GLEnum, offset: GLintptr) {
         self.context.draw_elements(mode, count, type_, offset);
     }
+
+    fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {
+        self.context.viewport(x, y, width, height);
+    }
 }
