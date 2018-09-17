@@ -1,5 +1,5 @@
 use gl_context::{Buffer, BufferType};
-use graphics::{render_target, Drawable};
+use graphics::*;
 
 /// Represents a drawable rectangle.
 pub struct Rectangle {
@@ -9,38 +9,34 @@ pub struct Rectangle {
 
 impl Rectangle {
     /// Creates a new rectangle with the chosen parameters.
-    /// Example:
-    /// ```rust
-    /// Rectangle::new(0.0, 0.0, 0.2, 0.2, (1.0, 1.0, 1.0));
-    /// ```
-    pub fn new(x: f32, y: f32, width: f32, height: f32, color: (f32, f32, f32)) -> Self {
+    pub fn new(pos: position::Coordinates, color: (f32, f32, f32)) -> Self {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
         vertices.set_data(&[
-            x,
-            y,
+            pos.x1,
+            pos.y1,
             color.0,
             color.1,
             color.2,
             0.0,
             0.0,
-            x + width,
-            y,
+            pos.x2,
+            pos.y1,
             color.0,
             color.1,
             color.2,
             0.0,
             0.0,
-            x + width,
-            y + height,
+            pos.x2,
+            pos.y2,
             color.0,
             color.1,
             color.2,
             0.0,
             0.0,
-            x,
-            y + height,
+            pos.x1,
+            pos.y2,
             color.0,
             color.1,
             color.2,

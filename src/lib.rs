@@ -79,7 +79,7 @@ impl App {
             window: Window::new("Brainstorm!", 1000, 1000),
             camera: camera::ArcBall::new(),
             time: 0.0,
-            gui: Gui::new(),
+            gui: Gui::new((1000.0, 1000.0)),
             state: State::new(),
             particles: ParticleEngine::new(),
             circle: Circle::new(-0.8, -0.5, 0.04),

@@ -17,4 +17,7 @@ pub trait UiElement: Drawable {
 
     /// A method called whenever the mouse-click is released.
     fn click_release(&mut self, _x: f64, _y: f64, _state: &mut State) {}
+
+    /// Update element to match new screen size
+    fn resize(&mut self, _screensize: (f32, f32)) {}
 }
