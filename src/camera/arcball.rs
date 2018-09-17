@@ -64,7 +64,7 @@ impl Camera for ArcBall {
     /// Updates the idle animation for the camera.
     fn update(&mut self) {
         if self.idle > 60.0 {
-            self.yaw += 0.002;
+            //self.yaw += 0.002;
             self.recalculate_matrices();
         }
 

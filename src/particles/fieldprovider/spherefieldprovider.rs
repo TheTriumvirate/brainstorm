@@ -3,7 +3,7 @@ use super::FieldProvider;
 use bincode::deserialize;
 use std::f32;
 
-const TEST_DATA: &[u8] = include_bytes!("test_spiral.bincode");
+const TEST_DATA: &[u8] = include_bytes!("brain2.bincode");
 
 type Vector3 = (f32, f32, f32);
 
@@ -57,9 +57,9 @@ pub struct SphereFieldProvider {
 
 impl SphereFieldProvider {
     fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> (f32, f32, f32) {
-        let fx = fx.min(self.width);
-        let fy = fy.min(self.height);
-        let fz = fz.min(self.depth);
+        if fx > self.width || fy > self.height || fz > self.depth {
+            return (0.0, 0.0, 0.0);
+        }
         let index = fz + fy * self.width + fx * self.width * self.height;
         self.data[index]
         //(0.0, 0.0, 0.0)
