@@ -123,6 +123,17 @@ impl ParticleEngine {
 
             let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
 
+            // High-pass filter
+            if dist < self.max_dist * state.highpass_filter {
+                data.lifetime = 500.0;
+                continue;
+            }
+            // Low-pass filter
+            if dist > self.max_dist * state.lowpass_filter {
+                data.lifetime = 500.0;
+                continue;
+            }
+
             // Send the data to the GPU.
             self.particle_data[self.alive_count * 4] = data.position.0;
             self.particle_data[self.alive_count * 4 + 1] = data.position.1;
@@ -132,11 +143,6 @@ impl ParticleEngine {
             // Update lifetime and alive count.
             data.lifetime += 1.0;
             self.alive_count += 1;
-
-            // High-pass filter
-            if dist < self.max_dist * state.highpass_filter {
-                data.lifetime = 500.0;
-            }
         }
     }
 

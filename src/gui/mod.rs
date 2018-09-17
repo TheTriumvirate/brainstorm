@@ -38,12 +38,23 @@ impl Gui {
         ui_elements.push(Box::new(Slider::new(
             0.60,
             0.90,
-            -0.75,
-            -0.84,
+            -0.64,
+            -0.73,
             20,
             0.0,
             Box::new(|ref mut context, value| {
                 context.highpass_filter = value;
+            }),
+        )));
+        ui_elements.push(Box::new(Slider::new(
+            0.60,
+            0.90,
+            -0.75,
+            -0.84,
+            20,
+            1.0,
+            Box::new(|ref mut context, value| {
+                context.lowpass_filter = value;
             }),
         )));
         ui_elements.push(Box::new(Slider::new(
