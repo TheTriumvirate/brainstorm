@@ -13,7 +13,7 @@ use glutin::{
 };
 
 /// Translates from OpenGL events to our own event enum.
-fn translate_event(event: &WindowEvent) -> Option<EventWrapper> {
+fn translate_event(event: &WindowEvent, hidpi_factor: f64) -> Option<EventWrapper> {
     match *event {
         CloseRequested => Some(EventWrapper::Quit),
         CursorMoved {
@@ -52,7 +52,14 @@ fn translate_event(event: &WindowEvent) -> Option<EventWrapper> {
             key: Key::from(virtual_keycode),
             modifiers: ModifierKeys::from(modifiers),
         }),
-        Resized(LogicalSize {width, height}) => Some(EventWrapper::Resized(width as f32, height as f32)),
+        Resized(LogicalSize {width, height}) => {
+            // OpenGL has to deal with High-DPI window scaling.
+            // We handle this inside the OpenGL module to avoid dealing with it
+            // everywhere in the codebase.
+            let width = width * hidpi_factor;
+            let height = height * hidpi_factor;
+            Some(EventWrapper::Resized(width as f32, height as f32))
+        }
         _ => None, // Unknown or Unhandled event
     }
 }
@@ -115,9 +122,10 @@ impl AbstractWindow for GLWindow {
 
     fn get_events(&mut self) -> Vec<EventWrapper> {
         let mut events: Vec<EventWrapper> = Vec::new();
+        let hidpi_factor = self.window.get_hidpi_factor();
         self.events.poll_events(|event| {
             if let glutin::Event::WindowEvent { event, .. } = event {
-                if let Some(x) = translate_event(&event) {
+                if let Some(x) = translate_event(&event, hidpi_factor) {
                     events.push(x);
                 }
             };
