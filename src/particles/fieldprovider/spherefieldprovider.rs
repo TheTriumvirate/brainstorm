@@ -4,14 +4,14 @@ use bincode::deserialize;
 use std::f32;
 
 const TEST_DATA: &[u8] = include_bytes!("test_spiral.bincode");
-const WIDTH: usize = 38; // 148; 38
-const HEIGHT: usize = 39; // 190; 39
-const DEPTH: usize = 40; // 160; 40
 
 type Vector3 = (f32, f32, f32);
 
 #[derive(Serialize, Deserialize)]
 struct VectorField {
+    width: usize,
+    height: usize,
+    depth: usize,
     vectors: Vec<Vec<Vec<Vector3>>>,
 }
 
@@ -49,15 +49,18 @@ fn lerp3d(
 }
 
 pub struct SphereFieldProvider {
+    width: usize,
+    height: usize,
+    depth: usize,
     data: Vec<(f32, f32, f32)>,
 }
 
 impl SphereFieldProvider {
     fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> (f32, f32, f32) {
-        let fx = fx.min(WIDTH);
-        let fy = fy.min(HEIGHT);
-        let fz = fz.min(DEPTH);
-        let index = fz + fy * WIDTH + fx * WIDTH * HEIGHT;
+        let fx = fx.min(self.width);
+        let fy = fy.min(self.height);
+        let fz = fz.min(self.depth);
+        let index = fz + fy * self.width + fx * self.width * self.height;
         self.data[index]
         //(0.0, 0.0, 0.0)
     }
@@ -74,13 +77,13 @@ impl FieldProvider for SphereFieldProvider {
                 }
             }
         }
-        SphereFieldProvider { data }
+        SphereFieldProvider { width: x.width, height: x.height, depth: x.depth, data }
     }
 
     fn delta(&self, (x, y, z): (f32, f32, f32)) -> (f32, f32, f32) {
-        let x = x * (WIDTH as f32) + (WIDTH as f32) / 2.0;
-        let y = y * (HEIGHT as f32) + (HEIGHT as f32) / 2.0;
-        let z = z * (DEPTH as f32) + (DEPTH as f32) / 2.0;
+        let x = x * (self.width as f32) + (self.width as f32) / 2.0;
+        let y = y * (self.height as f32) + (self.height as f32) / 2.0;
+        let z = z * (self.depth as f32) + (self.depth as f32) / 2.0;
         let lx = x.floor() as usize;
         let ly = y.floor() as usize;
         let lz = z.floor() as usize;
