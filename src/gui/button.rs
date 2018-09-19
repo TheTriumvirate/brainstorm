@@ -33,7 +33,7 @@ impl Button {
 impl UiElement for Button {
     fn is_within(&self, x: f64, y: f64) -> bool {
         let c = self.pos_rel.get_coordinates();
-        x > c.x1.into() && x < c.x2.into() && y < c.y1.into() && y > c.y2.into()
+        x > c.x1.into() && x < c.x2.into() && y > c.y1.into() && y < c.y2.into()
     }
 
     fn click(&mut self, _x: f64, _y: f64, state: &mut State) {

@@ -16,6 +16,9 @@ pub trait AbstractWindow {
     /// Swaps the rendering buffers.
     fn swap_buffers(&mut self);
 
+    /// Sets the size of the window.
+    fn set_size(&mut self, width: u32, height: u32);
+    
     /// Gets the size of the window.
     fn get_size(&self) -> (u32, u32);
 }

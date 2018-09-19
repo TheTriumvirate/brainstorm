@@ -31,15 +31,25 @@ impl Relative {
 
     /// Gets absolute coordinates for this position.
     pub fn get_coordinates(&self) -> Coordinates {
+        use std::mem::swap;        
         let (x, y) = self.get_corner_pos();
         let (x2, y2) = (x * -1.0, y * -1.0);
 
-        Coordinates {
+        let mut coord = Coordinates {
             x1: x + self.margin_horizontal * x2,
             x2: x + self.margin_horizontal * x2 + self.width * x2,
             y1: y + self.margin_vertical * y2,
             y2: y + self.margin_vertical * y2 + self.height * y2,
+        };
+
+        if coord.x1 > coord.x2 {
+            swap(&mut coord.x1, &mut coord.x2);
         }
+        if coord.y1 > coord.y2 {
+            swap(&mut coord.y1, &mut coord.y2);
+        }
+
+        coord
     }
 
     /// Returns the coordinates of the anchored corner.

@@ -84,6 +84,7 @@ impl Gui {
             Event::CursorMoved { x, y } => {
                 state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
                 state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
+                
                 for element in &mut self.ui_elements {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
                 }

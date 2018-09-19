@@ -1,6 +1,7 @@
 //! This is heavily inspired by kiss3d's implementation of window and context.
 //! Go check out their code! https://github.com/sebcrozet/kiss3d
 
+use gl_context::{AbstractContext, Context};
 use window::{abstract_window::*, Event as EventWrapper, MouseButton as MouseButtonWrapper, *};
 
 use gl;
@@ -19,7 +20,14 @@ fn translate_event(event: &WindowEvent, hidpi_factor: f64) -> Option<EventWrappe
         CursorMoved {
             position: LogicalPosition { x, y },
             ..
-        } => Some(EventWrapper::CursorMoved { x, y }),
+        } => {
+            // OpenGL has to deal with High-DPI window scaling.
+            // We handle this inside the OpenGL module to avoid dealing with it
+            // everywhere in the codebase.
+            let x = x * hidpi_factor;
+            let y = y * hidpi_factor;
+            Some(EventWrapper::CursorMoved { x, y })
+        }
         MouseInput { state, button, .. } => Some(EventWrapper::CursorInput {
             pressed: state == ElementState::Pressed,
             button: MouseButtonWrapper::from(button),
@@ -137,6 +145,12 @@ impl AbstractWindow for GLWindow {
         self.window.swap_buffers().unwrap();
     }
 
+    fn set_size(&mut self, width: u32, height: u32) {
+        Context::get_context().viewport(0, 0, width as i32, height as i32);
+        self.height = height;
+        self.width = width;
+    }
+    
     fn get_size(&self) -> (u32, u32) {
         (self.width, self.height)
     }

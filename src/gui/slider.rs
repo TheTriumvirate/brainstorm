@@ -65,8 +65,10 @@ impl Slider {
 
     /// Moves the visible slider to match the `x` value.
     fn update_slider_pos(&mut self, x: f64) {
-        let c = self.pos_rel.get_coordinates();
+        use graphics::position::WindowCorner;
+
         // Cap to edges
+        let c = self.pos_rel.get_coordinates();
         let x = (x as f32).max(c.x1).min(c.x2);
 
         // Quantize to set intervals.
@@ -76,10 +78,13 @@ impl Slider {
         self.value = (fraction * self.steps) as u32 as f32 / self.steps;
 
         // Calculate new slider position
-        self.slider_pos.margin_horizontal =
-            self.pos_abs.margin_horizontal -
-            (self.slider_pos.width / 2) +
-            (self.pos_abs.width as f32 * self.value) as u32;
+        let mut margin = self.pos_abs.margin_horizontal - self.slider_pos.width / 2;
+        let m = (self.pos_abs.width as f32 * self.value) as u32;
+        margin += match self.slider_pos.anchor {
+            WindowCorner::BotLeft | WindowCorner::TopLeft => m,
+            _ => self.pos_abs.width - m,
+        };
+        self.slider_pos.margin_horizontal = margin;
         self.rect_slider = Rectangle::new(
             self.slider_pos.to_relative(self.cached_screensize).get_coordinates(),
             (0.7, 0.75, 0.8),
@@ -90,10 +95,11 @@ impl Slider {
 impl UiElement for Slider {
     fn is_within(&self, x: f64, y: f64) -> bool {
         let c = self.pos_rel.get_coordinates();
+        
         let slider_overflow = (c.x2 - c.x1) / 20.0;
         let x1 = c.x1 - slider_overflow;
         let x2 = c.x2 + slider_overflow;
-        x > x1.into() && x < x2.into() && y < c.y1.into() && y > c.y2.into()
+        x > x1.into() && x < x2.into() && y > c.y1.into() && y < c.y2.into()
     }
 
     fn click(&mut self, x: f64, _y: f64, state: &mut State) {

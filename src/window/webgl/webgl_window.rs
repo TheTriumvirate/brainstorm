@@ -2,6 +2,8 @@
 //! Go check out their code! https://github.com/sebcrozet/kiss3d
 #![allow(unused_results)]
 
+use gl_context::{AbstractContext, Context};
+
 use stdweb::unstable::TryInto;
 use stdweb::web::event::MouseButton as WebMouseButton;
 use stdweb::web::event::*;
@@ -175,6 +177,12 @@ impl AbstractWindow for WebGLWindow {
 
     fn swap_buffers(&mut self) {
         // No need to swap buffers on webgl
+    }
+
+    fn set_size(&mut self, width: u32, height: u32) {
+        Context::get_context().viewport(0, 0, width as i32, height as i32);
+        self.height = height;
+        self.width = width;
     }
 
     fn get_size(&self) -> (u32, u32) {

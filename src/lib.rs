@@ -22,8 +22,7 @@ pub mod gui;
 pub mod particles;
 pub mod window;
 
-use gl_context::AbstractContext;
-use gl_context::Context;
+use gl_context::{AbstractContext, Context};
 use graphics::Drawable;
 use particles::ParticleEngine;
 
@@ -91,9 +90,7 @@ impl App {
         // Handle events
         for event in &self.window.get_events() {
             match event {
-                Event::Resized(w, h) => {
-                    context.viewport(0, 0, *w as i32, *h as i32);
-                },
+                Event::Resized(w, h) => self.window.set_size(*w as u32, *h as u32),
                 _ => {}
             };
             self.gui
