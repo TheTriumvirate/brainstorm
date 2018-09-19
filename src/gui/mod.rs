@@ -4,7 +4,7 @@ mod button;
 mod slider;
 mod ui_element;
 
-use graphics::Drawable;
+use graphics::{Drawable, position};
 use window::*;
 use State;
 
@@ -17,53 +17,63 @@ pub struct Gui {
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
 }
 
-impl Default for Gui {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Gui {
     /// Creates the GUI for the application.
-    pub fn new() -> Self {
+    pub fn new(screensize: (f32, f32)) -> Self {
         let mut ui_elements: Vec<Box<ui_element::UiElement>> = Vec::new();
         ui_elements.push(Box::new(Button::new(
-            -0.90,
-            -0.60,
-            -0.80,
-            -0.90,
+            position::Absolute {
+                height: 75,
+                width: 200,
+                anchor: position::WindowCorner::BotLeft,
+                margin_vertical: 50,
+                margin_horizontal: 50,
+            },
             (0.44, 0.5, 0.56),
+            screensize,
             Box::new(|ref mut _context| {}),
         )));
         ui_elements.push(Box::new(Slider::new(
-            0.60,
-            0.90,
-            -0.64,
-            -0.73,
+            position::Absolute {
+                height: 75,
+                width: 400,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 300,
+                margin_horizontal: 50,
+            },
             20,
             0.0,
+            screensize,
             Box::new(|ref mut context, value| {
                 context.highpass_filter = value;
             }),
         )));
         ui_elements.push(Box::new(Slider::new(
-            0.60,
-            0.90,
-            -0.75,
-            -0.84,
+            position::Absolute {
+                height: 75,
+                width: 400,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 175,
+                margin_horizontal: 50,
+            },
             20,
             1.0,
+            screensize,
             Box::new(|ref mut context, value| {
                 context.lowpass_filter = value;
             }),
         )));
         ui_elements.push(Box::new(Slider::new(
-            0.60,
-            0.90,
-            -0.86,
-            -0.95,
+            position::Absolute {
+                height: 75,
+                width: 400,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 50,
+                margin_horizontal: 50,
+            },
             10,
             0.5,
+            screensize,
             Box::new(|ref mut context, value| {
                 context.speed_multiplier = value;
             }),
@@ -75,6 +85,11 @@ impl Gui {
     /// Handles events from the window, mutating application state as needed.
     pub fn handle_event(&mut self, event: &Event, state: &mut State, size: (u32, u32)) {
         match event {
+            Event::Resized(x, y) => {
+                for element in &mut self.ui_elements {
+                    element.resize((*x, *y));
+                }
+            }
             Event::KeyboardInput {
                 pressed: true,
                 key: Key::W,
@@ -84,6 +99,7 @@ impl Gui {
             Event::CursorMoved { x, y } => {
                 state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
                 state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
+                
                 for element in &mut self.ui_elements {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
                 }

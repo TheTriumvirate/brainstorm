@@ -22,9 +22,8 @@ pub mod gui;
 pub mod particles;
 pub mod window;
 
-use gl_context::AbstractContext;
-use gl_context::Context;
-use graphics::{Circle, Drawable};
+use gl_context::{AbstractContext, Context};
+use graphics::Drawable;
 use particles::ParticleEngine;
 
 use std::f32;
@@ -41,7 +40,6 @@ pub struct App {
     gui: Gui,
     state: State,
     particles: ParticleEngine,
-    circle: Circle,
 }
 
 /// Holds application state.
@@ -78,13 +76,12 @@ impl App {
     /// Starts 
     pub fn new() -> App {
         App {
-            window: Window::new("Brainstorm!", 1000, 1000),
+            window: Window::new("Brainstorm!", 900, 900),
             camera: camera::ArcBall::new(),
             time: 0.0,
-            gui: Gui::new(),
+            gui: Gui::new((1000.0, 1000.0)),
             state: State::new(),
             particles: ParticleEngine::new(),
-            circle: Circle::new(-0.8, -0.5, 0.04),
         }
     }
 
@@ -95,9 +92,7 @@ impl App {
         // Handle events
         for event in &self.window.get_events() {
             match event {
-                Event::Resized(w, h) => {
-                    context.viewport(0, 0, *w as i32, *h as i32);
-                },
+                Event::Resized(w, h) => self.window.set_size(*w as u32, *h as u32),
                 _ => {}
             };
             self.gui
@@ -117,7 +112,6 @@ impl App {
         let projection_matrix = self.camera.get_projection_matrix();
         self.particles.draw(&projection_matrix);
         self.gui.draw();
-        self.circle.draw();
 
         self.window.swap_buffers();
         self.time += 0.01;
