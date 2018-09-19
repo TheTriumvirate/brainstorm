@@ -24,8 +24,8 @@ impl Relative {
             width: pos.width as f32 / screensize.0 * 2.0,
             height: pos.height as f32 / screensize.1 * 2.0,
             anchor: pos.anchor,
-            margin_vertical:   pos.margin_vertical   as f32 / screensize.0 / 2.0,
-            margin_horizontal: pos.margin_horizontal as f32 / screensize.1 / 2.0,
+            margin_horizontal: pos.margin_horizontal as f32 / screensize.0 * 2.0,
+            margin_vertical:   pos.margin_vertical   as f32 / screensize.1 * 2.0,
         }
     }
 

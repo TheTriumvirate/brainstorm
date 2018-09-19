@@ -24,7 +24,7 @@ impl Gui {
         ui_elements.push(Box::new(Button::new(
             position::Absolute {
                 height: 75,
-                width: 125,
+                width: 200,
                 anchor: position::WindowCorner::BotLeft,
                 margin_vertical: 50,
                 margin_horizontal: 50,
@@ -36,9 +36,9 @@ impl Gui {
         ui_elements.push(Box::new(Slider::new(
             position::Absolute {
                 height: 75,
-                width: 125,
+                width: 400,
                 anchor: position::WindowCorner::BotRight,
-                margin_vertical: 150,
+                margin_vertical: 175,
                 margin_horizontal: 50,
             },
             20,
@@ -50,8 +50,8 @@ impl Gui {
         )));
         ui_elements.push(Box::new(Slider::new(
             position::Absolute {
-                height: 50,
-                width: 125,
+                height: 75,
+                width: 400,
                 anchor: position::WindowCorner::BotRight,
                 margin_vertical: 50,
                 margin_horizontal: 50,

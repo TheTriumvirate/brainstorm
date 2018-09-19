@@ -20,9 +20,6 @@ impl Button {
         func: Box<dyn FnMut(&mut State)>,
     ) -> Self {
         let pos_rel = pos_abs.to_relative(screensize);
-        println!("{:#?}", pos_abs);
-        println!("{:#?}", pos_rel);
-        println!("{:#?}", pos_rel.get_coordinates());
         Self {
             pos_abs,
             pos_rel,
