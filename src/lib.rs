@@ -16,6 +16,8 @@ extern crate serde;
 
 extern crate gl_context;
 
+extern crate resources;
+
 pub mod camera;
 pub mod graphics;
 pub mod gui;

@@ -5,12 +5,6 @@ use Context;
 use NativeTexture;
 use shaders::OurShader;
 
-const DEFAULT_TEXTURE: &[u8] = include_bytes!("default.png");
-
-lazy_static! {
-    static ref DEFAULT: Texture = Texture::new(32, 32, DEFAULT_TEXTURE);
-}
-
 pub struct Texture {
     texture: NativeTexture,
 }
@@ -58,9 +52,5 @@ impl Texture {
         context.active_texture(Context::TEXTURE0);
         self.bind();
         shader.uniform1i("uSampler", 0);
-    }
-
-    pub fn default() -> &'static Self {
-        &DEFAULT
     }
 }

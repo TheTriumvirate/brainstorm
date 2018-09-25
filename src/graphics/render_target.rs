@@ -10,7 +10,7 @@ pub fn draw_indices(vertex_data: &Buffer<f32>, index_data: &Buffer<u16>) {
     vertex_data.bind();
     index_data.bind();
     OurShader::default().bind_attribs();
-    Texture::default().activate(OurShader::default());
+    //Texture::default().activate(OurShader::default());
 
     context.draw_elements(
         Context::TRIANGLES,

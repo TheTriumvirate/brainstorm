@@ -3,7 +3,7 @@ use super::FieldProvider;
 use bincode::deserialize;
 use std::f32;
 
-const TEST_DATA: &[u8] = include_bytes!("test_spiral.bincode");
+use resources::fields::TEST_DATA;
 
 type Vector3 = (f32, f32, f32);
 

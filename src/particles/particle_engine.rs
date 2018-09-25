@@ -8,6 +8,8 @@ use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformL
 use particles::fieldprovider::{FieldProvider, SphereFieldProvider};
 use State;
 
+use resources::shaders::*;
+
 const PARTICLE_COUNT: usize = 100_000;
 
 /// Struct containing the data for a single particle.
@@ -60,8 +62,8 @@ impl ParticleEngine {
 
         // Set up shaders
         let vertex_shader =
-            str::from_utf8(shaders::PARTICLES_VERTEX_SHADER).expect("Failed to read vertex shader");
-        let fragment_shader = str::from_utf8(shaders::PARTICLES_FRAGMENT_SHADER)
+            str::from_utf8(PARTICLES_VERTEX_SHADER).expect("Failed to read vertex shader");
+        let fragment_shader = str::from_utf8(PARTICLES_FRAGMENT_SHADER)
             .expect("Failed to read fragment shader");
 
         let mut attributes = Vec::new();
