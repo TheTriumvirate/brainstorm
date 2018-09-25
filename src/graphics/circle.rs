@@ -21,7 +21,7 @@ impl Circle {
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
         let mut vertex_data = Vec::new();
-        vertex_data.extend_from_slice(&[x, y, 1.0, 1.0, 1.0, 0.0, 0.0]);
+        vertex_data.extend_from_slice(&[x, y, 1.0, 1.0, 1.0, 0.5, 0.5]);
 
         let mut index_data = Vec::new();
 
@@ -30,7 +30,7 @@ impl Circle {
             let dt = progress * f32::consts::PI * 2.0;
             let dx = x + radius * dt.cos();
             let dy = y + radius * dt.sin();
-            vertex_data.extend_from_slice(&[dx, dy, 1.0, 1.0, 1.0, 0.0, 0.0]);
+            vertex_data.extend_from_slice(&[dx, dy, 1.0, 1.0, 1.0, dx / 2.0 + 0.5, dy / 2.0 + 0.5]);
 
             if i > 0 {
                 let idx = i as u16;

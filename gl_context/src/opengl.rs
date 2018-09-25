@@ -17,6 +17,7 @@ use Shader;
 use AbstractContext;
 use NativeBuffer;
 use Context;
+use NativeTexture;
 
 pub type GLShader = u32;
 pub type GLProgram = u32;
@@ -27,6 +28,7 @@ pub type GLintptr = gl::types::GLintptr;
 pub type GLBuffer = u32;
 pub type GLVertexArray = u32;
 pub type GLUint = u32;
+pub type GLTexture = u32;
 
 lazy_static! {
     static ref CONTEXT: Context = GLContext::new();
@@ -74,6 +76,10 @@ impl AbstractContext for GLContext {
     const TRIANGLE_FAN: u32 = gl::TRIANGLE_FAN;
     const TRIANGLES: u32 = gl::TRIANGLES;
     const UNSIGNED_SHORT: u32 = gl::UNSIGNED_SHORT;
+    const TEXTURE_2D: u32 = gl::TEXTURE_2D;
+    const UNSIGNED_BYTE: u32 = gl::UNSIGNED_BYTE;
+    const RGBA: u32 = gl::RGBA;
+    const TEXTURE0: u32 = gl::TEXTURE0;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -268,6 +274,49 @@ impl AbstractContext for GLContext {
     fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>) {
         unsafe {
             gl::UniformMatrix4fv(*location as i32, size, transpose as u8, matrix as *const na::Matrix<f32, na::U4, na::U4, na::MatrixArray<f32, na::U4, na::U4>> as *const f32);
+        }
+    }
+    
+    fn uniform1i(&self, location: &UniformLocation, x: i32) {
+        unsafe {
+            gl::Uniform1i(*location as i32, x);
+        }
+    }
+    
+    fn create_texture(&self) -> Option<NativeTexture> {
+        let mut texture = 0;
+        unsafe {
+            gl::GenTextures(1, &mut texture);
+        }
+        Some(texture)
+    }
+
+    fn bind_texture(&self, target: GLEnum, texture: &NativeTexture) {
+        unsafe {
+            gl::BindTexture(target, *texture);
+        }
+    }
+
+    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: &[u8]) {
+        unsafe {
+            gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::UNSIGNED_BYTE, mem::transmute(&pixels[0]));
+        }
+    }
+    fn delete_texture(&self, texture: &NativeTexture) {
+        unsafe {
+            gl::DeleteTextures(1, texture);
+        }
+    }
+    
+    fn active_texture(&self, _type: GLEnum) {
+        unsafe {
+            gl::ActiveTexture(_type);
+        }
+    }
+    
+    fn generate_mipmap(&self, target: GLEnum) {
+        unsafe {
+            gl::GenerateMipmap(target); 
         }
     }
 

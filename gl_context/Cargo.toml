@@ -2,15 +2,12 @@
 name = "gl_context"
 version = "0.1.0"
 authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "Vegard Itland <veggitland@hotmail.com>"]
-build = "build.rs"
 readme = "readme.md"
 
 [dependencies]
 nalgebra = "0.16"
 lazy_static = "1.1.0"
-
-[build-dependencies]
-webgl_generator = "0.1"
+image = "0.19"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 gl = "0.10"

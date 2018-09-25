@@ -38,7 +38,7 @@ impl UiElement for Button {
 
     fn click(&mut self, _x: f64, _y: f64, state: &mut State) {
         let func = &mut self.func;
-        self.color = (1.0, 1.0, 1.0);
+        self.color = (1.0, 0.0, 0.0);
         self.rect = Rectangle::new(self.pos_rel.get_coordinates(), self.color);
         func(state);
     }

@@ -28,10 +28,11 @@ use Shader;
 use AbstractContext;
 use NativeBuffer;
 use Context;
+use NativeTexture;
 
 use self::webgl_bindings::{
     WebGLRenderingContext, WebGLBuffer, WebGLProgram,
-    WebGLShader, WebGLUniformLocation
+    WebGLShader, WebGLUniformLocation, WebGLTexture
 };
 
 pub use self::webgl_bindings::{
@@ -44,6 +45,7 @@ pub type UniformLocation = WebGLUniformLocation;
 pub type GLEnum = GLenum;
 pub type GLBuffer = WebGLBuffer;
 pub type GLUint = u32;
+pub type GLTexture = WebGLTexture;
 
 lazy_static! {
     static ref CONTEXT: Context = WebGLContext::new();
@@ -86,6 +88,10 @@ impl AbstractContext for WebGLContext {
     const TRIANGLE_FAN: u32 = WebGLRenderingContext::TRIANGLE_FAN;
     const TRIANGLES: u32 = WebGLRenderingContext::TRIANGLES;
     const UNSIGNED_SHORT: u32 = WebGLRenderingContext::UNSIGNED_SHORT;
+    const TEXTURE_2D: u32 = WebGLRenderingContext::TEXTURE_2D;
+    const UNSIGNED_BYTE: u32 = WebGLRenderingContext::UNSIGNED_BYTE;
+    const RGBA: u32 = WebGLRenderingContext::RGBA;
+    const TEXTURE0: u32 = WebGLRenderingContext::TEXTURE0;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -216,6 +222,33 @@ impl AbstractContext for WebGLContext {
 
     fn uniform_matrix_4fv(&self, location: &UniformLocation, _size: i32, transpose: bool, matrix: &Matrix4<f32>) {
         self.context.uniform_matrix4fv(Some(location), transpose, matrix.as_slice())
+    }
+    
+    fn uniform1i(&self, location: &UniformLocation, x: i32) {
+        self.context.uniform1i(Some(location), x);
+    }
+    
+    fn create_texture(&self) -> Option<NativeTexture> {
+        self.context.create_texture()
+    }
+
+    fn bind_texture(&self, target: GLEnum, texture: &NativeTexture) {
+        self.context.bind_texture(target, Some(texture));
+    }
+
+    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: &[u8]) {
+        self.context.tex_image2_d(target, level, internalformat, width, height, border, format, Self::UNSIGNED_BYTE, Some(pixels));
+    }
+    fn delete_texture(&self, texture: &NativeTexture) {
+        self.context.delete_texture(Some(texture));
+    }
+    
+    fn active_texture(&self, _type: GLEnum) {
+        self.context.active_texture(_type);
+    }
+    
+    fn generate_mipmap(&self, target: GLEnum) {
+        self.context.generate_mipmap(target);
     }
 
     fn draw_arrays(&self, type_: GLEnum, first: i32, count: i32) {

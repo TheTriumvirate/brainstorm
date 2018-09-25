@@ -28,6 +28,7 @@ pub type Buffer = ContextImpl::GLBuffer;
 pub type GLUint = ContextImpl::GLUint;
 pub type Shader = ContextImpl::GLShader;
 pub type Program = ContextImpl::GLProgram;
+pub type Texture = ContextImpl::GLTexture;
 
 /// Represents the common interface of OpenGL and WebGL.
 /// Check the OpenGL and WebGL documentation for details.
@@ -49,6 +50,10 @@ pub trait AbstractContext {
     const TRIANGLE_FAN: u32;
     const TRIANGLES: u32;
     const UNSIGNED_SHORT: u32;
+    const TEXTURE_2D: u32;
+    const UNSIGNED_BYTE: u32;
+    const RGBA: u32;
+    const TEXTURE0: u32;
 
     fn get_context() -> &'static Context;
     
@@ -89,6 +94,14 @@ pub trait AbstractContext {
     
     fn get_uniform_location(&self, program: &Program, name: &str) -> UniformLocation;
     fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>);
+    fn uniform1i(&self, location: &UniformLocation, x: i32);
+
+    fn create_texture(&self) -> Option<Texture>;
+    fn bind_texture(&self, target: GLEnum, texture: &Texture);
+    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: &[u8]);
+    fn delete_texture(&self, texture: &Texture);
+    fn active_texture(&self, _type: GLEnum);
+    fn generate_mipmap(&self, target: GLEnum);
 
     fn draw_arrays(&self, type_: GLEnum, first: i32, count: i32);
     fn draw_elements(&self, mode: GLEnum, count: i32, type_: GLEnum, offset: GLintptr);

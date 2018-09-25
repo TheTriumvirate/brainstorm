@@ -18,6 +18,7 @@ extern crate serde;
 #[macro_use]
 extern crate lazy_static;
 extern crate nalgebra as na;
+extern crate image;
 
 #[cfg(target_arch = "wasm32")]
 pub mod webgl;
@@ -26,6 +27,7 @@ pub mod opengl;
 pub mod shaders;
 mod context;
 mod buffer;
+mod texture;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use opengl::GLContext as Context;
@@ -33,6 +35,8 @@ pub use opengl::GLContext as Context;
 pub use webgl::WebGLContext as Context;
 
 pub use context::Buffer as NativeBuffer;
+pub use context::Texture as NativeTexture;
 pub use context::*;
 pub use buffer::Buffer;
 pub use buffer::BufferType;
+pub use texture::Texture;

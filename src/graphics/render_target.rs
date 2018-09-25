@@ -1,5 +1,5 @@
 //! Methods for interacting with the render target.
-use gl_context::{shaders::*, AbstractContext, Buffer, Context};
+use gl_context::{shaders::*, AbstractContext, Buffer, Context, Texture};
 
 /// Draws vertices/indices to the render target.
 /// Precondition: correct shader is bound.
@@ -10,6 +10,7 @@ pub fn draw_indices(vertex_data: &Buffer<f32>, index_data: &Buffer<u16>) {
     vertex_data.bind();
     index_data.bind();
     OurShader::default().bind_attribs();
+    Texture::default().activate(OurShader::default());
 
     context.draw_elements(
         Context::TRIANGLES,

@@ -57,9 +57,12 @@ pub struct SphereFieldProvider {
 
 impl SphereFieldProvider {
     fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> (f32, f32, f32) {
-        if fx > self.width || fy > self.height || fz > self.depth {
+        let fx = fx.min(self.width);
+        let fy = fy.min(self.height);
+        let fz = fz.min(self.depth);
+        /*if fx > self.width || fy > self.height || fz > self.depth {
             return (0.0, 0.0, 0.0);
-        }
+        }*/
         let index = fz + fy * self.width + fx * self.width * self.height;
         self.data[index]
         //(0.0, 0.0, 0.0)

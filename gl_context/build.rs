@@ -1,4 +1,4 @@
-extern crate webgl_generator;
+/*extern crate webgl_generator;
 
 use std::fs::File;
 use webgl_generator::*;
@@ -11,3 +11,6 @@ fn main() {
         .unwrap();
 }
 
+*/
+
+fn main() {}
