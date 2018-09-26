@@ -1,4 +1,4 @@
-use graphics::{render_target, Drawable};
+use graphics::{render_target, Drawable, RenderStates};
 use std::f32;
 use gl_context::{Buffer, BufferType};
 
@@ -56,6 +56,6 @@ impl Circle {
 
 impl Drawable for Circle {
     fn draw(&self) {
-        render_target::draw_indices(&self.vertices, &self.indices);
+        render_target::draw_indices(&self.vertices, &self.indices, RenderStates::from(self));
     }
 }

@@ -26,22 +26,22 @@ impl Rectangle {
             color.0,
             color.1,
             color.2,
-            0.5,
+            1.0,
             0.0,
             pos.x2,
             pos.y2,
             color.0,
             color.1,
             color.2,
-            0.5,
-            0.5,
+            1.0,
+            1.0,
             pos.x1,
             pos.y2,
             color.0,
             color.1,
             color.2,
             0.0,
-            0.5,
+            1.0,
         ]);
         indices.set_data(&[0, 1, 2, 0, 2, 3]);
 
@@ -59,6 +59,6 @@ impl Rectangle {
 
 impl Drawable for Rectangle {
     fn draw(&self) {
-        render_target::draw_indices(&self.vertices, &self.indices);
+        render_target::draw_indices(&self.vertices, &self.indices, RenderStates::from(self));
     }
 }
