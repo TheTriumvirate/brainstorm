@@ -79,7 +79,15 @@ impl AbstractContext for GLContext {
     const TEXTURE_2D: u32 = gl::TEXTURE_2D;
     const UNSIGNED_BYTE: u32 = gl::UNSIGNED_BYTE;
     const RGBA: u32 = gl::RGBA;
+    const LUMINANCE: u32 = gl::RED;
     const TEXTURE0: u32 = gl::TEXTURE0;
+    const TEXTURE_WRAP_S: u32 = gl::TEXTURE_WRAP_S;
+    const TEXTURE_WRAP_T: u32 = gl::TEXTURE_WRAP_T;
+    const CLAMP_TO_EDGE: u32 = gl::CLAMP_TO_EDGE;
+    const TEXTURE_MIN_FILTER: u32 = gl::TEXTURE_MIN_FILTER;
+    const TEXTURE_MAG_FILTER: u32 = gl::TEXTURE_MAG_FILTER;
+    const LINEAR: u32 = gl::LINEAR;
+    const UNPACK_ALIGNMENT: u32 = gl::UNPACK_ALIGNMENT;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -296,12 +304,62 @@ impl AbstractContext for GLContext {
             gl::BindTexture(target, *texture);
         }
     }
+    
 
-    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: &[u8]) {
+    fn tex_parameteri(&self, target: GLEnum, pname: GLEnum, param: i32) {
+        unsafe { gl::TexParameteri(target, pname, param) }
+    }
+
+    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>) {
         unsafe {
-            gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::UNSIGNED_BYTE, mem::transmute(&pixels[0]));
+            match pixels {
+                Some(data) => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::UNSIGNED_BYTE, mem::transmute(&data[0])),
+                _ => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::UNSIGNED_BYTE, ptr::null()),
+            }
         }
     }
+
+    fn tex_sub_image2d(
+        &self,
+        target: GLEnum,
+        level: i32,
+        xoffset: i32,
+        yoffset: i32,
+        width: i32,
+        height: i32,
+        format: GLEnum,
+        pixels: Option<&[u8]>,
+    ) {
+        match pixels {
+            Some(pixels) => unsafe {
+                gl::TexSubImage2D(
+                    target,
+                    level,
+                    xoffset,
+                    yoffset,
+                    width,
+                    height,
+                    format,
+                    Self::UNSIGNED_BYTE,
+                    mem::transmute(&pixels[0]),
+                )
+            },
+            None => unsafe {
+                gl::TexSubImage2D(
+                    target,
+                    level,
+                    xoffset,
+                    yoffset,
+                    width,
+                    height,
+                    format,
+                    Self::UNSIGNED_BYTE,
+                    ptr::null(),
+                )
+            },
+        }
+    }
+
     fn delete_texture(&self, texture: &NativeTexture) {
         unsafe {
             gl::DeleteTextures(1, texture);
@@ -336,5 +394,9 @@ impl AbstractContext for GLContext {
         unsafe {
             gl::Viewport(x, y, width, height);
         }
+    }
+    
+    fn pixel_storei(&self, pname: GLEnum, param: i32) {
+        unsafe { gl::PixelStorei(pname, param) }
     }
 }

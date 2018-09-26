@@ -40,3 +40,4 @@ pub use context::*;
 pub use buffer::Buffer;
 pub use buffer::BufferType;
 pub use texture::Texture;
+pub use texture::TextureFormat;

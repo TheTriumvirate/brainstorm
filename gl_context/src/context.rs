@@ -53,7 +53,15 @@ pub trait AbstractContext {
     const TEXTURE_2D: u32;
     const UNSIGNED_BYTE: u32;
     const RGBA: u32;
+    const LUMINANCE: u32;
     const TEXTURE0: u32;
+    const TEXTURE_WRAP_S: u32;
+    const TEXTURE_WRAP_T: u32;
+    const CLAMP_TO_EDGE: u32;
+    const TEXTURE_MIN_FILTER: u32;
+    const TEXTURE_MAG_FILTER: u32;
+    const LINEAR: u32;
+    const UNPACK_ALIGNMENT: u32;
 
     fn get_context() -> &'static Context;
     
@@ -98,7 +106,9 @@ pub trait AbstractContext {
 
     fn create_texture(&self) -> Option<Texture>;
     fn bind_texture(&self, target: GLEnum, texture: &Texture);
-    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: &[u8]);
+    fn tex_parameteri(&self, target: GLEnum, pname: GLEnum, param: i32);
+    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>);
+    fn tex_sub_image2d(&self, target: GLEnum, level: i32, xoffset: i32, yoffset: i32, width: i32, height: i32, format: GLEnum, pixels: Option<&[u8]>);
     fn delete_texture(&self, texture: &Texture);
     fn active_texture(&self, _type: GLEnum);
     fn generate_mipmap(&self, target: GLEnum);
@@ -107,6 +117,8 @@ pub trait AbstractContext {
     fn draw_elements(&self, mode: GLEnum, count: i32, type_: GLEnum, offset: GLintptr);
 
     fn viewport(&self, x: i32, y: i32, width: i32, height: i32);
+
+    fn pixel_storei(&self, pname: GLEnum, param: i32);
 }
 
 impl GlPrimitive for f32 {

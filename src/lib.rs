@@ -18,6 +18,11 @@ extern crate gl_context;
 
 extern crate resources;
 
+extern crate unicode_normalization;
+
+extern crate image;
+extern crate rusttype;
+
 pub mod camera;
 pub mod graphics;
 pub mod gui;
@@ -33,6 +38,12 @@ use std::f32;
 use camera::Camera;
 use gui::*;
 use window::*;
+
+use graphics::Text;
+use graphics::Font;
+
+use resources::fonts::DEFAULT;
+use std::rc::Rc;
 
 /// Holds application resources.
 pub struct App {
@@ -77,6 +88,8 @@ impl Default for State {
 impl App {
     /// Starts 
     pub fn new() -> App {
+        //test.render_to_image();
+
         App {
             window: Window::new("Brainstorm!", 900, 900),
             camera: camera::ArcBall::new(),
@@ -114,6 +127,10 @@ impl App {
         let projection_matrix = self.camera.get_projection_matrix();
         self.particles.draw(&projection_matrix);
         self.gui.draw();
+
+        let font = Rc::from(Font::from_bytes(DEFAULT));
+        let test = Text::new("Brainstorm".to_string(), font.clone());
+        test.draw();
 
         self.window.swap_buffers();
         self.time += 0.01;

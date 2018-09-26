@@ -60,6 +60,10 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
         self.data = data.to_vec()
     }
 
+    pub fn push(&mut self, data: &[T]) {
+        self.data.extend_from_slice(data);
+    }
+
     /// Uploads the data to the GPU.
     pub fn upload_data(&mut self, offset: usize, length: usize, is_static: bool) {
         let alloc_type = if is_static {
