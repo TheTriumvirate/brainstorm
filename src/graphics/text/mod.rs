@@ -18,10 +18,10 @@ pub struct Text<'a> {
 }
 
 impl<'a> Drawable for Text<'a> {
-    fn get_texture(&self) -> Option<&Texture> {
-        let texture : &'a Texture = self.font.get_mut().get_texture();
-        /*Some(&texture)*/
-        None
+    fn get_texture(&self) -> Option<Rc<Texture>> {
+        let texture = self.font.borrow().get_texture();
+        Some(texture)
+        //None
     }
 
     fn draw(&self) {

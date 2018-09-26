@@ -106,6 +106,7 @@ pub trait AbstractContext {
 
     fn create_texture(&self) -> Option<Texture>;
     fn bind_texture(&self, target: GLEnum, texture: &Texture);
+    fn unbind_texture(&self, target: GLEnum);
     fn tex_parameteri(&self, target: GLEnum, pname: GLEnum, param: i32);
     fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>);
     fn tex_sub_image2d(&self, target: GLEnum, level: i32, xoffset: i32, yoffset: i32, width: i32, height: i32, format: GLEnum, pixels: Option<&[u8]>);

@@ -305,6 +305,11 @@ impl AbstractContext for GLContext {
         }
     }
     
+    fn unbind_texture(&self, target: GLEnum) {
+        unsafe {
+            gl::BindTexture(target, 0);
+        }
+    }
 
     fn tex_parameteri(&self, target: GLEnum, pname: GLEnum, param: i32) {
         unsafe { gl::TexParameteri(target, pname, param) }

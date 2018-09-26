@@ -97,7 +97,7 @@ impl Texture {
 
     pub fn bind(&self) {
         let context = Context::get_context();
-        context.bind_texture(Context::TEXTURE_2D, &self.texture);        
+        context.bind_texture(Context::TEXTURE_2D, &self.texture);
     }
 
     pub fn activate(&self, shader: Option<&OurShader>) {
@@ -110,12 +110,18 @@ impl Texture {
         }
     }
 
+    pub fn unbind(&self) {
+        let context = Context::get_context();
+        context.unbind_texture(Context::TEXTURE_2D);   
+    }
+
     pub fn update_sub_rect(&self, x: i32, y: i32, w: i32, h: i32, data: &[u8]) {
         self.bind();
         self.activate(None);
         let context = Context::get_context();
         //let format = self.format.into();
-        context.tex_sub_image2d(Context::TEXTURE_2D, 0, x, y, w, h, Context::LUMINANCE, Some(&data))
+        context.tex_sub_image2d(Context::TEXTURE_2D, 0, x, y, w, h, Context::LUMINANCE, Some(&data));
+        self.unbind();
     }
 }
 

@@ -14,19 +14,21 @@ pub use self::text::font::Font;
 
 use gl_context::{Texture, shaders::OurShader};
 
+use std::rc::Rc;
+
 /// Represents something that can be drawn.
 pub trait Drawable {
-    fn get_texture(&self) -> Option<&Texture> {None}
+    fn get_texture(&self) -> Option<Rc<Texture>> {None}
     fn get_shader(&self) -> Option<&OurShader> {None}
     fn draw(&self);
 }
 
-pub struct RenderStates<'a> {
-    pub texture: Option<&'a Texture>,
+pub struct RenderStates {
+    pub texture: Option<Rc<Texture>>,
 }
 
-impl<'a, T:'a> From<&'a T> for RenderStates<'a> where T: Drawable {
-    fn from(drawable: &'a T) -> RenderStates<'a> {
+impl<'a, T> From<&'a T> for RenderStates where T: Drawable {
+    fn from(drawable: &'a T) -> RenderStates {
         RenderStates {
             texture: drawable.get_texture()
         }

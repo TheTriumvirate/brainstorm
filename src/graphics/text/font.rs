@@ -3,9 +3,11 @@ use rusttype::{point, Font as TFont, Scale, Rect, PositionedGlyph, vector};
 
 use gl_context::{Texture, TextureFormat, Buffer};
 
+use std::rc::Rc;
+
 pub struct Font<'a> {
     font: TFont<'a>,
-    texture: Texture,
+    texture: Rc<Texture>,
     cache: Cache<'a>,
 }
 
@@ -19,13 +21,13 @@ impl<'a> Font<'a> {
 
         Font {
             font,
-            texture: Texture::new(512, 512, TextureFormat::LUMINANCE, None),
+            texture: Rc::from(Texture::new(512, 512, TextureFormat::LUMINANCE, None)),
             cache,
         }
     }
 
-    pub fn get_texture(&self) -> &Texture {
-        return &self.texture;
+    pub fn get_texture(&self) -> Rc<Texture> {
+        return self.texture.clone();
     }
     
     pub fn update_texture<'b>(&mut self, text: &str, vertices: &mut Buffer<f32>, indices: &mut Buffer<u16>) {
@@ -36,7 +38,7 @@ impl<'a> Font<'a> {
             self.cache.queue_glyph(0, glyph.clone());
         }
         
-        let texture : &Texture = &self.texture;
+        let texture : &Texture = self.texture.as_ref();
         self.cache.cache_queued(|rect, data| {
             texture.update_sub_rect(
                 rect.min.x as i32,
