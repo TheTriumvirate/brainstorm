@@ -1,37 +1,43 @@
-use rusttype::gpu_cache::{Cache, CacheBuilder};
+use rusttype::gpu_cache::{Cache};
 use rusttype::{point, Font as TFont, Scale, Rect, PositionedGlyph, vector};
 
-use gl_context::{Texture, TextureFormat, shaders::OurShader, Buffer, BufferType};
+use gl_context::{Texture, TextureFormat, Buffer};
 
 pub struct Font<'a> {
     font: TFont<'a>,
+    texture: Texture,
+    cache: Cache<'a>,
 }
 
 impl<'a> Font<'a> {
     pub fn from_bytes(data: &'a[u8]) -> Self {
         let font = TFont::from_bytes(data).expect("Could not load font from bytes");
         
+        let cache = Cache::builder()
+            .dimensions(512, 512)
+            .build();
+
         Font {
             font,
+            texture: Texture::new(512, 512, TextureFormat::LUMINANCE, None),
+            cache,
         }
     }
+
+    pub fn get_texture(&self) -> &Texture {
+        return &self.texture;
+    }
     
-    pub fn update_texture<'b>(&self, cache: &'b mut Cache<'a>, texture: &Texture, text: &str, vertices: &mut Buffer<f32>, indices: &mut Buffer<u16>) {
+    pub fn update_texture<'b>(&mut self, text: &str, vertices: &mut Buffer<f32>, indices: &mut Buffer<u16>) {
         let glyphs = self.layout_paragraph(Scale::uniform(24.0), 512, text);
 
         for glyph in &glyphs {
             // TODO: font-ids
-            cache.queue_glyph(0, glyph.clone());
+            self.cache.queue_glyph(0, glyph.clone());
         }
-
-        cache.cache_queued(|rect, data| {
-            /*println!("{:?}", rect);
-            for i in 0..rect.height() {
-                for j in 0..rect.width() {
-                    print!("[{: >3}]", data[(i * rect.width() + j) as usize]);
-                }
-                println!("");
-            }*/
+        
+        let texture : &Texture = &self.texture;
+        self.cache.cache_queued(|rect, data| {
             texture.update_sub_rect(
                 rect.min.x as i32,
                 rect.min.y as i32,
@@ -45,7 +51,7 @@ impl<'a> Font<'a> {
     let mut idx = 0;
 
         for g in glyphs {
-            if let Ok(Some((uv_rect, screen_rect))) = cache.rect_for(0, &g) { // TODO: font-ids
+            if let Ok(Some((uv_rect, screen_rect))) = self.cache.rect_for(0, &g) { // TODO: font-ids
                 let gl_rect = Rect {
                     min: origin
                         + (vector(

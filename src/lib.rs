@@ -44,6 +44,7 @@ use graphics::Font;
 
 use resources::fonts::DEFAULT;
 use std::rc::Rc;
+use std::cell::RefCell;
 
 /// Holds application resources.
 pub struct App {
@@ -128,7 +129,7 @@ impl App {
         self.particles.draw(&projection_matrix);
         self.gui.draw();
 
-        let font = Rc::from(Font::from_bytes(DEFAULT));
+        let font = Rc::from(RefCell::from(Font::from_bytes(DEFAULT)));
         let test = Text::new("Brainstorm".to_string(), font.clone());
         test.draw();
 
