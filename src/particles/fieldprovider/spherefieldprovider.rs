@@ -56,20 +56,19 @@ pub struct SphereFieldProvider {
 }
 
 impl SphereFieldProvider {
-    fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> (f32, f32, f32) {
-        //let fx = fx.min(self.width);
-        //let fy = fy.min(self.height);
-        //let fz = fz.min(self.depth);
-        if fx > self.width || fy > self.height || fz > self.depth {
-            return (0.0, 0.0, 0.0);
+    fn get_vec(&self, pos: (usize, usize, usize)) -> (f32, f32, f32) {
+        match pos {
+            (fx,fy,fz) if fx >= self.width() || fy >= self.height() || fz >= self.depth() => (0.0,0.0,0.0),
+            (fx,fy,fz) => self.get(fx,fy,fz),
         }
-        let index = fz + fy * self.width + fx * self.width * self.height;
-        self.data[index]
-        //(0.0, 0.0, 0.0)
     }
 }
 
 impl FieldProvider for SphereFieldProvider {
+    fn width(&self) -> usize { self.width }
+    fn height(&self) -> usize { self.height }
+    fn depth(&self) -> usize { self.depth }
+    
     fn new() -> Self {
         let mut data = Vec::new();
         let x: VectorField = deserialize(TEST_DATA).unwrap();
