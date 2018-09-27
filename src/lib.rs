@@ -131,7 +131,7 @@ impl App {
         self.gui.draw();
 
         let font = Rc::from(RefCell::from(Font::from_bytes(DEFAULT)));
-        let test = Text::new("Brainstorm".to_string(), font.clone());
+        let test = Text::new("Brainstorm".to_string(), font.clone(), 0.0, 0.0);
         test.draw();
 
         self.window.swap_buffers();
