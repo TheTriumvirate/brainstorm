@@ -236,6 +236,10 @@ impl AbstractContext for WebGLContext {
         self.context.uniform1i(Some(location), x);
     }
     
+    fn uniform1f(&self, location: &UniformLocation, x: f32) {
+        self.context.uniform1f(Some(location), x);
+    }
+    
     fn create_texture(&self) -> Option<NativeTexture> {
         self.context.create_texture()
     }
