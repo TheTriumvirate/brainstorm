@@ -80,12 +80,11 @@ impl ParticleEngine {
         // Find the max velocity to be used with the high-pass filter later.
         let field_provider = SphereFieldProvider::new();
         let mut max_dist: f32 = 0.0;
-        for position in field_provider.data() {
-            let delta = field_provider.delta(*position);
+        for delta in field_provider.data() {
             let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
             max_dist = max_dist.max(dist);
         }
-
+        
         ParticleEngine {
             particles,
             particle_data: data,
@@ -124,6 +123,10 @@ impl ParticleEngine {
             data.position.2 += delta.2 * speed_multiplier;
 
             let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
+            if dist.is_nan() {
+                data.lifetime = 500.0;
+                continue;
+            }
 
             // High-pass filter
             if dist < self.max_dist * state.highpass_filter {
