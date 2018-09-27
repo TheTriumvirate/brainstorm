@@ -57,7 +57,6 @@ pub struct WebGLContext {
 
 impl WebGLContext {
     fn new() -> Self {
-        stdweb::initialize();
         let canvas: CanvasElement = document()
             .query_selector("#canvas")
             .expect("No canvas found")

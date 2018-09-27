@@ -9,6 +9,7 @@ extern crate nalgebra as na;
 extern crate noise;
 extern crate rand;
 #[cfg(target_arch = "wasm32")]
+#[macro_use]
 extern crate stdweb;
 #[macro_use]
 extern crate serde_derive;
@@ -85,6 +86,9 @@ impl Default for State {
 impl App {
     /// Starts the application.
     pub fn new() -> App {
+        #[cfg(target_arch = "wasm32")] {
+            stdweb::initialize();
+        }
         App {
             window: Window::new("Brainstorm!", 900, 900),
             camera: camera::ArcBall::new(),

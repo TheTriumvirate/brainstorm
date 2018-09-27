@@ -10,7 +10,7 @@ use stdweb::web::event::*;
 use stdweb::web::html_element::CanvasElement;
 use stdweb::web::{document, window, IEventTarget, IParentNode};
 
-use std::cell::RefCell;
+use std::cell::{RefCell, Cell};
 use std::rc::Rc;
 
 use window::abstract_window::*;
@@ -65,66 +65,85 @@ impl AbstractWindow for WebGLWindow {
                 .push(EventWrapper::Resized(width as f32, height as f32))
         }
 
-        let pointers = RefCell::new(Vec::new());
+        let pointers = Rc::new(RefCell::new(Vec::new()));
+        let prev_dist = Rc::new(Cell::new(-1.0));
 
         // TODO: Refractor event registration
-        canvas.add_event_listener(enclose!((events) move |event: MouseMoveEvent| {
-            events.borrow_mut().push(EventWrapper::CursorMoved{x: event.client_x() as f64, y: event.client_y() as f64});
-        }));
-
-        canvas.add_event_listener(enclose!((events) move |event: MouseDownEvent| {
-            events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::from(event.button()), pressed: true});
-        }));
-
-        canvas.add_event_listener(enclose!((events) move |event: MouseUpEvent| {
-            events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::from(event.button()), pressed: false});
-        }));
-
         canvas.add_event_listener(enclose!((events) move |event: MouseWheelEvent| {
             events.borrow_mut().push(EventWrapper::CursorScroll(event.delta_x().signum() as f32, -event.delta_y().signum() as f32));
         }));
 
         canvas.add_event_listener(enclose!((events, pointers) move |event: PointerDownEvent| {
+            
+            let x : f64 = js!(return @{&event}.clientX;).try_into().expect("Expected clientX");
+            let y : f64 = js!(return @{&event}.clientY;).try_into().expect("Expected clientY");
+            
+            
             pointers.borrow_mut().push(PointerData {
                 id: event.pointer_id(),
-                client_x: event.client_x() as f32,
-                client_y: event.client_y() as f32,
+                client_x: x as f32,
+                client_y: y as f32,
             });
-            events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::from(event.button()), pressed: true});
+                events.borrow_mut().push(EventWrapper::CursorMoved{x, y});
+            events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::Left, pressed: true});
         }));
 
-        canvas.add_event_listener(enclose!((events, pointers) move |event: PointerMoveEvent| {
+        canvas.add_event_listener(enclose!((events, pointers, prev_dist) move |event: PointerMoveEvent| {
             let mut pointers = pointers.borrow_mut();
+            let x : f64 = js!(return @{&event}.clientX;).try_into().expect("Expected clientX");
+            let y : f64 = js!(return @{&event}.clientY;).try_into().expect("Expected clientY");
+
+            let len = pointers.len().to_string();
+            js!(console.log("pointers: ", @{len}););
+
             for i in 0..pointers.len() {
                 if pointers[i].id == event.pointer_id() {
                     pointers[i] = PointerData {
                         id: event.pointer_id(),
-                        client_x: event.client_x() as f32,
-                        client_y: event.client_y() as f32,
+                        client_x: x as f32,
+                        client_y: y as f32,
                     };
                     break;
                 }
             }
 
             if pointers.len() == 2 {
-                let dx = event.client_x() as f32;
-                let dy = event.client_y() as f32;
-                //let dist = (dx * dx + dy * dy).sqrt();
-                events.borrow_mut().push(EventWrapper::CursorScroll(dx.signum() as f32, -dy.signum() as f32));
+                
+                let mut ox = 0.0;
+                let mut oy = 0.0;
+                for pointer in pointers.iter() {
+                    if pointer.id != event.pointer_id() {
+                        ox = pointer.client_x;
+                        oy = pointer.client_y;
+                    }
+                }
+
+                let dx = ox - x as f32;
+                let dy = oy - y as f32;
+                let dist = (dx * dx + dy * dy).sqrt();
+
+                let p_dist = prev_dist.get();
+                if p_dist > 0.0 { 
+                    let delta = (dist - p_dist) / 10.0;
+                    // TODO: zoom event
+                    events.borrow_mut().push(EventWrapper::CursorScroll(0.0, delta as f32));
+                }
+
+                prev_dist.set(dist);
 
             }
             else if pointers.len() == 1 {
 
-                events.borrow_mut().push(EventWrapper::CursorMoved{x: event.client_x() as f64, y: event.client_y() as f64});
+                events.borrow_mut().push(EventWrapper::CursorMoved{x, y});
             }
 
         }));
 
-        canvas.add_event_listener(enclose!((events, pointers) move |event: PointerUpEvent| {
-            //let count = pointerCount.borrow();
+        canvas.add_event_listener(enclose!((events, pointers, prev_dist) move |event: PointerUpEvent| {
             //pointerCount.borrow_mut() = count -  1;
-            events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::from(event.button()), pressed: false});
+            events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::Left, pressed: false});
             pointers.borrow_mut().retain(|ref x| x.id != event.pointer_id());
+            prev_dist.set(-1.0);
         }));
 
         // canvas does not support key events (for some reason...)
