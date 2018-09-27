@@ -159,6 +159,7 @@ impl ParticleEngine {
             self.shader.bind_attribs();
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
             context.draw_arrays(Context::POINTS, 0, self.alive_count as i32);
+            self.shader.unbind_attribs();
         }
     }
 }

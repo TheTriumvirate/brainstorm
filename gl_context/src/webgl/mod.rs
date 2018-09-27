@@ -91,7 +91,15 @@ impl AbstractContext for WebGLContext {
     const TEXTURE_2D: u32 = WebGLRenderingContext::TEXTURE_2D;
     const UNSIGNED_BYTE: u32 = WebGLRenderingContext::UNSIGNED_BYTE;
     const RGBA: u32 = WebGLRenderingContext::RGBA;
+    const LUMINANCE: u32 = WebGLRenderingContext::LUMINANCE;
     const TEXTURE0: u32 = WebGLRenderingContext::TEXTURE0;
+    const TEXTURE_WRAP_S: u32 = WebGLRenderingContext::TEXTURE_WRAP_S;
+    const TEXTURE_WRAP_T: u32 = WebGLRenderingContext::TEXTURE_WRAP_T;
+    const CLAMP_TO_EDGE: u32 = WebGLRenderingContext::CLAMP_TO_EDGE;
+    const TEXTURE_MIN_FILTER: u32 = WebGLRenderingContext::TEXTURE_MIN_FILTER;
+    const TEXTURE_MAG_FILTER: u32 = WebGLRenderingContext::TEXTURE_MAG_FILTER;
+    const LINEAR: u32 = WebGLRenderingContext::LINEAR;
+    const UNPACK_ALIGNMENT: u32 = WebGLRenderingContext::UNPACK_ALIGNMENT;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -235,10 +243,89 @@ impl AbstractContext for WebGLContext {
     fn bind_texture(&self, target: GLEnum, texture: &NativeTexture) {
         self.context.bind_texture(target, Some(texture));
     }
-
-    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: &[u8]) {
-        self.context.tex_image2_d(target, level, internalformat, width, height, border, format, Self::UNSIGNED_BYTE, Some(pixels));
+    
+    fn unbind_texture(&self, target: GLEnum) {
+        self.context.bind_texture(target, None);
     }
+    
+    fn tex_parameteri(&self, target: GLEnum, pname: GLEnum, param: i32) {
+        self.context.tex_parameteri(target, pname, param)
+    }
+
+    fn tex_image2d(
+        &self,
+        target: GLenum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        border: i32,
+        format: GLenum,
+        pixels: Option<&[u8]>,
+    ) {
+        match pixels {
+            Some(pixels) => self.context.tex_image2_d(
+                target,
+                level,
+                internalformat,
+                width,
+                height,
+                border,
+                format,
+                Self::UNSIGNED_BYTE,
+                Some(pixels),
+            ),
+            None => self.context.tex_image2_d(
+                target,
+                level,
+                internalformat,
+                width,
+                height,
+                border,
+                format,
+                Self::UNSIGNED_BYTE,
+                None::<&TypedArray<u8>>,
+            ),
+        }
+    }
+
+    fn tex_sub_image2d(
+        &self,
+        target: GLenum,
+        level: i32,
+        xoffset: i32,
+        yoffset: i32,
+        width: i32,
+        height: i32,
+        format: GLenum,
+        pixels: Option<&[u8]>,
+    ) {
+        match pixels {
+            Some(pixels) => self.context.tex_sub_image2_d(
+                target,
+                level,
+                xoffset,
+                yoffset,
+                width,
+                height,
+                format,
+                Self::UNSIGNED_BYTE,
+                Some(pixels),
+            ),
+            None => self.context.tex_sub_image2_d(
+                target,
+                level,
+                xoffset,
+                yoffset,
+                width,
+                height,
+                format,
+                Self::UNSIGNED_BYTE,
+                None::<&TypedArray<u8>>,
+            ),
+        }
+    }
+
     fn delete_texture(&self, texture: &NativeTexture) {
         self.context.delete_texture(Some(texture));
     }
@@ -266,5 +353,10 @@ impl AbstractContext for WebGLContext {
 
     fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {
         self.context.viewport(x, y, width, height);
+    }
+    
+
+    fn pixel_storei(&self, pname: GLenum, param: i32) {
+        self.context.pixel_storei(pname, param)
     }
 }

@@ -33,4 +33,6 @@ pub fn draw_indices(vertex_data: &Buffer<f32>, index_data: &Buffer<u16>, states:
     if let Some(texture) = &states.texture {
         texture.unbind();
     }
+
+    shader.unbind_attribs();
 }

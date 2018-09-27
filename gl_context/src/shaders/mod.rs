@@ -137,6 +137,20 @@ impl OurShader {
             offset += attrib.size;
         }
     }
+    
+    pub fn unbind_attribs(&self) {
+        let context = Context::get_context();
+
+        let mut offset : usize = 0;
+        for i in 0..self.attributes.len() {
+            let attrib = &self.attributes[i];
+            let attrib_pos = self.attribute_locations[i];
+            let off = offset as i32;
+            context.vertex_attrib_pointer(&attrib_pos, attrib.size as i32, Context::FLOAT, false, self.attribute_size as i32, off);
+            context.disable_vertex_attrib_array(&attrib_pos);
+            offset += attrib.size;
+        }
+    }
 
     pub fn uniform1i(&self, name: &str, value: i32) {
         let location = Context::get_context().get_uniform_location(&self.program, name);
