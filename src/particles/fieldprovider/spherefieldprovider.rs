@@ -70,6 +70,10 @@ impl SphereFieldProvider {
 }
 
 impl FieldProvider for SphereFieldProvider {
+    fn width(&self) -> usize { self.width }
+    fn height(&self) -> usize { self.height }
+    fn depth(&self) -> usize { self.depth }
+    
     fn new() -> Self {
         let mut data = Vec::new();
         let x: VectorField = deserialize(TEST_DATA).unwrap();

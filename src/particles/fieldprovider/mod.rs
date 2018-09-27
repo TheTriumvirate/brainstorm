@@ -14,4 +14,18 @@ pub trait FieldProvider {
 
     /// Provdes immutable access to the raw data of the field.
     fn data(&self) -> &[(f32, f32, f32)];
+
+    /// Return the width of the vector field
+    fn width(&self) -> usize;
+    
+    /// Return the height of the vector field
+    fn height(&self) -> usize;
+    
+    /// Return the depth of the vector field
+    fn depth(&self) -> usize;
+    
+    /// Return the vector at data[x][y][z]
+    fn get(&self, x: usize, y: usize, z: usize) -> (f32,f32,f32) { self.data()[z + y*self.width() + x*self.width()*self.height()]
+    }
+    
 }
