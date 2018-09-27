@@ -103,6 +103,7 @@ pub trait AbstractContext {
     fn get_uniform_location(&self, program: &Program, name: &str) -> UniformLocation;
     fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>);
     fn uniform1i(&self, location: &UniformLocation, x: i32);
+    fn uniform1f(&self, location: &UniformLocation, x: f32);
 
     fn create_texture(&self) -> Option<Texture>;
     fn bind_texture(&self, target: GLEnum, texture: &Texture);

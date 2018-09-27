@@ -109,6 +109,14 @@ impl Camera for ArcBall {
     fn get_projection_matrix(&self) -> Matrix4<f32> {
         self.projection
     }
+
+    fn get_position(&self) -> (f32, f32, f32) {
+        let ex = self.target.x + self.distance * self.yaw.cos() * self.pitch.sin();
+        let ey = self.target.y + self.distance * self.pitch.cos();
+        let ez = self.target.z + self.distance * self.yaw.sin() * self.pitch.sin();
+        let eye = Point3::new(ex, ey, ez);
+        (eye.x, eye.y, eye.z)
+    }
 }
 
 impl Default for ArcBall {

@@ -119,7 +119,7 @@ impl App {
 
         // Update camera and particle system
         self.camera.update();
-        self.particles.update(&self.state);
+        self.particles.update(&self.state, &mut self.camera);
 
         // Clear screen
         context.clear_color(0.0, 0.0, 0.0, 1.0);

@@ -157,6 +157,11 @@ impl OurShader {
         Context::get_context().uniform1i(&location, value);
     }
 
+    pub fn uniform1f(&self, name: &str, value: f32) {
+        let location = Context::get_context().get_uniform_location(&self.program, name);
+        Context::get_context().uniform1f(&location, value);
+    }
+
     pub fn get_uniform_location(&self) -> UniformLocation {
         Context::get_context().get_uniform_location(&self.program, "MVP")
     }

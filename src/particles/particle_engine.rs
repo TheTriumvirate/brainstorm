@@ -2,11 +2,13 @@ use na::Matrix4;
 use rand::rngs::SmallRng;
 use rand::{FromEntropy, Rng};
 
-use std::str;
+use std::{f32, str};
 
 use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
 use particles::fieldprovider::{FieldProvider, SphereFieldProvider};
 use State;
+
+use camera::Camera;
 
 use resources::shaders::*;
 
@@ -30,6 +32,8 @@ pub struct ParticleEngine {
     shader: shaders::OurShader,
     alive_count: usize,
     max_dist: f32,
+    max_camera_dist: f32,
+    min_camera_dist: f32,
 }
 
 impl Default for ParticleEngine {
@@ -94,13 +98,18 @@ impl ParticleEngine {
             mvp_uniform,
             alive_count: 0,
             max_dist,
+            max_camera_dist: 0.0,
+            min_camera_dist: 0.0,
         }
     }
 
     /// Update the particle system, advancing 1 tick.
     /// Uses settings from `state` to let the user interface with the system.
-    pub fn update(&mut self, state: &State) {
+    pub fn update(&mut self, state: &State, camera: &impl Camera) {
         self.alive_count = 0;
+        let (cx, cy, cz) = camera.get_position();
+        self.max_camera_dist = 0.0;
+        self.min_camera_dist = f32::MAX;
         for i in 0..PARTICLE_COUNT {
             // Respawn particle if it's too old.
             if self.particles[i].lifetime > 100.0 {
@@ -139,6 +148,10 @@ impl ParticleEngine {
                 continue;
             }
 
+            let (dx, dy, dz) = (cx - data.position.0, cy - data.position.1, cz - data.position.2);
+            self.max_camera_dist = self.max_camera_dist.max((dx * dx + dy * dy + dz * dz).sqrt());
+            self.min_camera_dist = self.min_camera_dist.min((dx * dx + dy * dy + dz * dz).sqrt());
+
             // Send the data to the GPU.
             self.particle_data[self.alive_count * 4] = data.position.0;
             self.particle_data[self.alive_count * 4 + 1] = data.position.1;
@@ -160,6 +173,8 @@ impl ParticleEngine {
             self.particle_data
                 .upload_data(0, self.alive_count * 4, false);
             self.shader.use_program();
+            self.shader.uniform1f("min_dist", self.min_camera_dist);
+            self.shader.uniform1f("max_dist", self.max_camera_dist);
             self.shader.bind_attribs();
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
             context.draw_arrays(Context::POINTS, 0, self.alive_count as i32);

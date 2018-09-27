@@ -291,6 +291,12 @@ impl AbstractContext for GLContext {
         }
     }
     
+    fn uniform1f(&self, location: &UniformLocation, x: f32) {
+        unsafe {
+            gl::Uniform1f(*location as i32, x);
+        }
+    }
+    
     fn create_texture(&self) -> Option<NativeTexture> {
         let mut texture = 0;
         unsafe {
