@@ -40,13 +40,6 @@ use camera::Camera;
 use gui::*;
 use window::*;
 
-use graphics::Font;
-use graphics::Text;
-
-use resources::fonts::DEFAULT;
-use std::cell::RefCell;
-use std::rc::Rc;
-
 /// Holds application resources.
 pub struct App {
     camera: camera::ArcBall,
@@ -90,10 +83,8 @@ impl Default for State {
 }
 
 impl App {
-    /// Starts
+    /// Starts the application.
     pub fn new() -> App {
-        //test.render_to_image();
-
         App {
             window: Window::new("Brainstorm!", 900, 900),
             camera: camera::ArcBall::new(),
@@ -131,10 +122,6 @@ impl App {
         let projection_matrix = self.camera.get_projection_matrix();
         self.particles.draw(&projection_matrix, &self.state);
         self.gui.draw();
-
-        let font = Rc::from(RefCell::from(Font::from_bytes(DEFAULT)));
-        let test = Text::new("Brainstorm".to_string(), font.clone(), 0.0, 0.0);
-        test.draw();
 
         self.window.swap_buffers();
         self.time += 0.01;

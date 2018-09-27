@@ -1,16 +1,26 @@
 //! Module for all things GUI.
 
 mod button;
+mod label;
 mod slider;
 mod ui_element;
 
-use graphics::{position, Drawable};
+use std::{
+    rc::Rc,
+    cell::RefCell,
+};
+
+use graphics::{position, Drawable, Font};
+use resources::fonts;
 use window::*;
 use State;
 
-use self::button::Button;
-use self::slider::Slider;
-use self::ui_element::UiElement;
+use self::{
+    button::Button,
+    label::Label,
+    slider::Slider,
+    ui_element::UiElement,
+};
 
 /// Represents the GUI for the application.
 pub struct Gui {
@@ -20,6 +30,8 @@ pub struct Gui {
 impl Gui {
     /// Creates the GUI for the application.
     pub fn new(screensize: (f32, f32)) -> Self {
+        let font = Rc::from(RefCell::from(Font::from_bytes(fonts::DEFAULT)));
+
         let mut ui_elements: Vec<Box<ui_element::UiElement>> = Vec::new();
         ui_elements.push(Box::new(Button::new(
             position::Absolute {
@@ -53,7 +65,7 @@ impl Gui {
                 height: 40,
                 width: 225,
                 anchor: position::WindowCorner::BotRight,
-                margin_vertical: 95,
+                margin_vertical: 120,
                 margin_horizontal: 40,
             },
             20,
@@ -83,7 +95,7 @@ impl Gui {
                 height: 40,
                 width: 225,
                 anchor: position::WindowCorner::BotRight,
-                margin_vertical: 95,
+                margin_vertical: 120,
                 margin_horizontal: 285,
             },
             10,
@@ -92,6 +104,54 @@ impl Gui {
             Box::new(|ref mut context, value| {
                 context.transparency = value;
             }),
+        )));
+        ui_elements.push(Box::new(Label::new(
+            position::Absolute {
+                height: 0,
+                width: 0,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 75,
+                margin_horizontal: 165,
+            },
+            screensize,
+            "Low-pass filter".to_owned(),
+            font.clone(),
+        )));
+        ui_elements.push(Box::new(Label::new(
+            position::Absolute {
+                height: 0,
+                width: 0,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 130,
+                margin_horizontal: 165,
+            },
+            screensize,
+            "High-pass filter".to_owned(),
+            font.clone(),
+        )));
+        ui_elements.push(Box::new(Label::new(
+            position::Absolute {
+                height: 0,
+                width: 0,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 75,
+                margin_horizontal: 165 * 2,
+            },
+            screensize,
+            "Speed".to_owned(),
+            font.clone(),
+        )));
+        ui_elements.push(Box::new(Label::new(
+            position::Absolute {
+                height: 0,
+                width: 0,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 130,
+                margin_horizontal: 165 * 2,
+            },
+            screensize,
+            "Transparency".to_owned(),
+            font.clone(),
         )));
 
         Gui { ui_elements }

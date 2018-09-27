@@ -84,7 +84,7 @@ impl<'a> Font<'a> {
             })
             .expect("Could not construct cache texture");
 
-        let origin = point(x, -y);
+        let origin = point(x, y);
         let mut idx = 0;
 
         for g in glyphs {
