@@ -48,14 +48,14 @@ fn lerp3d( // naming scheme: face <n> <lower|upper>x <lower|upper>y
     lerp(s, v, t3)
 }
 
-pub struct SphereFieldProvider {
+pub struct DataFieldProvider {
     width: usize,
     height: usize,
     depth: usize,
     data: Vec<(f32, f32, f32)>,
 }
 
-impl SphereFieldProvider {
+impl DataFieldProvider {
     fn get_vec(&self, pos: (usize, usize, usize)) -> (f32, f32, f32) {
         match pos {
             (fx,fy,fz) if fx >= self.width() || fy >= self.height() || fz >= self.depth() => (0.0,0.0,0.0),
@@ -64,7 +64,7 @@ impl SphereFieldProvider {
     }
 }
 
-impl FieldProvider for SphereFieldProvider {
+impl FieldProvider for DataFieldProvider {
     fn width(&self) -> usize { self.width }
     fn height(&self) -> usize { self.height }
     fn depth(&self) -> usize { self.depth }
@@ -79,7 +79,7 @@ impl FieldProvider for SphereFieldProvider {
                 }
             }
         }
-        SphereFieldProvider {
+        DataFieldProvider {
             width: x.width,
             height: x.height,
             depth: x.depth,

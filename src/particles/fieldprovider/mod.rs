@@ -1,7 +1,7 @@
 //! Contains the providers of particle fields.
 
-mod spherefieldprovider;
-pub use self::spherefieldprovider::SphereFieldProvider;
+mod datafieldprovider;
+pub use self::datafieldprovider::DataFieldProvider;
 
 /// Defines the basice interactions with a particle field provider.
 pub trait FieldProvider {
