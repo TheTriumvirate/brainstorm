@@ -55,6 +55,10 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
         self.data.is_empty()
     }
 
+    pub fn clear(&mut self) {
+        self.data.clear();
+    }
+
     /// Sets the data of the buffer.
     pub fn set_data(&mut self, data: &[T]) {
         self.data = data.to_vec()

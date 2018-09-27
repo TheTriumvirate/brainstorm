@@ -56,7 +56,7 @@ impl<'a> Font<'a> {
         &SHADER
     }
 
-    pub fn update_texture<'b>(
+    pub fn update_texture(
         &mut self,
         text: &str,
         x: f32,
@@ -87,20 +87,26 @@ impl<'a> Font<'a> {
         let origin = point(x, y);
         let mut idx = 0;
 
+        vertices.clear();
+        indices.clear();
+
+        let v_metrics = self.font.v_metrics(Scale::uniform(24.0));
+        let advance_height = v_metrics.ascent - v_metrics.descent + v_metrics.line_gap;
+
         for g in glyphs {
             if let Ok(Some((uv_rect, screen_rect))) = self.cache.rect_for(0, &g) {
                 // TODO: font-ids
                 let gl_rect = Rect {
                     min: origin
                         + (vector(
-                            screen_rect.min.x as f32 / 1000.0 - 0.5,
-                            1.0 - screen_rect.min.y as f32 / 1000.0 - 0.5,
-                        )) * 2.0 + vector(1.0, -1.0),
+                            screen_rect.min.x as f32 / 1024.0 /* Divide by aspect ratio (width / height) */ - 0.5,
+                            1.0 - screen_rect.min.y as f32 / 1024.0 - 0.5,
+                        )) * 2.0 + vector(1.0, -1.0 + advance_height / 512.0),
                     max: origin
                         + (vector(
-                            screen_rect.max.x as f32 / 1000.0 - 0.5,
-                            1.0 - screen_rect.max.y as f32 / 1000.0 - 0.5,
-                        )) * 2.0 + vector(1.0, -1.0),
+                            screen_rect.max.x as f32 / 1024.0 /* Divide by aspect ratio (width / height) */ - 0.5,
+                            1.0 - screen_rect.max.y as f32 / 1024.0 - 0.5,
+                        )) * 2.0 + vector(1.0, - 1.0 + advance_height / 512.0),
                 };
                 vertices.push(&[
                     gl_rect.min.x,
