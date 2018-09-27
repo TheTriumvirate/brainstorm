@@ -59,6 +59,8 @@ impl<'a> Font<'a> {
     pub fn update_texture<'b>(
         &mut self,
         text: &str,
+        x: f32,
+        y: f32,
         vertices: &mut Buffer<f32>,
         indices: &mut Buffer<u16>,
     ) {
@@ -82,7 +84,7 @@ impl<'a> Font<'a> {
             })
             .expect("Could not construct cache texture");
 
-        let origin = point(0.0, 0.0);
+        let origin = point(x, -y);
         let mut idx = 0;
 
         for g in glyphs {
@@ -93,12 +95,12 @@ impl<'a> Font<'a> {
                         + (vector(
                             screen_rect.min.x as f32 / 1000.0 - 0.5,
                             1.0 - screen_rect.min.y as f32 / 1000.0 - 0.5,
-                        )) * 2.0,
+                        )) * 2.0 + vector(1.0, -1.0),
                     max: origin
                         + (vector(
                             screen_rect.max.x as f32 / 1000.0 - 0.5,
                             1.0 - screen_rect.max.y as f32 / 1000.0 - 0.5,
-                        )) * 2.0,
+                        )) * 2.0 + vector(1.0, -1.0),
                 };
                 vertices.push(&[
                     gl_rect.min.x,
