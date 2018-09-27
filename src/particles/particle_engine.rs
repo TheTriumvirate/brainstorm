@@ -166,7 +166,7 @@ impl ParticleEngine {
 
     /// Draw the particles to the screen using the provided (camera)
     /// projection matrix.
-    pub fn draw(&mut self, projection_matrix: &Matrix4<f32>) {
+    pub fn draw(&mut self, projection_matrix: &Matrix4<f32>, state: &State) {
         let context = Context::get_context();
         if self.alive_count > 0 {
             self.particle_data.bind();
@@ -175,6 +175,7 @@ impl ParticleEngine {
             self.shader.use_program();
             self.shader.uniform1f("min_dist", self.min_camera_dist);
             self.shader.uniform1f("max_dist", self.max_camera_dist);
+            self.shader.uniform1f("transparency", state.transparency);
             self.shader.bind_attribs();
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
             context.draw_arrays(Context::POINTS, 0, self.alive_count as i32);

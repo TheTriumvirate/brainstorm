@@ -38,7 +38,7 @@ impl Gui {
                 height: 40,
                 width: 225,
                 anchor: position::WindowCorner::BotRight,
-                margin_vertical: 95,
+                margin_vertical: 40,
                 margin_horizontal: 40,
             },
             20,
@@ -53,7 +53,7 @@ impl Gui {
                 height: 40,
                 width: 225,
                 anchor: position::WindowCorner::BotRight,
-                margin_vertical: 150,
+                margin_vertical: 95,
                 margin_horizontal: 40,
             },
             20,
@@ -69,13 +69,28 @@ impl Gui {
                 width: 225,
                 anchor: position::WindowCorner::BotRight,
                 margin_vertical: 40,
-                margin_horizontal: 40,
+                margin_horizontal: 285,
             },
             10,
             0.5,
             screensize,
             Box::new(|ref mut context, value| {
                 context.speed_multiplier = value;
+            }),
+        )));
+        ui_elements.push(Box::new(Slider::new(
+            position::Absolute {
+                height: 40,
+                width: 225,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 95,
+                margin_horizontal: 285,
+            },
+            10,
+            0.5,
+            screensize,
+            Box::new(|ref mut context, value| {
+                context.transparency = value;
             }),
         )));
 

@@ -65,6 +65,7 @@ pub struct State {
     highpass_filter: f32,
     lowpass_filter: f32,
     speed_multiplier: f32,
+    transparency: f32,
 }
 
 impl State {
@@ -77,6 +78,7 @@ impl State {
             highpass_filter: 0.0,
             lowpass_filter: 1.0,
             speed_multiplier: 0.5,
+            transparency: 0.5,
         }
     }
 }
@@ -127,7 +129,7 @@ impl App {
 
         // Draw everything
         let projection_matrix = self.camera.get_projection_matrix();
-        self.particles.draw(&projection_matrix);
+        self.particles.draw(&projection_matrix, &self.state);
         self.gui.draw();
 
         let font = Rc::from(RefCell::from(Font::from_bytes(DEFAULT)));
