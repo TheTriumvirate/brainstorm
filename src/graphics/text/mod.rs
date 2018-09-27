@@ -6,7 +6,7 @@ use self::font::Font;
 use std::rc::Rc;
 use std::cell::RefCell;
 
-use gl_context::{Texture, Buffer, BufferType};
+use gl_context::{Texture, Buffer, BufferType, shaders::OurShader};
 
 use graphics::*;
 
@@ -22,6 +22,10 @@ impl<'a> Drawable for Text<'a> {
         let texture = self.font.borrow().get_texture();
         Some(texture)
         //None
+    }
+
+    fn get_shader(&self) -> Option<&OurShader> {
+        Some(self.font.borrow().get_shader())
     }
 
     fn draw(&self) {

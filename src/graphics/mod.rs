@@ -23,14 +23,16 @@ pub trait Drawable {
     fn draw(&self);
 }
 
-pub struct RenderStates {
+pub struct RenderStates<'a> {
     pub texture: Option<Rc<Texture>>,
+    pub shader: Option<&'a OurShader>,
 }
 
-impl<'a, T> From<&'a T> for RenderStates where T: Drawable {
+impl<'a, T> From<&'a T> for RenderStates<'a> where T: Drawable {
     fn from(drawable: &'a T) -> RenderStates {
         RenderStates {
-            texture: drawable.get_texture()
+            texture: drawable.get_texture(),
+            shader: drawable.get_shader(),
         }
     }    
 }

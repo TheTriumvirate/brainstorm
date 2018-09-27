@@ -1,9 +1,24 @@
 use rusttype::gpu_cache::{Cache};
 use rusttype::{point, Font as TFont, Scale, Rect, PositionedGlyph, vector};
 
-use gl_context::{Texture, TextureFormat, Buffer};
+use gl_context::{Texture, TextureFormat, Buffer, shaders::OurShader, shaders::ShaderAttribute};
 
 use std::rc::Rc;
+use std::str;
+
+use resources::shaders::{TEXT_FRAGMENT_SHADER, TEXT_VERTEX_SHADER};
+
+lazy_static! {
+    static ref SHADER: OurShader = OurShader::new(
+        str::from_utf8(TEXT_VERTEX_SHADER).expect("Failed to read vertex shader"), 
+        str::from_utf8(TEXT_FRAGMENT_SHADER).expect("Failed to read fragment shader"), 
+        &[
+            ShaderAttribute{name: "a_position".to_string(), size: 2},
+            ShaderAttribute{name: "a_color".to_string(), size: 3},
+            ShaderAttribute{name: "a_texture".to_string(), size: 2},
+        ]
+    );
+}
 
 pub struct Font<'a> {
     font: TFont<'a>,
@@ -27,7 +42,11 @@ impl<'a> Font<'a> {
     }
 
     pub fn get_texture(&self) -> Rc<Texture> {
-        return self.texture.clone();
+        self.texture.clone()
+    }
+
+    pub fn get_shader(&self) -> &'static OurShader {
+        &SHADER
     }
     
     pub fn update_texture<'b>(&mut self, text: &str, vertices: &mut Buffer<f32>, indices: &mut Buffer<u16>) {

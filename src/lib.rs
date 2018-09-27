@@ -3,6 +3,7 @@
 extern crate gl;
 #[cfg(not(target_arch = "wasm32"))]
 extern crate glutin;
+#[macro_use]
 extern crate lazy_static;
 extern crate nalgebra as na;
 extern crate noise;
