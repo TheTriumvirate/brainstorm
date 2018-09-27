@@ -24,27 +24,27 @@ fn lerp((ax, ay, az): Vector3, (bx, by, bz): Vector3, t: f32) -> Vector3 {
 }
 
 fn lerp2d(lxly: Vector3, lxuy: Vector3, uxly: Vector3, uxuy: Vector3, t1: f32, t2: f32) -> Vector3 {
-    let s = lerp(uxly, lxuy, t1);
-    let v = lerp(lxly, uxuy, t2);
+    let s = lerp(lxuy, uxuy, t1);
+    let v = lerp(lxly, uxly, t1);
     lerp(s, v, t2)
 }
 
 #[allow(unknown_lints, too_many_arguments)]
-fn lerp3d(
-    v1: Vector3,
-    v2: Vector3,
-    v3: Vector3,
-    v4: Vector3,
-    v5: Vector3,
-    v6: Vector3,
-    v7: Vector3,
-    v8: Vector3,
+fn lerp3d( // naming scheme: face <n> <lower|upper>x <lower|upper>y
+    f1lxly: Vector3,
+    f1lxuy: Vector3,
+    f1uxly: Vector3,
+    f1uxuy: Vector3,
+    f2lxly: Vector3,
+    f2lxuy: Vector3,
+    f2uxly: Vector3,
+    f2uxuy: Vector3,
     t1: f32,
     t2: f32,
     t3: f32,
 ) -> Vector3 {
-    let s = lerp2d(v1, v2, v3, v4, t1, t2);
-    let v = lerp2d(v5, v6, v7, v8, t1, t2);
+    let s = lerp2d(f1lxly, f1lxuy, f1uxly, f1uxuy, t1, t2);
+    let v = lerp2d(f2lxly, f2lxuy, f2uxly, f2uxuy, t1, t2);
     lerp(s, v, t3)
 }
 
@@ -98,14 +98,14 @@ impl FieldProvider for SphereFieldProvider {
         let ux = x.ceil() as usize;
         let uy = y.ceil() as usize;
         let uz = z.ceil() as usize;
-        let v1 = self.get_vec((lx, ly, lz));
-        let v2 = self.get_vec((lx, ly, uz));
-        let v3 = self.get_vec((lx, uy, lz));
-        let v4 = self.get_vec((lx, uy, uz));
-        let v5 = self.get_vec((ux, ly, lz));
-        let v6 = self.get_vec((ux, ly, uz));
-        let v7 = self.get_vec((ux, uy, lz));
-        let v8 = self.get_vec((ux, uy, uz));
+        let v1 = self.get_vec((lx, ly, lz)); // lower depth
+        let v2 = self.get_vec((lx, uy, lz)); // lower depth
+        let v3 = self.get_vec((ux, ly, lz)); // lower depth
+        let v4 = self.get_vec((ux, uy, lz)); // lower depth
+        let v5 = self.get_vec((lx, ly, uz)); // upper depth
+        let v6 = self.get_vec((lx, uy, uz)); // upper depth
+        let v7 = self.get_vec((ux, ly, uz)); // upper depth
+        let v8 = self.get_vec((ux, uy, uz)); // upper depth
 
         use std::f32;
         // remove noise
