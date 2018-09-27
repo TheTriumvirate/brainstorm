@@ -23,11 +23,11 @@ impl Gui {
         let mut ui_elements: Vec<Box<ui_element::UiElement>> = Vec::new();
         ui_elements.push(Box::new(Button::new(
             position::Absolute {
-                height: 75,
-                width: 200,
+                height: 40,
+                width: 120,
                 anchor: position::WindowCorner::BotLeft,
-                margin_vertical: 50,
-                margin_horizontal: 50,
+                margin_vertical: 40,
+                margin_horizontal: 40,
             },
             (0.44, 0.5, 0.56),
             screensize,
@@ -35,29 +35,14 @@ impl Gui {
         )));
         ui_elements.push(Box::new(Slider::new(
             position::Absolute {
-                height: 75,
-                width: 400,
+                height: 40,
+                width: 225,
                 anchor: position::WindowCorner::BotRight,
-                margin_vertical: 300,
-                margin_horizontal: 50,
+                margin_vertical: 95,
+                margin_horizontal: 40,
             },
             20,
             0.0,
-            screensize,
-            Box::new(|ref mut context, value| {
-                context.highpass_filter = value;
-            }),
-        )));
-        ui_elements.push(Box::new(Slider::new(
-            position::Absolute {
-                height: 75,
-                width: 400,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 175,
-                margin_horizontal: 50,
-            },
-            20,
-            1.0,
             screensize,
             Box::new(|ref mut context, value| {
                 context.lowpass_filter = value;
@@ -65,11 +50,26 @@ impl Gui {
         )));
         ui_elements.push(Box::new(Slider::new(
             position::Absolute {
-                height: 75,
-                width: 400,
+                height: 40,
+                width: 225,
                 anchor: position::WindowCorner::BotRight,
-                margin_vertical: 50,
-                margin_horizontal: 50,
+                margin_vertical: 150,
+                margin_horizontal: 40,
+            },
+            20,
+            1.0,
+            screensize,
+            Box::new(|ref mut context, value| {
+                context.highpass_filter = value;
+            }),
+        )));
+        ui_elements.push(Box::new(Slider::new(
+            position::Absolute {
+                height: 40,
+                width: 225,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 40,
+                margin_horizontal: 40,
             },
             10,
             0.5,
