@@ -1,6 +1,6 @@
+use gl_context::{Buffer, BufferType};
 use graphics::{render_target, Drawable, RenderStates};
 use std::f32;
-use gl_context::{Buffer, BufferType};
 
 const POINTS: usize = 40;
 

@@ -60,7 +60,9 @@ impl AbstractWindow for WebGLWindow {
         {
             canvas.set_width(width);
             canvas.set_height(height);
-            events.borrow_mut().push(EventWrapper::Resized(width as f32, height as f32))
+            events
+                .borrow_mut()
+                .push(EventWrapper::Resized(width as f32, height as f32))
         }
 
         let pointers = RefCell::new(Vec::new());
@@ -82,19 +84,16 @@ impl AbstractWindow for WebGLWindow {
             events.borrow_mut().push(EventWrapper::CursorScroll(event.delta_x().signum() as f32, -event.delta_y().signum() as f32));
         }));
 
-        canvas.add_event_listener(
-            enclose!((events, pointers) move |event: PointerDownEvent| {
+        canvas.add_event_listener(enclose!((events, pointers) move |event: PointerDownEvent| {
             pointers.borrow_mut().push(PointerData {
                 id: event.pointer_id(),
                 client_x: event.client_x() as f32,
                 client_y: event.client_y() as f32,
             });
             events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::from(event.button()), pressed: true});
-        }),
-        );
+        }));
 
-        canvas.add_event_listener(
-            enclose!((events, pointers) move |event: PointerMoveEvent| {
+        canvas.add_event_listener(enclose!((events, pointers) move |event: PointerMoveEvent| {
             let mut pointers = pointers.borrow_mut();
             for i in 0..pointers.len() {
                 if pointers[i].id == event.pointer_id() {
@@ -119,8 +118,7 @@ impl AbstractWindow for WebGLWindow {
                 events.borrow_mut().push(EventWrapper::CursorMoved{x: event.client_x() as f64, y: event.client_y() as f64});
             }
 
-        }),
-        );
+        }));
 
         canvas.add_event_listener(enclose!((events, pointers) move |event: PointerUpEvent| {
             //let count = pointerCount.borrow();

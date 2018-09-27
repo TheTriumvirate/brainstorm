@@ -18,7 +18,7 @@ pub enum Event {
         key: Key,
         modifiers: ModifierKeys,
     },
-    Resized(f32, f32)
+    Resized(f32, f32),
 }
 
 /// The supported modifier keys.

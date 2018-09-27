@@ -7,7 +7,7 @@ use graphics::RenderStates;
 pub fn draw_indices(vertex_data: &Buffer<f32>, index_data: &Buffer<u16>, states: RenderStates) {
     let context = Context::get_context();
 
-    let shader : &OurShader =  match states.shader {
+    let shader: &OurShader = match states.shader {
         Some(s) => s,
         _ => OurShader::default(),
     };
@@ -29,7 +29,7 @@ pub fn draw_indices(vertex_data: &Buffer<f32>, index_data: &Buffer<u16>, states:
         Context::UNSIGNED_SHORT,
         0,
     );
-    
+
     if let Some(texture) = &states.texture {
         texture.unbind();
     }

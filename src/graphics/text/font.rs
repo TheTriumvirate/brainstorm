@@ -1,7 +1,7 @@
-use rusttype::gpu_cache::{Cache};
-use rusttype::{point, Font as TFont, Scale, Rect, PositionedGlyph, vector};
+use rusttype::gpu_cache::Cache;
+use rusttype::{point, vector, Font as TFont, PositionedGlyph, Rect, Scale};
 
-use gl_context::{Texture, TextureFormat, Buffer, shaders::OurShader, shaders::ShaderAttribute};
+use gl_context::{shaders::OurShader, shaders::ShaderAttribute, Buffer, Texture, TextureFormat};
 
 use std::rc::Rc;
 use std::str;
@@ -10,12 +10,21 @@ use resources::shaders::{TEXT_FRAGMENT_SHADER, TEXT_VERTEX_SHADER};
 
 lazy_static! {
     static ref SHADER: OurShader = OurShader::new(
-        str::from_utf8(TEXT_VERTEX_SHADER).expect("Failed to read vertex shader"), 
-        str::from_utf8(TEXT_FRAGMENT_SHADER).expect("Failed to read fragment shader"), 
+        str::from_utf8(TEXT_VERTEX_SHADER).expect("Failed to read vertex shader"),
+        str::from_utf8(TEXT_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
         &[
-            ShaderAttribute{name: "a_position".to_string(), size: 2},
-            ShaderAttribute{name: "a_color".to_string(), size: 3},
-            ShaderAttribute{name: "a_texture".to_string(), size: 2},
+            ShaderAttribute {
+                name: "a_position".to_string(),
+                size: 2
+            },
+            ShaderAttribute {
+                name: "a_color".to_string(),
+                size: 3
+            },
+            ShaderAttribute {
+                name: "a_texture".to_string(),
+                size: 2
+            },
         ]
     );
 }
@@ -27,12 +36,10 @@ pub struct Font<'a> {
 }
 
 impl<'a> Font<'a> {
-    pub fn from_bytes(data: &'a[u8]) -> Self {
+    pub fn from_bytes(data: &'a [u8]) -> Self {
         let font = TFont::from_bytes(data).expect("Could not load font from bytes");
-        
-        let cache = Cache::builder()
-            .dimensions(512, 512)
-            .build();
+
+        let cache = Cache::builder().dimensions(512, 512).build();
 
         Font {
             font,
@@ -48,31 +55,39 @@ impl<'a> Font<'a> {
     pub fn get_shader(&self) -> &'static OurShader {
         &SHADER
     }
-    
-    pub fn update_texture<'b>(&mut self, text: &str, vertices: &mut Buffer<f32>, indices: &mut Buffer<u16>) {
+
+    pub fn update_texture<'b>(
+        &mut self,
+        text: &str,
+        vertices: &mut Buffer<f32>,
+        indices: &mut Buffer<u16>,
+    ) {
         let glyphs = self.layout_paragraph(Scale::uniform(24.0), 512, text);
 
         for glyph in &glyphs {
             // TODO: font-ids
             self.cache.queue_glyph(0, glyph.clone());
         }
-        
-        let texture : &Texture = self.texture.as_ref();
-        self.cache.cache_queued(|rect, data| {
-            texture.update_sub_rect(
-                rect.min.x as i32,
-                rect.min.y as i32,
-                rect.width() as i32,
-                rect.height() as i32,
-                &data,
-            );
-        }).expect("Could not construct cache texture");
 
-    let origin = point(0.0, 0.0);
-    let mut idx = 0;
+        let texture: &Texture = self.texture.as_ref();
+        self.cache
+            .cache_queued(|rect, data| {
+                texture.update_sub_rect(
+                    rect.min.x as i32,
+                    rect.min.y as i32,
+                    rect.width() as i32,
+                    rect.height() as i32,
+                    &data,
+                );
+            })
+            .expect("Could not construct cache texture");
+
+        let origin = point(0.0, 0.0);
+        let mut idx = 0;
 
         for g in glyphs {
-            if let Ok(Some((uv_rect, screen_rect))) = self.cache.rect_for(0, &g) { // TODO: font-ids
+            if let Ok(Some((uv_rect, screen_rect))) = self.cache.rect_for(0, &g) {
+                // TODO: font-ids
                 let gl_rect = Rect {
                     min: origin
                         + (vector(
@@ -116,19 +131,12 @@ impl<'a> Font<'a> {
                     uv_rect.max.y,
                 ]);
 
-                indices.push(&[
-                   idx, 
-                   idx+1, 
-                   idx+2, 
-                   idx, 
-                   idx+2, 
-                   idx+3, 
-                ]);
+                indices.push(&[idx, idx + 1, idx + 2, idx, idx + 2, idx + 3]);
 
                 idx += 4;
             }
         }
-        
+
         vertices.bind();
         let len = vertices.len();
         vertices.upload_data(0, len, true);
@@ -147,9 +155,7 @@ impl<'a> Font<'a> {
         for c in text.nfc() {
             if c.is_control() {
                 match c {
-                    '\n' => {
-                        caret = point(0.0, caret.y + advance_height)
-                    }
+                    '\n' => caret = point(0.0, caret.y + advance_height),
                     _ => {}
                 }
                 continue;

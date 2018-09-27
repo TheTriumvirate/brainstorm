@@ -1,6 +1,6 @@
+use camera::Camera;
 use na::{Isometry3, Matrix4, Perspective3, Point3, Vector2, Vector3};
 use std::f32;
-use camera::Camera;
 use window::Event;
 use window::MouseButton;
 
@@ -14,7 +14,7 @@ pub struct ArcBall {
     last_cursor_pos: Vector2<f32>,
     is_pressed: bool,
     idle: f32,
-    aspect: f32
+    aspect: f32,
 }
 
 impl ArcBall {
@@ -97,11 +97,10 @@ impl Camera for ArcBall {
             Event::CursorScroll(_, dt) => {
                 self.distance -= dt / 4.0;
                 self.recalculate_matrices();
-            },
+            }
             Event::Resized(w, h) => {
                 self.aspect = w / h;
-
-            },
+            }
             _ => (),
         }
     }

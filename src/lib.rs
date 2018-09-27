@@ -40,12 +40,12 @@ use camera::Camera;
 use gui::*;
 use window::*;
 
-use graphics::Text;
 use graphics::Font;
+use graphics::Text;
 
 use resources::fonts::DEFAULT;
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
 
 /// Holds application resources.
 pub struct App {
@@ -88,7 +88,7 @@ impl Default for State {
 }
 
 impl App {
-    /// Starts 
+    /// Starts
     pub fn new() -> App {
         //test.render_to_image();
 
@@ -116,7 +116,7 @@ impl App {
                 .handle_event(&event, &mut self.state, self.window.get_size());
             self.camera.handle_events(&event);
         }
-        
+
         // Update camera and particle system
         self.camera.update();
         self.particles.update(&self.state);

@@ -10,7 +10,9 @@ use glutin::{
     dpi::*,
     ElementState, GlContext, GlRequest, KeyboardInput as KeyboardData, ModifiersState,
     MouseScrollDelta, VirtualKeyCode,
-    WindowEvent::{self, CloseRequested, CursorMoved, KeyboardInput, MouseInput, MouseWheel, Resized},
+    WindowEvent::{
+        self, CloseRequested, CursorMoved, KeyboardInput, MouseInput, MouseWheel, Resized,
+    },
 };
 
 /// Translates from OpenGL events to our own event enum.
@@ -60,7 +62,7 @@ fn translate_event(event: &WindowEvent, hidpi_factor: f64) -> Option<EventWrappe
             key: Key::from(virtual_keycode),
             modifiers: ModifierKeys::from(modifiers),
         }),
-        Resized(LogicalSize {width, height}) => {
+        Resized(LogicalSize { width, height }) => {
             // OpenGL has to deal with High-DPI window scaling.
             // We handle this inside the OpenGL module to avoid dealing with it
             // everywhere in the codebase.
@@ -150,7 +152,7 @@ impl AbstractWindow for GLWindow {
         self.height = height;
         self.width = width;
     }
-    
+
     fn get_size(&self) -> (u32, u32) {
         (self.width, self.height)
     }

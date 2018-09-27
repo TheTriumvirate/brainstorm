@@ -3,10 +3,10 @@ use graphics::Drawable;
 pub mod font;
 use self::font::Font;
 
-use std::rc::Rc;
 use std::cell::RefCell;
+use std::rc::Rc;
 
-use gl_context::{Texture, Buffer, BufferType, shaders::OurShader};
+use gl_context::{shaders::OurShader, Buffer, BufferType, Texture};
 
 use graphics::*;
 
@@ -35,7 +35,6 @@ impl<'a> Drawable for Text<'a> {
 
 impl<'a> Text<'a> {
     pub fn new(text: String, font: Rc<RefCell<Font<'a>>>) -> Self {
-
         let vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
@@ -46,7 +45,9 @@ impl<'a> Text<'a> {
             indices,
         };
 
-        t.font.borrow_mut().update_texture(&t.text, &mut t.vertices, &mut t.indices);
+        t.font
+            .borrow_mut()
+            .update_texture(&t.text, &mut t.vertices, &mut t.indices);
 
         t
     }

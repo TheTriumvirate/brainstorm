@@ -57,14 +57,14 @@ impl ParticleEngine {
                 lifetime: (i as f32 / PARTICLE_COUNT as f32) * 100.0,
             });
         }
-        
+
         data.bind();
 
         // Set up shaders
         let vertex_shader =
             str::from_utf8(PARTICLES_VERTEX_SHADER).expect("Failed to read vertex shader");
-        let fragment_shader = str::from_utf8(PARTICLES_FRAGMENT_SHADER)
-            .expect("Failed to read fragment shader");
+        let fragment_shader =
+            str::from_utf8(PARTICLES_FRAGMENT_SHADER).expect("Failed to read fragment shader");
 
         let mut attributes = Vec::new();
         attributes.push(shaders::ShaderAttribute {
@@ -84,7 +84,7 @@ impl ParticleEngine {
             let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
             max_dist = max_dist.max(dist);
         }
-        
+
         ParticleEngine {
             particles,
             particle_data: data,
@@ -157,7 +157,8 @@ impl ParticleEngine {
         let context = Context::get_context();
         if self.alive_count > 0 {
             self.particle_data.bind();
-            self.particle_data.upload_data(0, self.alive_count * 4, false);
+            self.particle_data
+                .upload_data(0, self.alive_count * 4, false);
             self.shader.use_program();
             self.shader.bind_attribs();
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);

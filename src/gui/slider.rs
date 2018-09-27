@@ -34,15 +34,16 @@ impl Slider {
             width: pos_abs.width,
             anchor: pos_abs.anchor,
             margin_vertical: pos_abs.margin_vertical + pos_abs.height / 10 * 4,
-            margin_horizontal: pos_abs.margin_horizontal, 
+            margin_horizontal: pos_abs.margin_horizontal,
         };
-        
+
         let slider_pos = position::Absolute {
             height: pos_abs.height,
             width: pos_abs.width / 20,
             anchor: pos_abs.anchor,
             margin_vertical: pos_abs.margin_vertical,
-            margin_horizontal: pos_abs.margin_horizontal - (pos_abs.width / 40) + (pos_abs.width as f32 * initial_value) as u32,
+            margin_horizontal: pos_abs.margin_horizontal - (pos_abs.width / 40)
+                + (pos_abs.width as f32 * initial_value) as u32,
         };
 
         let pos_rel = pos_abs.to_relative(screensize);
@@ -58,8 +59,14 @@ impl Slider {
             value: initial_value,
             steps: steps as f32,
             rect_background: Rectangle::new(pos_rel.get_coordinates(), (0.44, 0.5, 0.56)),
-            rect_track: Rectangle::new(track_pos.to_relative(screensize).get_coordinates(), (0.58, 0.64, 0.7)),
-            rect_slider: Rectangle::new(slider_pos.to_relative(screensize).get_coordinates(), (0.7, 0.75, 0.8)),
+            rect_track: Rectangle::new(
+                track_pos.to_relative(screensize).get_coordinates(),
+                (0.58, 0.64, 0.7),
+            ),
+            rect_slider: Rectangle::new(
+                slider_pos.to_relative(screensize).get_coordinates(),
+                (0.7, 0.75, 0.8),
+            ),
         }
     }
 
@@ -86,7 +93,9 @@ impl Slider {
         };
         self.slider_pos.margin_horizontal = margin;
         self.rect_slider = Rectangle::new(
-            self.slider_pos.to_relative(self.cached_screensize).get_coordinates(),
+            self.slider_pos
+                .to_relative(self.cached_screensize)
+                .get_coordinates(),
             (0.7, 0.75, 0.8),
         );
     }
@@ -95,7 +104,7 @@ impl Slider {
 impl UiElement for Slider {
     fn is_within(&self, x: f64, y: f64) -> bool {
         let c = self.pos_rel.get_coordinates();
-        
+
         let slider_overflow = (c.x2 - c.x1) / 20.0;
         let x1 = c.x1 - slider_overflow;
         let x2 = c.x2 + slider_overflow;
@@ -124,8 +133,14 @@ impl UiElement for Slider {
         self.cached_screensize = screensize;
         self.pos_rel = self.pos_abs.to_relative(screensize);
         self.rect_background = Rectangle::new(self.pos_rel.get_coordinates(), (0.44, 0.5, 0.56));
-        self.rect_track = Rectangle::new(self.track_pos.to_relative(screensize).get_coordinates(), (0.58, 0.64, 0.7));
-        self.rect_slider = Rectangle::new(self.slider_pos.to_relative(screensize).get_coordinates(), (0.7, 0.75, 0.8));
+        self.rect_track = Rectangle::new(
+            self.track_pos.to_relative(screensize).get_coordinates(),
+            (0.58, 0.64, 0.7),
+        );
+        self.rect_slider = Rectangle::new(
+            self.slider_pos.to_relative(screensize).get_coordinates(),
+            (0.7, 0.75, 0.8),
+        );
     }
 }
 

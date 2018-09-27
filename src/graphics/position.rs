@@ -25,13 +25,13 @@ impl Relative {
             height: pos.height as f32 / screensize.1 * 2.0,
             anchor: pos.anchor,
             margin_horizontal: pos.margin_horizontal as f32 / screensize.0 * 2.0,
-            margin_vertical:   pos.margin_vertical   as f32 / screensize.1 * 2.0,
+            margin_vertical: pos.margin_vertical as f32 / screensize.1 * 2.0,
         }
     }
 
     /// Gets absolute coordinates for this position.
     pub fn get_coordinates(&self) -> Coordinates {
-        use std::mem::swap;        
+        use std::mem::swap;
         let (x, y) = self.get_corner_pos();
         let (x2, y2) = (x * -1.0, y * -1.0);
 

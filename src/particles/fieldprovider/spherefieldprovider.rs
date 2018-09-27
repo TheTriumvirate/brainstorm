@@ -80,7 +80,12 @@ impl FieldProvider for SphereFieldProvider {
                 }
             }
         }
-        SphereFieldProvider { width: x.width, height: x.height, depth: x.depth, data }
+        SphereFieldProvider {
+            width: x.width,
+            height: x.height,
+            depth: x.depth,
+            data,
+        }
     }
 
     fn delta(&self, (x, y, z): (f32, f32, f32)) -> (f32, f32, f32) {
