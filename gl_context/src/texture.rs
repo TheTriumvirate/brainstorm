@@ -13,7 +13,7 @@ pub enum TextureFormat {
 
 pub struct Texture {
     texture: NativeTexture,
-    format: TextureFormat,
+    _format: TextureFormat,
 }
 
 impl Texture {
