@@ -5,7 +5,7 @@ use rand::{FromEntropy, Rng};
 use std::{f32, str};
 
 use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
-use particles::fieldprovider::{FieldProvider, DataFieldProvider};
+use particles::fieldprovider::{DataFieldProvider, FieldProvider};
 use State;
 
 use camera::Camera;
@@ -148,9 +148,17 @@ impl ParticleEngine {
                 continue;
             }
 
-            let (dx, dy, dz) = (cx - data.position.0, cy - data.position.1, cz - data.position.2);
-            self.max_camera_dist = self.max_camera_dist.max((dx * dx + dy * dy + dz * dz).sqrt());
-            self.min_camera_dist = self.min_camera_dist.min((dx * dx + dy * dy + dz * dz).sqrt());
+            let (dx, dy, dz) = (
+                cx - data.position.0,
+                cy - data.position.1,
+                cz - data.position.2,
+            );
+            self.max_camera_dist = self
+                .max_camera_dist
+                .max((dx * dx + dy * dy + dz * dz).sqrt());
+            self.min_camera_dist = self
+                .min_camera_dist
+                .min((dx * dx + dy * dy + dz * dz).sqrt());
 
             // Send the data to the GPU.
             self.particle_data[self.alive_count * 4] = data.position.0;

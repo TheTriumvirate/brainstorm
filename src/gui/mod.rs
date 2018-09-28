@@ -5,22 +5,14 @@ mod label;
 mod slider;
 mod ui_element;
 
-use std::{
-    rc::Rc,
-    cell::RefCell,
-};
+use std::{cell::RefCell, rc::Rc};
 
 use graphics::{position, Drawable, Font};
 use resources::fonts;
 use window::*;
 use State;
 
-use self::{
-    button::Button,
-    label::Label,
-    slider::Slider,
-    ui_element::UiElement,
-};
+use self::{button::Button, label::Label, slider::Slider, ui_element::UiElement};
 
 /// Represents the GUI for the application.
 pub struct Gui {

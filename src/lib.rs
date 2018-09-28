@@ -86,7 +86,8 @@ impl Default for State {
 impl App {
     /// Starts the application.
     pub fn new() -> App {
-        #[cfg(target_arch = "wasm32")] {
+        #[cfg(target_arch = "wasm32")]
+        {
             stdweb::initialize();
         }
         App {

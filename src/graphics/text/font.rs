@@ -81,8 +81,7 @@ impl<'a> Font<'a> {
                     rect.height() as i32,
                     &data,
                 );
-            })
-            .expect("Could not construct cache texture");
+            }).expect("Could not construct cache texture");
 
         let origin = point(x, y);
         let mut idx = 0;
@@ -101,12 +100,14 @@ impl<'a> Font<'a> {
                         + (vector(
                             screen_rect.min.x as f32 / 1024.0 /* Divide by aspect ratio (width / height) */ - 0.5,
                             1.0 - screen_rect.min.y as f32 / 1024.0 - 0.5,
-                        )) * 2.0 + vector(1.0, -1.0 + advance_height / 512.0),
+                        )) * 2.0
+                        + vector(1.0, -1.0 + advance_height / 512.0),
                     max: origin
                         + (vector(
                             screen_rect.max.x as f32 / 1024.0 /* Divide by aspect ratio (width / height) */ - 0.5,
                             1.0 - screen_rect.max.y as f32 / 1024.0 - 0.5,
-                        )) * 2.0 + vector(1.0, - 1.0 + advance_height / 512.0),
+                        )) * 2.0
+                        + vector(1.0, -1.0 + advance_height / 512.0),
                 };
                 vertices.push(&[
                     gl_rect.min.x,

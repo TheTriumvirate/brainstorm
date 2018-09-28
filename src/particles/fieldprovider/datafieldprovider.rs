@@ -30,7 +30,8 @@ fn lerp2d(lxly: Vector3, lxuy: Vector3, uxly: Vector3, uxuy: Vector3, t1: f32, t
 }
 
 #[allow(unknown_lints, too_many_arguments)]
-fn lerp3d( // naming scheme: face <n> <lower|upper>x <lower|upper>y
+fn lerp3d(
+    // naming scheme: face <n> <lower|upper>x <lower|upper>y
     f1lxly: Vector3,
     f1lxuy: Vector3,
     f1uxly: Vector3,
@@ -58,17 +59,25 @@ pub struct DataFieldProvider {
 impl DataFieldProvider {
     fn get_vec(&self, pos: (usize, usize, usize)) -> (f32, f32, f32) {
         match pos {
-            (fx,fy,fz) if fx >= self.width() || fy >= self.height() || fz >= self.depth() => (0.0,0.0,0.0),
-            (fx,fy,fz) => self.get(fx,fy,fz),
+            (fx, fy, fz) if fx >= self.width() || fy >= self.height() || fz >= self.depth() => {
+                (0.0, 0.0, 0.0)
+            }
+            (fx, fy, fz) => self.get(fx, fy, fz),
         }
     }
 }
 
 impl FieldProvider for DataFieldProvider {
-    fn width(&self) -> usize { self.width }
-    fn height(&self) -> usize { self.height }
-    fn depth(&self) -> usize { self.depth }
-    
+    fn width(&self) -> usize {
+        self.width
+    }
+    fn height(&self) -> usize {
+        self.height
+    }
+    fn depth(&self) -> usize {
+        self.depth
+    }
+
     fn new() -> Self {
         let mut data = Vec::new();
         let x: VectorField = deserialize(TEST_DATA).unwrap();

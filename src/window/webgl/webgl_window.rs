@@ -10,7 +10,7 @@ use stdweb::web::event::*;
 use stdweb::web::html_element::CanvasElement;
 use stdweb::web::{document, window, IEventTarget, IParentNode};
 
-use std::cell::{RefCell, Cell};
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use window::abstract_window::*;
@@ -74,11 +74,11 @@ impl AbstractWindow for WebGLWindow {
         }));
 
         canvas.add_event_listener(enclose!((events, pointers) move |event: PointerDownEvent| {
-            
+
             let x : f64 = js!(return @{&event}.clientX;).try_into().expect("Expected clientX");
             let y : f64 = js!(return @{&event}.clientY;).try_into().expect("Expected clientY");
-            
-            
+
+
             pointers.borrow_mut().push(PointerData {
                 id: event.pointer_id(),
                 client_x: x as f32,
@@ -88,7 +88,8 @@ impl AbstractWindow for WebGLWindow {
             events.borrow_mut().push(EventWrapper::CursorInput {button: MouseButtonWrapper::Left, pressed: true});
         }));
 
-        canvas.add_event_listener(enclose!((events, pointers, prev_dist) move |event: PointerMoveEvent| {
+        canvas.add_event_listener(
+            enclose!((events, pointers, prev_dist) move |event: PointerMoveEvent| {
             let mut pointers = pointers.borrow_mut();
             let x : f64 = js!(return @{&event}.clientX;).try_into().expect("Expected clientX");
             let y : f64 = js!(return @{&event}.clientY;).try_into().expect("Expected clientY");
@@ -108,7 +109,7 @@ impl AbstractWindow for WebGLWindow {
             }
 
             if pointers.len() == 2 {
-                
+
                 let mut ox = 0.0;
                 let mut oy = 0.0;
                 for pointer in pointers.iter() {
@@ -123,7 +124,7 @@ impl AbstractWindow for WebGLWindow {
                 let dist = (dx * dx + dy * dy).sqrt();
 
                 let p_dist = prev_dist.get();
-                if p_dist > 0.0 { 
+                if p_dist > 0.0 {
                     let delta = (dist - p_dist) / 10.0;
                     // TODO: zoom event
                     events.borrow_mut().push(EventWrapper::CursorScroll(0.0, delta as f32));
@@ -137,7 +138,8 @@ impl AbstractWindow for WebGLWindow {
                 events.borrow_mut().push(EventWrapper::CursorMoved{x, y});
             }
 
-        }));
+        }),
+        );
 
         canvas.add_event_listener(enclose!((events, pointers, prev_dist) move |event: PointerUpEvent| {
             //pointerCount.borrow_mut() = count -  1;

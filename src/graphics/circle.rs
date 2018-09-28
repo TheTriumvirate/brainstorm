@@ -12,7 +12,7 @@ pub struct Circle {
 
 impl Circle {
     /// Creates a new circle with the chosen parameters.
-     fn new(x: f32, y: f32, radius: f32) -> Self {
+    fn new(x: f32, y: f32, radius: f32) -> Self {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 

@@ -54,8 +54,12 @@ impl<'a> Text<'a> {
 
     // TODO: DIRTY
     pub fn set_position(&mut self, x: f32, y: f32) {
-        self.font
-            .borrow_mut()
-            .update_texture(&self.text, x, y, &mut self.vertices, &mut self.indices);
+        self.font.borrow_mut().update_texture(
+            &self.text,
+            x,
+            y,
+            &mut self.vertices,
+            &mut self.indices,
+        );
     }
 }

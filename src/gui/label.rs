@@ -1,9 +1,6 @@
-use std::{
-    cell::RefCell,
-    rc::Rc,
-};
+use std::{cell::RefCell, rc::Rc};
 
-use graphics::{Drawable, Font, Text, position};
+use graphics::{position, Drawable, Font, Text};
 use gui::UiElement;
 
 /// A simple button that can be pressed.
