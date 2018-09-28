@@ -1,5 +1,7 @@
 # Particles
 
+[![Build Status](https://travis-ci.org/TheTriumvirate/particles.svg?branch=master)](https://travis-ci.org/travis-ci/travis-api)
+
 The goal of this project is to create a data-independent particle visualization software using vector fields. To begin with, we’ll work towards using a dataset related to brain activity in order to create a visualization system for brain signals with particles, as we understand that this particular kind of visualization is underexplored for this kind of data. However, we will aim for creating a system which is not inherently dependent on the data. The software should be able to take any compatible data set and create a particle visualization for it. We will also aim for being able to run this project both as a desktop app and in a web browser.
 
 ## Project description

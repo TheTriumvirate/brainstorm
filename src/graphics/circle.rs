@@ -1,7 +1,7 @@
+#![allow(dead_code)] // Not yet in use.
 use gl_context::{Buffer, BufferType};
 use graphics::{render_target, Drawable, RenderStates};
 use std::f32;
-
 const POINTS: usize = 40;
 
 /// Represents a drawable circle.
@@ -12,11 +12,7 @@ pub struct Circle {
 
 impl Circle {
     /// Creates a new circle with the chosen parameters.
-    /// Example:
-    /// ```rust
-    /// Circle::new(0.0, 0.0, 0.2);
-    /// ```
-    pub fn new(x: f32, y: f32, radius: f32) -> Self {
+     fn new(x: f32, y: f32, radius: f32) -> Self {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
