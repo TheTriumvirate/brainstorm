@@ -91,7 +91,7 @@ impl Texture {
 
         Texture {
             texture,
-            format,
+            _format: format,
         }
     }
 

@@ -74,10 +74,8 @@ impl AbstractWindow for WebGLWindow {
         }));
 
         canvas.add_event_listener(enclose!((events, pointers) move |event: PointerDownEvent| {
-
-            let x : f64 = js!(return @{&event}.clientX;).try_into().expect("Expected clientX");
-            let y : f64 = js!(return @{&event}.clientY;).try_into().expect("Expected clientY");
-
+            let x = js!(return @{&event}.clientX;).try_into().unwrap_or(0.0);
+            let y = js!(return @{&event}.clientY;).try_into().unwrap_or(0.0);
 
             pointers.borrow_mut().push(PointerData {
                 id: event.pointer_id(),
@@ -91,9 +89,9 @@ impl AbstractWindow for WebGLWindow {
         canvas.add_event_listener(
             enclose!((events, pointers, prev_dist) move |event: PointerMoveEvent| {
             let mut pointers = pointers.borrow_mut();
-            let x : f64 = js!(return @{&event}.clientX;).try_into().expect("Expected clientX");
-            let y : f64 = js!(return @{&event}.clientY;).try_into().expect("Expected clientY");
-
+            let x = js!(return @{&event}.clientX;).try_into().unwrap_or(0.0);
+            let y = js!(return @{&event}.clientY;).try_into().unwrap_or(0.0);
+                
             let len = pointers.len().to_string();
             js!(console.log("pointers: ", @{len}););
 
