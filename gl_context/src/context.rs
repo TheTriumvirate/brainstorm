@@ -64,8 +64,7 @@ pub trait AbstractContext {
     const UNPACK_ALIGNMENT: u32;
     const DEPTH_BUFFER_BIT: u32;
     const FRONT_AND_BACK: u32;
-    const LINE: u32;
-    const FILL: u32;
+    const DEPTH_TEST: u32;
 
     fn get_context() -> &'static Context;
     
@@ -125,7 +124,9 @@ pub trait AbstractContext {
     fn viewport(&self, x: i32, y: i32, width: i32, height: i32);
 
     fn pixel_storei(&self, pname: GLEnum, param: i32);
-    fn polygon_mode(&self, face: GLEnum, mode: GLEnum);
+
+    fn enable(&self, cap: GLEnum);    
+    fn disable(&self, cap: GLEnum);    
 }
 
 impl GlPrimitive for f32 {

@@ -156,15 +156,6 @@ impl AbstractWindow for GLWindow {
     fn get_size(&self) -> (u32, u32) {
         (self.width, self.height)
     }
-
-    fn enable_depth(&self) {
-        unsafe {gl::Enable(gl::DEPTH_TEST);}
-
-    }
-
-    fn disable_depth(&self) {
-        unsafe{ gl::Disable(gl::DEPTH_TEST);}
-    }
 }
 
 impl From<glutin::MouseButton> for MouseButtonWrapper {

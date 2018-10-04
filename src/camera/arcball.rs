@@ -1,7 +1,7 @@
 use camera::Camera;
 use na::{Isometry3, Matrix4, Perspective3, Point3, Vector2, Vector3};
 use std::f32;
-use window::Event;
+use window::{Event, Key};
 use window::MouseButton;
 
 /// A camera that orbits around a point in space.
@@ -67,10 +67,11 @@ impl ArcBall {
 impl Camera for ArcBall {
     /// Updates the idle animation for the camera.
     fn update(&mut self) {
-        if self.idle > 60.0 {
+        
+        /*if self.idle > 60.0 {
             //self.yaw += 0.002;
             self.recalculate_matrices();
-        }
+        }*/
 
         self.idle += 1.0;
     }
@@ -104,6 +105,29 @@ impl Camera for ArcBall {
             }
             Event::Resized(w, h) => {
                 self.aspect = w / h;
+            }
+            Event::KeyboardInput {
+                pressed,
+                key,
+                ..
+            } => {
+                let mut direction: (f32, f32, f32) = (0.0, 0.0, 0.0);
+                let ch = 1.0;
+                if *pressed {
+                    match key {
+                        Key::W => direction = (0.0, 0.0, ch),
+                        Key::S => direction = (0.0, 0.0, -ch),
+                        Key::A => direction = (ch, 0.0, 0.0),
+                        Key::D => direction = (-ch, 0.0, 0.0),
+                        Key::Q => direction = (0.0, ch, 0.0),
+                        Key::E => direction = (0.0, -ch, 0.0),
+                        _ => {}
+                    }
+                }
+                let (dx, dy, dz) = direction;
+                let t = self.target;
+                self.target = Point3::new(t.x + dx * 0.01, t.y + dy * 0.01, t.z + dz * 0.01);
+                self.recalculate_matrices();
             }
             _ => (),
         }

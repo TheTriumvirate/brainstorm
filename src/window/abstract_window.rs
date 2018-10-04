@@ -1,4 +1,5 @@
 use window::Event as EventWrapper;
+use gl_context::{AbstractContext, Context};
 
 /// The "abstract interface" for a "window" in both web and desktop
 /// environments.
@@ -23,8 +24,13 @@ pub trait AbstractWindow {
     fn get_size(&self) -> (u32, u32);
 
     /// Enables depth testing
-    fn enable_depth(&self);
+    fn enable_depth(&self) {
+        Context::get_context().enable(Context::DEPTH_TEST);
+    }
 
     /// Disables depth testing
-    fn disable_depth(&self);
+    fn disable_depth(&self) {
+        Context::get_context().disable(Context::DEPTH_TEST);
+
+    }
 }

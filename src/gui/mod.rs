@@ -143,7 +143,7 @@ impl Gui {
                 margin_horizontal: 510,
             },
             screensize,
-            "Transparency".to_owned(),
+            "Seeding size".to_owned(),
             font.clone(),
         )));
 

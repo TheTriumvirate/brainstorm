@@ -99,6 +99,9 @@ impl AbstractContext for WebGLContext {
     const TEXTURE_MAG_FILTER: u32 = WebGLRenderingContext::TEXTURE_MAG_FILTER;
     const LINEAR: u32 = WebGLRenderingContext::LINEAR;
     const UNPACK_ALIGNMENT: u32 = WebGLRenderingContext::UNPACK_ALIGNMENT;
+    const DEPTH_BUFFER_BIT: u32 = WebGLRenderingContext::DEPTH_BUFFER_BIT;
+    const FRONT_AND_BACK: u32 = WebGLRenderingContext::FRONT_AND_BACK;
+    const DEPTH_TEST: u32 = WebGLRenderingContext::DEPTH_TEST;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -361,5 +364,13 @@ impl AbstractContext for WebGLContext {
 
     fn pixel_storei(&self, pname: GLenum, param: i32) {
         self.context.pixel_storei(pname, param)
+    }
+
+    fn enable(&self, cap: GLEnum) {
+        self.context.enable(cap);
+    }
+
+    fn disable(&self, cap: GLEnum) {
+        self.context.disable(cap);
     }
 }
