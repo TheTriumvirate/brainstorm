@@ -6,11 +6,13 @@ pub mod position;
 mod rectangle;
 pub mod render_target;
 mod text;
+mod cube;
 
 pub use self::circle::Circle;
 pub use self::rectangle::Rectangle;
 pub use self::text::font::Font;
 pub use self::text::Text;
+pub use self::cube::Cube;
 
 use gl_context::{shaders::OurShader, Texture};
 

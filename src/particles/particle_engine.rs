@@ -111,7 +111,7 @@ impl ParticleEngine {
         let (tx, ty, tz) = camera.get_target();
         self.max_camera_dist = 0.0;
         self.min_camera_dist = f32::MAX;
-        let radius = state.transparency * 0.5 + 0.1;
+        let radius = state.transparency * 0.6 + 0.01;
         
         for i in 0..PARTICLE_COUNT {
 

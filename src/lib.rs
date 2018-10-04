@@ -32,7 +32,7 @@ pub mod particles;
 pub mod window;
 
 use gl_context::{AbstractContext, Context};
-use graphics::{Drawable, Circle};
+use graphics::{Drawable, Circle, Cube};
 use particles::ParticleEngine;
 
 use std::f32;
@@ -52,6 +52,7 @@ pub struct App {
     circle1: Circle,
     circle2: Circle,
     circle3: Circle,
+    bound: Cube,
 }
 
 /// Holds application state.
@@ -103,6 +104,7 @@ impl App {
             circle1: Circle::new(0.0,0.0,0.0,0.5, 0.0, (1.0, 0.0, 0.0), false),
             circle2: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 1.0, 0.0), false),
             circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
+            bound: Cube::new((-0.5, -0.5, -0.5), (1.0,1.0,1.0), (1.0,1.0,1.0)),
         }
     }
 
@@ -138,22 +140,24 @@ impl App {
         self.circle1.set_color(1.0, 0.0, 0.0);
         self.circle2.set_color(0.0, 1.0, 0.0);
         self.circle3.set_color(0.0, 0.0, 1.0);
-        self.circle1.set_radius(self.state.transparency * 0.5 + 0.1);
-        self.circle2.set_radius(self.state.transparency * 0.5 + 0.1);
-        self.circle3.set_radius(self.state.transparency * 0.5 + 0.1);
+        self.circle1.set_radius(self.state.transparency * 0.6 + 0.01);
+        self.circle2.set_radius(self.state.transparency * 0.6 + 0.01);
+        self.circle3.set_radius(self.state.transparency * 0.6 + 0.01);
         self.circle1.set_center(self.camera.get_target());
         self.circle2.set_center(self.camera.get_target());
         self.circle3.set_center(self.camera.get_target());
         self.circle1.rebuild_data();
         self.circle2.rebuild_data();
         self.circle3.rebuild_data();
+
+        self.bound.draw_transformed(&projection_matrix);
         self.circle1.draw_transformed(&projection_matrix);
         self.circle2.draw_transformed(&projection_matrix);
         self.circle3.draw_transformed(&projection_matrix);
 
         self.window.disable_depth();
         self.gui.draw();
-        
+
         self.window.swap_buffers();
         self.time += 0.01;
 
