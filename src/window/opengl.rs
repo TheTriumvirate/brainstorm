@@ -125,6 +125,7 @@ impl AbstractWindow for GLWindow {
                 gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
                 gl::Enable(gl::BLEND);
                 gl::Enable(gl::PROGRAM_POINT_SIZE);
+                gl::LineWidth(4.0);
             }
         }
     }
@@ -154,6 +155,15 @@ impl AbstractWindow for GLWindow {
 
     fn get_size(&self) -> (u32, u32) {
         (self.width, self.height)
+    }
+
+    fn enable_depth(&self) {
+        unsafe {gl::Enable(gl::DEPTH_TEST);}
+
+    }
+
+    fn disable_depth(&self) {
+        unsafe{ gl::Disable(gl::DEPTH_TEST);}
     }
 }
 

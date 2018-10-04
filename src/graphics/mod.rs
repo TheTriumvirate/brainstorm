@@ -16,6 +16,13 @@ use gl_context::{shaders::OurShader, Texture};
 
 use std::rc::Rc;
 
+use na::Matrix4;
+
+pub enum DrawMode {
+    TRIANGLES,
+    LINES
+}
+
 /// Represents something that can be drawn.
 pub trait Drawable {
     fn get_texture(&self) -> Option<Rc<Texture>> {
@@ -24,12 +31,18 @@ pub trait Drawable {
     fn get_shader(&self) -> Option<&OurShader> {
         None
     }
-    fn draw(&self);
+
+    fn get_transform(&self) -> Option<&Matrix4<f32>> {None}
+
+    fn draw_transformed(&self, view_matrix: &Matrix4<f32>);
+
+    fn draw(&self) {self.draw_transformed(&Matrix4::identity());}
 }
 
 pub struct RenderStates<'a> {
     pub texture: Option<Rc<Texture>>,
     pub shader: Option<&'a OurShader>,
+    pub transform: Option<&'a Matrix4<f32>>,
 }
 
 impl<'a, T> From<&'a T> for RenderStates<'a>
@@ -40,6 +53,7 @@ where
         RenderStates {
             texture: drawable.get_texture(),
             shader: drawable.get_shader(),
+            transform: drawable.get_transform(),
         }
     }
 }

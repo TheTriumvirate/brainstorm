@@ -1,6 +1,7 @@
 use graphics::*;
 use gui::UiElement;
 use State;
+use na::Matrix4;
 
 /// A simple slider giving a value from 0.0 to 1.0.
 pub struct Slider {
@@ -145,9 +146,9 @@ impl UiElement for Slider {
 }
 
 impl Drawable for Slider {
-    fn draw(&self) {
-        self.rect_background.draw();
-        self.rect_track.draw();
-        self.rect_slider.draw();
+    fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
+        self.rect_background.draw_transformed(view_matrix);
+        self.rect_track.draw_transformed(view_matrix);
+        self.rect_slider.draw_transformed(view_matrix);
     }
 }

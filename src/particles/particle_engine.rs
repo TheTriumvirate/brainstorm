@@ -110,19 +110,27 @@ impl ParticleEngine {
         let (cx, cy, cz) = camera.get_position();
         self.max_camera_dist = 0.0;
         self.min_camera_dist = f32::MAX;
+        let radius = state.transparency * 0.5 + 0.1;
         for i in 0..PARTICLE_COUNT {
-            // Respawn particle if it's too old.
-            if self.particles[i].lifetime > 100.0 {
-                let mut data = &mut self.particles[i];
-                data.lifetime = 0.0;
-                data.position = (
-                    self.rng.gen_range::<f32>(-0.5, 0.5),
-                    self.rng.gen_range::<f32>(-0.5, 0.5),
-                    self.rng.gen_range::<f32>(-0.5, 0.5),
-                );
-            }
 
             let mut data = &mut self.particles[i];
+            // Respawn particle if it's too old.
+            if data.lifetime > 100.0 {
+                data.lifetime = 0.0;
+                let mut dx : f32 = 1000.0;
+                let mut dy : f32 = 1000.0;
+                let mut dz : f32 = 1000.0;
+                while dx * dx + dy * dy + dz * dz >= radius * radius {
+                    dx = self.rng.gen_range::<f32>(-radius, radius);
+                    dy = self.rng.gen_range::<f32>(-radius, radius);
+                    dz = self.rng.gen_range::<f32>(-radius, radius);
+                }
+                data.position = (
+                    dx,
+                    dy,
+                    dz,
+                );
+            }
 
             // Update particle position
             let delta = self.field_provider.delta(data.position);
@@ -183,7 +191,7 @@ impl ParticleEngine {
             self.shader.use_program();
             self.shader.uniform1f("min_dist", self.min_camera_dist);
             self.shader.uniform1f("max_dist", self.max_camera_dist);
-            self.shader.uniform1f("transparency", state.transparency);
+            self.shader.uniform1f("transparency", 1.0);
             self.shader.bind_attribs();
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
             context.draw_arrays(Context::POINTS, 0, self.alive_count as i32);

@@ -19,7 +19,7 @@ lazy_static! {
         str::from_utf8(DEFAULT_VERTEX_SHADER).expect("Failed to read vertex shader"), 
         str::from_utf8(DEFAULT_FRAGMENT_SHADER).expect("Failed to read fragment shader"), 
         &[
-            ShaderAttribute{name: "a_position".to_string(), size: 2},
+            ShaderAttribute{name: "a_position".to_string(), size: 3},
             ShaderAttribute{name: "a_color".to_string(), size: 3},
             ShaderAttribute{name: "a_texture".to_string(), size: 2},
         ]

@@ -2,6 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use graphics::{position, Drawable, Font, Text};
 use gui::UiElement;
+use na::Matrix4;
 
 /// A simple button that can be pressed.
 pub struct Label<'a> {
@@ -34,7 +35,7 @@ impl<'a> UiElement for Label<'a> {
 }
 
 impl<'a> Drawable for Label<'a> {
-    fn draw(&self) {
-        self.text.draw();
+    fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
+        self.text.draw_transformed(view_matrix);
     }
 }

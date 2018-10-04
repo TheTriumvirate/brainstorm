@@ -21,4 +21,10 @@ pub trait AbstractWindow {
 
     /// Gets the size of the window.
     fn get_size(&self) -> (u32, u32);
+
+    /// Enables depth testing
+    fn enable_depth(&self);
+
+    /// Disables depth testing
+    fn disable_depth(&self);
 }

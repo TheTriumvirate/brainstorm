@@ -58,6 +58,10 @@ impl ArcBall {
         let view: Isometry3<f32> = Isometry3::look_at_rh(&eye, &self.target, &Vector3::y());
         self.projection = perspective.as_matrix() * view.to_homogeneous();
     }
+
+    pub fn get_target(&self) -> (f32, f32, f32) {
+        (self.target.x, self.target.y, self.target.z)
+    }
 }
 
 impl Camera for ArcBall {

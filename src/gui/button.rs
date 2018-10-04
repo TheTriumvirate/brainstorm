@@ -1,6 +1,7 @@
 use graphics::*;
 use gui::UiElement;
 use State;
+use na::Matrix4;
 
 /// A simple button that can be pressed.
 pub struct Button {
@@ -50,7 +51,7 @@ impl UiElement for Button {
 }
 
 impl Drawable for Button {
-    fn draw(&self) {
-        self.rect.draw();
+    fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
+        self.rect.draw_transformed(view_matrix);
     }
 }

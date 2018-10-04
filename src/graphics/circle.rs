@@ -1,57 +1,126 @@
 #![allow(dead_code)] // Not yet in use.
 use gl_context::{Buffer, BufferType};
-use graphics::{render_target, Drawable, RenderStates};
+use graphics::{render_target, Drawable, RenderStates, DrawMode};
 use std::f32;
+use na::Matrix4;
+
 const POINTS: usize = 40;
 
 /// Represents a drawable circle.
 pub struct Circle {
+    pos: (f32, f32, f32),
+    rotation: f32,
+    rotation_axis: (f32, f32, f32),
+    radius: f32,
+    filled: bool,
+    color: (f32, f32, f32),
     vertices: Buffer<f32>,
     indices: Buffer<u16>,
+    
 }
 
 impl Circle {
     /// Creates a new circle with the chosen parameters.
-    fn new(x: f32, y: f32, radius: f32) -> Self {
-        let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
-        let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
+    pub fn new(x: f32, y: f32, z: f32, radius: f32, rotation: f32, rotation_axis: (f32, f32, f32), filled: bool) -> Self {
+        let vertices: Buffer<f32> = Buffer::new(BufferType::Array);
+        let indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
+        let mut result = Circle { 
+            pos: (x, y, z),
+            rotation,
+            rotation_axis,
+            radius,
+            filled,
+            color: (1.0, 1.0, 1.0),
+            vertices, 
+            indices 
+        };
+
+        result.rebuild_data();
+
+        result
+    }
+
+    pub fn set_rotation(&mut self, rotation: f32, rotation_axis: (f32, f32, f32)) {
+        self.rotation = rotation;
+        self.rotation_axis = rotation_axis;
+    }
+
+    pub fn set_color(&mut self, r: f32, g: f32, b: f32) {
+        self.color = (r, g, b);
+    }
+
+    pub fn set_radius(&mut self, radius: f32) {
+        self.radius = radius;
+    }
+
+    pub fn set_center(&mut self, center: (f32, f32, f32)) {
+        self.pos = center;
+    }
+
+    pub fn rebuild_data(&mut self) {
         let mut vertex_data = Vec::new();
-        vertex_data.extend_from_slice(&[x, y, 1.0, 1.0, 1.0, 0.5, 0.5]);
-
         let mut index_data = Vec::new();
 
-        for i in 0..POINTS {
-            let progress = i as f32 / POINTS as f32;
-            let dt = progress * f32::consts::PI * 2.0;
-            let dx = x + radius * dt.cos();
-            let dy = y + radius * dt.sin();
-            vertex_data.extend_from_slice(&[dx, dy, 1.0, 1.0, 1.0, dx / 2.0 + 0.5, dy / 2.0 + 0.5]);
+        let (x, y, z) = self.pos;
+        let rot = self.rotation;
+        let (ax, ay, az) = self.rotation_axis;
+        let radius = self.radius;
+        let (r, g, b) = self.color;
 
-            if i > 0 {
-                let idx = i as u16;
-                index_data.extend_from_slice(&[0, idx + 1, idx]);
+        if self.filled {
+            /*vertex_data.extend_from_slice(&[x, y, z, 1.0, 1.0, 1.0, 0.5, 0.5]);
+            for i in 0..POINTS {
+                let progress = i as f32 / POINTS as f32;
+                let dt = progress * f32::consts::PI * 2.0;
+                let dx = x + radius * dt.cos() * yaw.cos() * pitch.sin();
+                let dy = y + radius * dt.sin() * pitch.cos();
+                let dz = z + radius * dt.cos() * yaw.sin() * pitch.sin();
+                vertex_data.extend_from_slice(&[dx, dy, dz, 1.0, 1.0, 1.0, dx / 2.0 + 0.5, dy / 2.0 + 0.5]);
+
+                if i > 0 {
+                    let idx = i as u16;
+                    index_data.extend_from_slice(&[0, idx + 1, idx]);
+                }
             }
+            index_data.extend_from_slice(&[0, 1, POINTS as u16]);*/
+            //TODO: implement
+        } else {
+            for i in 0..POINTS {
+                let progress = i as f32 / POINTS as f32;
+                let dt = progress * f32::consts::PI * 2.0;
+
+                let dts = radius * dt.sin();
+                let dtc = radius * dt.cos();
+
+                let dx = x + dtc * ax             + dts * ay * rot.sin() + dts * az * rot.cos();
+                let dy = y + dts * ax * rot.cos() + dtc * ay             + dts * az * rot.sin();
+                let dz = z + dts * ax * rot.sin() + dts * ay * rot.cos() + dtc * az;
+                vertex_data.extend_from_slice(&[dx, dy, dz, r, g, b, dx / 2.0 + 0.5, dy / 2.0 + 0.5]);
+
+                if i > 0 {
+                    let idx = i as u16;
+                    index_data.extend_from_slice(&[idx-1, idx]);
+                }
+            }
+            index_data.extend_from_slice(&[0, POINTS as u16-1]);
         }
-        index_data.extend_from_slice(&[0, 1, POINTS as u16]);
 
-        vertices.set_data(&vertex_data[..]);
-        indices.set_data(&index_data[..]);
+        self.vertices.set_data(&vertex_data[..]);
+        self.indices.set_data(&index_data[..]);
 
-        vertices.bind();
-        let len = vertices.len();
-        vertices.upload_data(0, len, true);
+        self.vertices.bind();
+        let len = self.vertices.len();
+        self.vertices.upload_data(0, len, true);
 
-        indices.bind();
-        let len = indices.len();
-        indices.upload_data(0, len, true);
-
-        Circle { vertices, indices }
+        self.indices.bind();
+        let len = self.indices.len();
+        self.indices.upload_data(0, len, true);
     }
 }
 
 impl Drawable for Circle {
-    fn draw(&self) {
-        render_target::draw_indices(&self.vertices, &self.indices, RenderStates::from(self));
+    fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
+        render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, RenderStates::from(self), view_matrix);
     }
 }

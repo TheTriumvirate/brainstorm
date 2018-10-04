@@ -88,6 +88,10 @@ impl AbstractContext for GLContext {
     const TEXTURE_MAG_FILTER: u32 = gl::TEXTURE_MAG_FILTER;
     const LINEAR: u32 = gl::LINEAR;
     const UNPACK_ALIGNMENT: u32 = gl::UNPACK_ALIGNMENT;
+    const DEPTH_BUFFER_BIT: u32 = gl::DEPTH_BUFFER_BIT;
+    const FRONT_AND_BACK: u32 = gl::FRONT_AND_BACK;
+    const LINE: u32 = gl::LINE;
+    const FILL: u32 = gl::FILL;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -409,5 +413,9 @@ impl AbstractContext for GLContext {
     
     fn pixel_storei(&self, pname: GLEnum, param: i32) {
         unsafe { gl::PixelStorei(pname, param) }
+    }
+
+    fn polygon_mode(&self, face: GLEnum, mode: GLEnum) {
+        unsafe {gl::PolygonMode(face, mode);}
     }
 }

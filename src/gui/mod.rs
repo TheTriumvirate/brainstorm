@@ -11,6 +11,7 @@ use graphics::{position, Drawable, Font};
 use resources::fonts;
 use window::*;
 use State;
+use na::Matrix4;
 
 use self::{button::Button, label::Label, slider::Slider, ui_element::UiElement};
 
@@ -90,8 +91,8 @@ impl Gui {
                 margin_vertical: 120,
                 margin_horizontal: 285,
             },
-            10,
-            0.5,
+            80,
+            1.0,
             screensize,
             Box::new(|ref mut context, value| {
                 context.transparency = value;
@@ -194,9 +195,9 @@ impl Gui {
 }
 
 impl Drawable for Gui {
-    fn draw(&self) {
+    fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         for element in &self.ui_elements {
-            element.draw();
+            element.draw_transformed(view_matrix);
         }
     }
 }
