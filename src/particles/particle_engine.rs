@@ -5,7 +5,7 @@ use rand::{FromEntropy, Rng};
 use std::{f32, str};
 
 use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
-use particles::fieldprovider::{DataFieldProvider, FieldProvider};
+use particles::fieldprovider::FieldProvider;
 use State;
 
 use camera::{Camera, ArcBall};
@@ -26,7 +26,7 @@ struct ParticleData {
 pub struct ParticleEngine {
     particles: Vec<ParticleData>,
     particle_data: Buffer<f32>,
-    field_provider: DataFieldProvider,
+    field_provider: FieldProvider,
     rng: SmallRng,
     mvp_uniform: UniformLocation,
     shader: shaders::OurShader,
@@ -82,7 +82,7 @@ impl ParticleEngine {
         let mvp_uniform = shader.get_uniform_location();
 
         // Find the max velocity to be used with the high-pass filter later.
-        let field_provider = DataFieldProvider::new();
+        let field_provider = FieldProvider::new();
         let mut max_dist: f32 = 0.0;
         for (dx,dy,dz,fa) in field_provider.data() {
             let dist = ((dx*fa).powf(2.0) + (dy*fa).powf(2.0) + (dz*fa).powf(2.0)).sqrt();

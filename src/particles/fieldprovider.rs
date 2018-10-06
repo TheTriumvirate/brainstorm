@@ -1,5 +1,3 @@
-use super::FieldProvider;
-
 use bincode::deserialize;
 use std::f32;
 
@@ -49,37 +47,26 @@ fn lerp3d(
     lerp(s, v, t3)
 }
 
-pub struct DataFieldProvider {
+pub struct FieldProvider {
     width: usize,
     height: usize,
     depth: usize,
     data: Vec<(f32, f32, f32, f32)>,
 }
 
-impl DataFieldProvider {
-    fn get_vec(&self, (fx,fy,fz): (usize, usize, usize)) -> (f32, f32, f32, f32) {
+impl FieldProvider {
+    pub fn get_vec(&self, (fx,fy,fz): (usize, usize, usize)) -> (f32, f32, f32, f32) {
         if fx >= self.width || fy >= self.height || fz >= self.depth {
             return (0.0,0.0,0.0,0.0);
         }
         self.get(fx,fy,fz)
     }
-}
 
-impl FieldProvider for DataFieldProvider {
-    fn get(&self, x: usize, y: usize, z: usize) -> (f32, f32, f32, f32) {
+    pub fn get(&self, x: usize, y: usize, z: usize) -> (f32, f32, f32, f32) {
         self.data[z + y * self.width + x * self.width * self.height]
     }
-    fn width(&self) -> usize {
-        self.width
-    }
-    fn height(&self) -> usize {
-        self.height
-    }
-    fn depth(&self) -> usize {
-        self.depth
-    }
 
-    fn new() -> Self {
+    pub fn new() -> Self {
         let mut data = Vec::new();
         let x: VectorField = deserialize(TEST_DATA).unwrap();
         for plane in x.vectors {
@@ -89,7 +76,7 @@ impl FieldProvider for DataFieldProvider {
                 }
             }
         }
-        DataFieldProvider {
+        FieldProvider {
             width: x.width,
             height: x.height,
             depth: x.depth,
@@ -97,7 +84,7 @@ impl FieldProvider for DataFieldProvider {
         }
     }
 
-    fn delta(&self, (x, y, z): (f32, f32, f32)) -> (f32, f32, f32, f32) {
+    pub fn delta(&self, (x, y, z): (f32, f32, f32)) -> (f32, f32, f32, f32) {
         let x = x * (self.width as f32) + (self.width as f32) / 2.0;
         let y = y * (self.height as f32) + (self.height as f32) / 2.0;
         let z = z * (self.depth as f32) + (self.depth as f32) / 2.0;
@@ -137,7 +124,7 @@ impl FieldProvider for DataFieldProvider {
         lerp3d(v1, v2, v3, v4, v5, v6, v7, v8, t1, t2, t3)
     }
 
-    fn data(&self) -> &[(f32, f32, f32, f32)] {
+    pub fn data(&self) -> &[(f32, f32, f32, f32)] {
         &self.data
     }
 }
