@@ -84,8 +84,8 @@ impl ParticleEngine {
         // Find the max velocity to be used with the high-pass filter later.
         let field_provider = DataFieldProvider::new();
         let mut max_dist: f32 = 0.0;
-        for delta in field_provider.data() {
-            let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
+        for (dx,dy,dz,fa) in field_provider.data() {
+            let dist = ((dx*fa).powf(2.0) + (dy*fa).powf(2.0) + (dz*fa).powf(2.0)).sqrt();
             max_dist = max_dist.max(dist);
         }
 
@@ -135,13 +135,14 @@ impl ParticleEngine {
             }
 
             // Update particle position
-            let delta = self.field_provider.delta(data.position);
+            let (dx,dy,dz,fa) = self.field_provider.delta(data.position);
+            let (dx,dy,dz) = (fa*dx,fa*dy,fa*dz);
             let speed_multiplier = 0.02 * state.speed_multiplier;
-            data.position.0 += delta.0 * speed_multiplier;
-            data.position.1 += delta.1 * speed_multiplier;
-            data.position.2 += delta.2 * speed_multiplier;
+            data.position.0 += dx * speed_multiplier;
+            data.position.1 += dy * speed_multiplier;
+            data.position.2 += dz * speed_multiplier;
 
-            let dist = (delta.0 * delta.0 + delta.1 * delta.1 + delta.2 * delta.2).sqrt();
+            let dist = (dx*dx+dy*dy+dz*dz).sqrt();
             if dist.is_nan() {
                 data.lifetime = 500.0;
                 continue;
