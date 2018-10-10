@@ -68,6 +68,10 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
         self.data.extend_from_slice(data);
     }
 
+    pub fn get(&self, index: usize) -> Option<&T> {
+        self.data.get(index)
+    }
+
     /// Uploads the data to the GPU.
     pub fn upload_data(&mut self, offset: usize, length: usize, is_static: bool) {
         let alloc_type = if is_static {

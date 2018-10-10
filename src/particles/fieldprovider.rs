@@ -48,9 +48,9 @@ fn lerp3d(
 }
 
 pub struct FieldProvider {
-    width: usize,
-    height: usize,
-    depth: usize,
+    pub width: usize,
+    pub height: usize,
+    pub depth: usize,
     data: Vec<(f32, f32, f32, f32)>,
 }
 

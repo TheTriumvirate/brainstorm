@@ -6,6 +6,7 @@ extern crate glutin;
 #[macro_use]
 extern crate lazy_static;
 extern crate nalgebra as na;
+extern crate alga;
 extern crate noise;
 extern crate rand;
 #[cfg(target_arch = "wasm32")]
@@ -135,7 +136,6 @@ impl App {
         // Draw everything
         self.window.enable_depth();
         let projection_matrix = self.camera.get_projection_matrix();
-        self.particles.draw(&projection_matrix, &self.state);
 
         self.circle1.set_color(1.0, 0.0, 0.0);
         self.circle2.set_color(0.0, 1.0, 0.0);
@@ -155,6 +155,7 @@ impl App {
         self.circle2.draw_transformed(&projection_matrix);
         self.circle3.draw_transformed(&projection_matrix);
 
+        self.particles.draw(&projection_matrix, &self.state, &self.window);
         self.window.disable_depth();
         self.gui.draw();
 

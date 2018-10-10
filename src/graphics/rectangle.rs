@@ -15,9 +15,10 @@ impl Rectangle {
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
         vertices.set_data(&[
-            pos.x1, pos.y1, 0.0, color.0, color.1, color.2, 0.0, 0.0, pos.x2, pos.y1, 0.0, color.0, color.1,
-            color.2, 1.0, 0.0, pos.x2, pos.y2, 0.0, color.0, color.1, color.2, 1.0, 1.0, pos.x1, pos.y2, 0.0,
-            color.0, color.1, color.2, 0.0, 1.0,
+            pos.x1, pos.y1, 0.0, color.0, color.1, color.2, 0.0, 0.0, 
+            pos.x2, pos.y1, 0.0, color.0, color.1, color.2, 1.0, 0.0, 
+            pos.x2, pos.y2, 0.0, color.0, color.1, color.2, 1.0, 1.0, 
+            pos.x1, pos.y2, 0.0, color.0, color.1, color.2, 0.0, 1.0,
         ]);
         indices.set_data(&[0, 1, 2, 0, 2, 3]);
 

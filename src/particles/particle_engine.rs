@@ -8,9 +8,13 @@ use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformL
 use particles::fieldprovider::FieldProvider;
 use State;
 
+use window::{Window};
 use camera::{Camera, ArcBall};
 
 use resources::shaders::*;
+use graphics::Drawable;
+
+use particles::MarchingCubes;
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -34,6 +38,7 @@ pub struct ParticleEngine {
     max_dist: f32,
     max_camera_dist: f32,
     min_camera_dist: f32,
+    march: MarchingCubes,
 }
 
 impl Default for ParticleEngine {
@@ -88,6 +93,8 @@ impl ParticleEngine {
             let dist = ((dx*fa).powf(2.0) + (dy*fa).powf(2.0) + (dz*fa).powf(2.0)).sqrt();
             max_dist = max_dist.max(dist);
         }
+        
+        let march = MarchingCubes::marching_cubes(&field_provider);
 
         ParticleEngine {
             particles,
@@ -100,6 +107,7 @@ impl ParticleEngine {
             max_dist,
             max_camera_dist: 0.0,
             min_camera_dist: 0.0,
+            march,
         }
     }
 
@@ -109,6 +117,9 @@ impl ParticleEngine {
         self.alive_count = 0;
         let (cx, cy, cz) = camera.get_position();
         let (tx, ty, tz) = camera.get_target();
+
+        self.march.set_light_dir((cx, cy, cz));
+
         self.max_camera_dist = 0.0;
         self.min_camera_dist = f32::MAX;
         let radius = state.transparency * 0.6 + 0.01;
@@ -185,7 +196,7 @@ impl ParticleEngine {
 
     /// Draw the particles to the screen using the provided (camera)
     /// projection matrix.
-    pub fn draw(&mut self, projection_matrix: &Matrix4<f32>, _state: &State) {
+    pub fn draw(&mut self, projection_matrix: &Matrix4<f32>, _state: &State, window: &Window) {
         let context = Context::get_context();
         if self.alive_count > 0 {
             self.particle_data.bind();
@@ -199,6 +210,8 @@ impl ParticleEngine {
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
             context.draw_arrays(Context::POINTS, 0, self.alive_count as i32);
             self.shader.unbind_attribs();
+
         }
+        self.march.draw_transformed(projection_matrix);
     }
 }

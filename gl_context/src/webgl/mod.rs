@@ -102,6 +102,7 @@ impl AbstractContext for WebGLContext {
     const DEPTH_BUFFER_BIT: u32 = WebGLRenderingContext::DEPTH_BUFFER_BIT;
     const FRONT_AND_BACK: u32 = WebGLRenderingContext::FRONT_AND_BACK;
     const DEPTH_TEST: u32 = WebGLRenderingContext::DEPTH_TEST;
+    const UNSIGNED_INT: u32 = WebGLRenderingContext::UNSIGNED_INT;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -183,6 +184,11 @@ impl AbstractContext for WebGLContext {
                 let abuf = TypedArray::<u16>::from(data);
                 self.context
                     .buffer_data_1(target, Some(&abuf.buffer()), usage);
+            },
+            GlPrimitiveArray::U32(data) => {
+                let abuf = TypedArray::<u32>::from(data);
+                self.context
+                    .buffer_data_1(target, Some(&abuf.buffer()), usage);
             }
         }
     }
@@ -240,6 +246,10 @@ impl AbstractContext for WebGLContext {
     
     fn uniform1f(&self, location: &UniformLocation, x: f32) {
         self.context.uniform1f(Some(location), x);
+    }
+    
+    fn uniform3f(&self, location: &UniformLocation, x: f32, y: f32, z: f32) {
+        self.context.uniform3f(Some(location), x, y, z);
     }
     
     fn create_texture(&self) -> Option<NativeTexture> {

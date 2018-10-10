@@ -13,10 +13,12 @@ use Context;
 pub enum GlPrimitiveArray<'a> {
     F32(&'a [f32]),
     U16(&'a [u16]),
+    U32(&'a [u32]),
 }
 
 pub trait GlPrimitive: Copy {
     fn into(data: &[Self]) -> GlPrimitiveArray;
+    fn primitive() -> u32;
 }
 
 // TODO: Auto-destruct Buffer, etc
@@ -50,6 +52,7 @@ pub trait AbstractContext {
     const TRIANGLE_FAN: u32;
     const TRIANGLES: u32;
     const UNSIGNED_SHORT: u32;
+    const UNSIGNED_INT: u32;
     const TEXTURE_2D: u32;
     const UNSIGNED_BYTE: u32;
     const RGBA: u32;
@@ -107,6 +110,7 @@ pub trait AbstractContext {
     fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>);
     fn uniform1i(&self, location: &UniformLocation, x: i32);
     fn uniform1f(&self, location: &UniformLocation, x: f32);
+    fn uniform3f(&self, location: &UniformLocation, x: f32, y: f32, z: f32);
 
     fn create_texture(&self) -> Option<Texture>;
     fn bind_texture(&self, target: GLEnum, texture: &Texture);
@@ -138,6 +142,10 @@ impl GlPrimitive for f32 {
             GlPrimitiveArray::F32(slice::from_raw_parts(ptr as *const f32, len))
         }
     }
+
+    fn primitive() -> u32 {
+        Context::FLOAT
+    }
 }
 
 impl GlPrimitive for u16 {
@@ -148,5 +156,24 @@ impl GlPrimitive for u16 {
 
             GlPrimitiveArray::U16(slice::from_raw_parts(ptr as *const u16, len))
         }
+    }
+
+    fn primitive() -> u32 {
+        Context::UNSIGNED_SHORT
+    }
+}
+
+impl GlPrimitive for u32 {
+    fn into(data: &[u32]) -> GlPrimitiveArray {
+        unsafe {
+            let len = data.len();
+            let ptr = data.as_ptr();
+
+            GlPrimitiveArray::U32(slice::from_raw_parts(ptr as *const u32, len))
+        }
+    }
+
+    fn primitive() -> u32 {
+        Context::UNSIGNED_INT
     }
 }

@@ -660,8 +660,9 @@ dependencies = [
 
 [[package]]
 name = "particles"
-version = "0.1.0"
+version = "0.7.0"
 dependencies = [
+ "alga 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "bincode 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "gl 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "gl_context 0.1.0",

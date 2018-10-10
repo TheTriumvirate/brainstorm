@@ -49,7 +49,7 @@ impl GLContext {
 
 extern "system" fn callaback(source: GLEnum, type_: GLEnum, id: GLUint, severity: GLEnum, _length: i32, message: *const c_char, _user_param: *mut c_void) {
     unsafe {
-        if severity > gl::DEBUG_SEVERITY_LOW {
+        if severity != gl::DEBUG_SEVERITY_NOTIFICATION {
             let m = CStr::from_ptr(message);
             println!("source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}", source, type_, id, severity, m);
 
@@ -93,6 +93,7 @@ impl AbstractContext for GLContext {
     const DEPTH_BUFFER_BIT: u32 = gl::DEPTH_BUFFER_BIT;
     const FRONT_AND_BACK: u32 = gl::FRONT_AND_BACK;
     const DEPTH_TEST: u32 = gl::DEPTH_TEST;
+    const UNSIGNED_INT: u32 = gl::UNSIGNED_INT;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -299,6 +300,12 @@ impl AbstractContext for GLContext {
     fn uniform1f(&self, location: &UniformLocation, x: f32) {
         unsafe {
             gl::Uniform1f(*location as i32, x);
+        }
+    }
+    
+    fn uniform3f(&self, location: &UniformLocation, x: f32, y: f32, z: f32) {
+        unsafe {
+            gl::Uniform3f(*location as i32, x, y, z);
         }
     }
     

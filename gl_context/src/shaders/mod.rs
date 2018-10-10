@@ -11,6 +11,8 @@ use AbstractContext;
 use Context;
 use context::{UniformLocation, GLUint};
 
+use na::Matrix4;    
+
 const DEFAULT_VERTEX_SHADER: &[u8] = include_bytes!("default.vert");
 const DEFAULT_FRAGMENT_SHADER: &[u8] = include_bytes!("default.frag");
 
@@ -153,13 +155,29 @@ impl OurShader {
     }
 
     pub fn uniform1i(&self, name: &str, value: i32) {
+        self.use_program();
         let location = Context::get_context().get_uniform_location(&self.program, name);
         Context::get_context().uniform1i(&location, value);
     }
 
     pub fn uniform1f(&self, name: &str, value: f32) {
+        self.use_program();
         let location = Context::get_context().get_uniform_location(&self.program, name);
         Context::get_context().uniform1f(&location, value);
+    }
+
+    pub fn uniform3f(&self, name: &str, x: f32, y: f32, z: f32) {
+        self.use_program();
+        let location = Context::get_context().get_uniform_location(&self.program, name);
+        Context::get_context().uniform3f(&location, x, y, z);
+        
+    }
+    
+    pub fn uniform_mat4fv(&self, name: &str, value: Matrix4<f32>) {
+        self.use_program();
+
+        let location = Context::get_context().get_uniform_location(&self.program, name);
+        Context::get_context().uniform_matrix_4fv(&location, 1, false, &value);
     }
 
     pub fn get_uniform_location(&self) -> UniformLocation {
