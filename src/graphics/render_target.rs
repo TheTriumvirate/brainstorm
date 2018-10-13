@@ -57,6 +57,7 @@ pub fn draw_indices<T>(mode: DrawMode, vertex_data: &Buffer<f32>, index_data: &B
     let mode = match mode {
         DrawMode::TRIANGLES => Context::TRIANGLES,
         DrawMode::LINES => Context::LINES,
+        DrawMode::LINE_STRIP => Context::LINE_STRIP,
     };
 
     context.draw_elements(
@@ -78,6 +79,7 @@ pub fn draw_vertex_array(mode: DrawMode, first: i32, count: i32, vertex_data: &B
     let mode = match mode {
         DrawMode::TRIANGLES => Context::TRIANGLES,
         DrawMode::LINES => Context::LINES,
+        DrawMode::LINE_STRIP => Context::LINE_STRIP,
     };
     context.draw_arrays(mode, first, count);
 

@@ -8,13 +8,14 @@ use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformL
 use particles::fieldprovider::FieldProvider;
 use State;
 
-use window::{Window};
+use window::{Window, AbstractWindow};
 use camera::{Camera, ArcBall};
 
 use resources::shaders::*;
 use graphics::Drawable;
 
 use particles::MarchingCubes;
+use particles::Streamlines;
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -39,6 +40,7 @@ pub struct ParticleEngine {
     max_camera_dist: f32,
     min_camera_dist: f32,
     march: MarchingCubes,
+    streamlines: Streamlines,
 }
 
 impl Default for ParticleEngine {
@@ -95,6 +97,7 @@ impl ParticleEngine {
         }
         
         let march = MarchingCubes::marching_cubes(&field_provider);
+        let streamlines = Streamlines::new();
 
         ParticleEngine {
             particles,
@@ -108,6 +111,7 @@ impl ParticleEngine {
             max_camera_dist: 0.0,
             min_camera_dist: 0.0,
             march,
+            streamlines,
         }
     }
 
@@ -123,6 +127,8 @@ impl ParticleEngine {
         self.max_camera_dist = 0.0;
         self.min_camera_dist = f32::MAX;
         let radius = state.transparency * 0.6 + 0.01;
+
+        self.streamlines.draw_streamlines(&self.field_provider, camera.get_target());
         
         for i in 0..PARTICLE_COUNT {
 
@@ -148,7 +154,7 @@ impl ParticleEngine {
             // Update particle position
             let (dx,dy,dz,fa) = self.field_provider.delta(data.position);
             let (dx,dy,dz) = (fa*dx,fa*dy,fa*dz);
-            let speed_multiplier = 0.02 * state.speed_multiplier;
+            let speed_multiplier = 0.016 * state.speed_multiplier;
             data.position.0 += dx * speed_multiplier;
             data.position.1 += dy * speed_multiplier;
             data.position.2 += dz * speed_multiplier;
@@ -213,5 +219,8 @@ impl ParticleEngine {
 
         }
         self.march.draw_transformed(projection_matrix);
+        window.disable_depth();
+        self.streamlines.draw_transformed(projection_matrix);
+        window.enable_depth();
     }
 }

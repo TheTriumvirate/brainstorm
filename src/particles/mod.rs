@@ -7,3 +7,6 @@ pub use self::particle_engine::ParticleEngine;
 
 mod marching_cubes;
 pub use self::marching_cubes::MarchingCubes;
+
+mod streamlines;
+pub use self::streamlines::Streamlines;
