@@ -37,6 +37,14 @@ pub trait Drawable {
 
     fn get_transform(&self) -> Option<&Matrix4<f32>> {None}
 
+    fn render_states(&self) -> RenderStates {
+        RenderStates {
+            texture: self.get_texture(),
+            shader: self.get_shader(),
+            transform: self.get_transform(),
+        }
+    }
+
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>);
 
     fn draw(&self) {self.draw_transformed(&Matrix4::identity());}
@@ -46,17 +54,4 @@ pub struct RenderStates<'a> {
     pub texture: Option<Rc<Texture>>,
     pub shader: Option<&'a OurShader>,
     pub transform: Option<&'a Matrix4<f32>>,
-}
-
-impl<'a, T> From<&'a T> for RenderStates<'a>
-where
-    T: Drawable,
-{
-    fn from(drawable: &'a T) -> RenderStates {
-        RenderStates {
-            texture: drawable.get_texture(),
-            shader: drawable.get_shader(),
-            transform: drawable.get_transform(),
-        }
-    }
 }

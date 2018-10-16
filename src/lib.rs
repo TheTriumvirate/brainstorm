@@ -6,7 +6,6 @@ extern crate glutin;
 #[macro_use]
 extern crate lazy_static;
 extern crate nalgebra as na;
-extern crate alga;
 extern crate rand;
 #[cfg(target_arch = "wasm32")]
 #[macro_use]
@@ -22,7 +21,6 @@ extern crate resources;
 
 extern crate unicode_normalization;
 
-extern crate image;
 extern crate rusttype;
 
 pub mod camera;

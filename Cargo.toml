@@ -7,14 +7,12 @@ homepage = "https://github.com/stisol/particles"
 
 [dependencies]
 nalgebra = "0.16"
-alga = "0.7.2"
 lazy_static = "1.1.0"
 gl_context = {version = "*", path = "./gl_context"}
 resources = {version = "*", path = "./resources"}
 serde = "1.0"
 serde_derive = "1.0"
 bincode = "1.0"
-image = "0.19"
 rusttype = { version = "0.7", features = [ "gpu_cache" ] }
 unicode-normalization = "0.1.7"
 
@@ -28,4 +26,4 @@ stdweb = "0.4"
 rand = {version = "0.5", features = ["stdweb"]}
 
 [profile.dev]
-opt-level = 2
+opt-level = 2   

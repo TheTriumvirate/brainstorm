@@ -1,6 +1,6 @@
 #![allow(dead_code)] // Not yet in use.
 use gl_context::{Buffer, BufferType};
-use graphics::{render_target, Drawable, RenderStates, DrawMode};
+use graphics::{render_target, Drawable, DrawMode};
 use std::f32;
 use na::Matrix4;
 
@@ -121,6 +121,6 @@ impl Circle {
 
 impl Drawable for Circle {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
-        render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, RenderStates::from(self), view_matrix);
+        render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, self.render_states(), view_matrix);
     }
 }

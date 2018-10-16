@@ -38,7 +38,7 @@ impl Drawable for MarchingCubes {
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         let len = self.vertices.len() as i32 / 6;
-        render_target::draw_vertex_array(DrawMode::TRIANGLES, 0, len, &self.vertices, RenderStates::from(self), view_matrix)
+        render_target::draw_vertex_array(DrawMode::TRIANGLES, 0, len, &self.vertices, self.render_states(), view_matrix)
     }
 }
 

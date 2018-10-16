@@ -97,6 +97,6 @@ impl Cube {
 
 impl Drawable for Cube {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
-        render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, RenderStates::from(self), view_matrix);
+        render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, self.render_states(), view_matrix);
     }
 }
