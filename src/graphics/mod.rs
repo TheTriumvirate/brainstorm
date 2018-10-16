@@ -23,7 +23,7 @@ use na::Matrix4;
 pub enum DrawMode {
     TRIANGLES,
     LINES,
-    LINE_STRIP,
+    LINESTRIP,
 }
 
 /// Represents something that can be drawn.

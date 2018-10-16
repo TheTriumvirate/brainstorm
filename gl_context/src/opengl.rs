@@ -434,4 +434,10 @@ impl AbstractContext for GLContext {
             gl::Disable(cap);
         }
     }
+    
+    fn depth_mask(&self, flag: bool) {
+        unsafe {
+            gl::DepthMask(if flag {1} else {0})
+        }
+    }
 }

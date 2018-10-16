@@ -218,7 +218,9 @@ impl ParticleEngine {
             self.shader.unbind_attribs();
 
         }
+        window.depth_mask(false);
         self.march.draw_transformed(projection_matrix);
+        window.depth_mask(true);
         window.disable_depth();
         self.streamlines.draw_transformed(projection_matrix);
         window.enable_depth();

@@ -29,17 +29,17 @@ impl Streamlines {
 
     pub fn draw_streamlines(&mut self, field: &FieldProvider, start: (f32, f32, f32)) {
         self.vertices.clear();
+        const S : f32 = 0.01;
 
         {
             let (x, y, z) = start;
-            const s : f32 = 0.01;
             self.vertices.push(&Streamlines::create_line(field, (x, y, z))[..]);
-            self.vertices.push(&Streamlines::create_line(field, (x+s, y, z))[..]);
-            self.vertices.push(&Streamlines::create_line(field, (x-s, y, z))[..]);
-            self.vertices.push(&Streamlines::create_line(field, (x, y+s, z))[..]);
-            self.vertices.push(&Streamlines::create_line(field, (x, y-s, z))[..]);
-            self.vertices.push(&Streamlines::create_line(field, (x, y, z+s))[..]);
-            self.vertices.push(&Streamlines::create_line(field, (x, y, z-s))[..]);
+            self.vertices.push(&Streamlines::create_line(field, (x+S, y, z))[..]);
+            self.vertices.push(&Streamlines::create_line(field, (x-S, y, z))[..]);
+            self.vertices.push(&Streamlines::create_line(field, (x, y+S, z))[..]);
+            self.vertices.push(&Streamlines::create_line(field, (x, y-S, z))[..]);
+            self.vertices.push(&Streamlines::create_line(field, (x, y, z+S))[..]);
+            self.vertices.push(&Streamlines::create_line(field, (x, y, z-S))[..]);
         }
 
         self.vertices.bind();
@@ -52,7 +52,7 @@ impl Streamlines {
 
         let (mut x, mut y, mut z) = start;
 
-        for i in (1..MAX_STEPS) {
+        for _i in 1..MAX_STEPS {
             let (dx, dy, dz, fa) = field.delta((x, y, z));
             let (dx, dy, dz) = (dx * fa * FACTOR, dy * fa * FACTOR, dz * fa * FACTOR);
 

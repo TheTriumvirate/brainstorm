@@ -131,6 +131,8 @@ pub trait AbstractContext {
 
     fn enable(&self, cap: GLEnum);    
     fn disable(&self, cap: GLEnum);    
+
+    fn depth_mask(&self, flag: bool);
 }
 
 impl GlPrimitive for f32 {

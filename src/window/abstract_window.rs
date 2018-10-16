@@ -33,4 +33,8 @@ pub trait AbstractWindow {
         Context::get_context().disable(Context::DEPTH_TEST);
 
     }
+
+    fn depth_mask(&self, flag: bool) {
+        Context::get_context().depth_mask(flag);
+    }
 }

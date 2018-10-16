@@ -6,7 +6,6 @@ readme = "readme.md"
 homepage = "https://github.com/stisol/particles"
 
 [dependencies]
-noise = "0.5"
 nalgebra = "0.16"
 alga = "0.7.2"
 lazy_static = "1.1.0"

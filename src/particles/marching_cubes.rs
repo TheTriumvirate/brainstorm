@@ -7,7 +7,6 @@ use resources::shaders::{OBJ_FRAGMENT_SHADER, OBJ_VERTEX_SHADER};
 use graphics::*;
 use na::Matrix4;
 use std::str;
-use alga::general::Inverse;
 
 pub struct MarchingCubes {
     vertices: Buffer<f32>,
@@ -53,9 +52,9 @@ impl MarchingCubes {
 
     pub fn marching_cubes(field: &FieldProvider) -> MarchingCubes {
         let mut vertices = Buffer::<f32>::new(BufferType::Array);
-
+    
         const EPSILON: f32 = 0.1; // NOTE: 0.1 to reduce noise in data.
-        const S : usize = 4; // step size
+        const S : usize = 1; // step size
 
         let mut verts: [Vector3; 12] = [(0.0,0.0,0.0); 12];
 
@@ -93,18 +92,18 @@ impl MarchingCubes {
                     let dy = S as f32 / field.height as f32;
                     let dz = S as f32 / field.depth as f32;
 
-                    MarchingCubes::push_edge(edges, 0,  &mut verts, EPSILON, (fx   , fy   , fz   ), (fx+dx, fy   , fz   ), v1m, v2m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 1,  &mut verts, EPSILON, (fx+dx, fy   , fz   ), (fx+dx, fy   , fz+dz), v2m, v3m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 2,  &mut verts, EPSILON, (fx+dx, fy   , fz+dz), (fx   , fy   , fz+dz), v3m, v4m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 3,  &mut verts, EPSILON, (fx   , fy   , fz+dz), (fx   , fy   , fz   ), v4m, v1m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 4,  &mut verts, EPSILON, (fx   , fy+dy, fz   ), (fx+dx, fy+dy, fz   ), v5m, v6m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 5,  &mut verts, EPSILON, (fx+dx, fy+dy, fz   ), (fx+dx, fy+dy, fz+dz), v6m, v7m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 6,  &mut verts, EPSILON, (fx+dx, fy+dy, fz+dz), (fx   , fy+dy, fz+dz), v7m, v8m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 7,  &mut verts, EPSILON, (fx   , fy+dy, fz+dz), (fx   , fy+dy, fz   ), v8m, v5m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 8,  &mut verts, EPSILON, (fx   , fy   , fz   ), (fx   , fy+dy, fz   ), v1m, v5m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 9,  &mut verts, EPSILON, (fx+dx, fy   , fz   ), (fx+dx, fy+dy, fz   ), v2m, v6m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 10, &mut verts, EPSILON, (fx+dx, fy   , fz+dz), (fx+dx, fy+dy, fz+dz), v3m, v7m, &mut vertices);
-                    MarchingCubes::push_edge(edges, 11, &mut verts, EPSILON, (fx   , fy   , fz+dz), (fx   , fy+dy, fz+dz), v4m, v8m, &mut vertices);
+                    MarchingCubes::push_edge(edges, 0,  &mut verts, EPSILON, (fx   , fy   , fz   ), (fx+dx, fy   , fz   ), v1m, v2m);
+                    MarchingCubes::push_edge(edges, 1,  &mut verts, EPSILON, (fx+dx, fy   , fz   ), (fx+dx, fy   , fz+dz), v2m, v3m);
+                    MarchingCubes::push_edge(edges, 2,  &mut verts, EPSILON, (fx+dx, fy   , fz+dz), (fx   , fy   , fz+dz), v3m, v4m);
+                    MarchingCubes::push_edge(edges, 3,  &mut verts, EPSILON, (fx   , fy   , fz+dz), (fx   , fy   , fz   ), v4m, v1m);
+                    MarchingCubes::push_edge(edges, 4,  &mut verts, EPSILON, (fx   , fy+dy, fz   ), (fx+dx, fy+dy, fz   ), v5m, v6m);
+                    MarchingCubes::push_edge(edges, 5,  &mut verts, EPSILON, (fx+dx, fy+dy, fz   ), (fx+dx, fy+dy, fz+dz), v6m, v7m);
+                    MarchingCubes::push_edge(edges, 6,  &mut verts, EPSILON, (fx+dx, fy+dy, fz+dz), (fx   , fy+dy, fz+dz), v7m, v8m);
+                    MarchingCubes::push_edge(edges, 7,  &mut verts, EPSILON, (fx   , fy+dy, fz+dz), (fx   , fy+dy, fz   ), v8m, v5m);
+                    MarchingCubes::push_edge(edges, 8,  &mut verts, EPSILON, (fx   , fy   , fz   ), (fx   , fy+dy, fz   ), v1m, v5m);
+                    MarchingCubes::push_edge(edges, 9,  &mut verts, EPSILON, (fx+dx, fy   , fz   ), (fx+dx, fy+dy, fz   ), v2m, v6m);
+                    MarchingCubes::push_edge(edges, 10, &mut verts, EPSILON, (fx+dx, fy   , fz+dz), (fx+dx, fy+dy, fz+dz), v3m, v7m);
+                    MarchingCubes::push_edge(edges, 11, &mut verts, EPSILON, (fx   , fy   , fz+dz), (fx   , fy+dy, fz+dz), v4m, v8m);
 
                     let mut id = 0;
 
@@ -140,7 +139,7 @@ impl MarchingCubes {
         }
     }
 
-    fn push_edge(edges: u32, edge: usize, verts: &mut [Vector3], epsilon: f32, v1: Vector3, v2: Vector3, m1: f32, m2: f32, vertices: &mut Buffer<f32>) {
+    fn push_edge(edges: u32, edge: usize, verts: &mut [Vector3], epsilon: f32, v1: Vector3, v2: Vector3, m1: f32, m2: f32) {
         if edges & (1<<edge) != 0 {
             let vert = MarchingCubes::interp(epsilon, v1, v2, m1, m2);
             
