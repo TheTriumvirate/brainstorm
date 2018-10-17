@@ -129,8 +129,7 @@ impl ParticleEngine {
         let radius = state.seeding_size * 0.6 + 0.01;
 
         self.streamlines.draw_streamlines(&self.field_provider, camera.get_target());
-        self.march.set_transparency();
-
+        
         let mut respawned = 0;
         
         for i in 0..PARTICLE_COUNT {
@@ -207,7 +206,7 @@ impl ParticleEngine {
 
     /// Draw the particles to the screen using the provided (camera)
     /// projection matrix.
-    pub fn draw(&mut self, projection_matrix: &Matrix4<f32>, _state: &State, window: &Window) {
+    pub fn draw(&mut self, projection_matrix: &Matrix4<f32>, state: &State, window: &Window) {
         let context = Context::get_context();
         if self.alive_count > 0 {
             self.particle_data.bind();
@@ -224,6 +223,7 @@ impl ParticleEngine {
 
         }
         window.depth_mask(false);
+        self.march.set_transparency(state.mesh_transparency);
         self.march.draw_transformed(projection_matrix);
         window.depth_mask(true);
         window.disable_depth();

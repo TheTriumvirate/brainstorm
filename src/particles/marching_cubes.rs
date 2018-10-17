@@ -43,15 +43,16 @@ impl Drawable for MarchingCubes {
 }
 
 impl MarchingCubes {
+    /// Sets the direction of the light illuminating the mesh.
     pub fn set_light_dir(&self, (x, y, z): Vector3) {
-
         let dist = (x * x + y * y + z * z).sqrt();
-
         SHADER.uniform3f("lightDir", x/dist, y/dist, z/dist);
     }
 
-    pub fn set_transparency(&self) {
-        SHADER.uniform1f("u_transparency", 0.5);
+    /// Sets the transparency of the mesh.
+    /// Argument should be 0.0 <= x <= 1.0.
+    pub fn set_transparency(&self, transparency: f32) {
+        SHADER.uniform1f("u_transparency", transparency);
     }
 
     pub fn marching_cubes(field: &FieldProvider) -> MarchingCubes {
