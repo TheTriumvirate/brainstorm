@@ -17,6 +17,8 @@ use self::{button::Button, label::Label, slider::Slider, ui_element::UiElement};
 
 /// Represents the GUI for the application.
 pub struct Gui {
+    pub ui_visible_label: Box<ui_element::UiElement>,
+    pub ui_visible_button: Button,
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
 }
 
@@ -26,18 +28,6 @@ impl Gui {
         let font = Rc::from(RefCell::from(Font::from_bytes(fonts::DEFAULT)));
 
         let mut ui_elements: Vec<Box<ui_element::UiElement>> = Vec::new();
-        ui_elements.push(Box::new(Button::new(
-            position::Absolute {
-                height: 40,
-                width: 120,
-                anchor: position::WindowCorner::BotLeft,
-                margin_vertical: 40,
-                margin_horizontal: 40,
-            },
-            (0.44, 0.5, 0.56),
-            screensize,
-            Box::new(|ref mut _context| {}),
-        )));
         ui_elements.push(Box::new(Slider::new(
             position::Absolute {
                 height: 40,
@@ -181,7 +171,7 @@ impl Gui {
                 height: 0,
                 width: 0,
                 anchor: position::WindowCorner::BotRight,
-                margin_vertical: 255,
+                margin_vertical: 250,
                 margin_horizontal: 265,
             },
             screensize,
@@ -193,15 +183,42 @@ impl Gui {
                 height: 0,
                 width: 0,
                 anchor: position::WindowCorner::BotRight,
-                margin_vertical: 255,
+                margin_vertical: 250,
                 margin_horizontal: 510,
             },
             screensize,
             "Mesh transparency".to_owned(),
             font.clone(),
         )));
+        
+        let ui_visible_label = Box::new(Label::new(
+            position::Absolute {
+                height: 40,
+                width: 120,
+                anchor: position::WindowCorner::BotLeft,
+                margin_vertical: 50,
+                margin_horizontal: 60,
+            },
+            screensize,
+            "Toggle UI".to_owned(),
+            font.clone(),
+        ));
 
-        Gui { ui_elements }
+        let ui_visible_button = Button::new(
+            position::Absolute {
+                height: 40,
+                width: 120,
+                anchor: position::WindowCorner::BotLeft,
+                margin_vertical: 40,
+                margin_horizontal: 40,
+            },
+            (0.44, 0.5, 0.56),
+            screensize,
+            true,
+            Box::new(|ref mut _context, _toggle_state| {}),
+        );
+
+        Gui { ui_elements, ui_visible_button, ui_visible_label }
     }
 
     /// Handles events from the window, mutating application state as needed.
@@ -209,6 +226,8 @@ impl Gui {
     pub fn handle_event(&mut self, event: &Event, state: &mut State, size: (u32, u32)) -> bool {
         match event {
             Event::Resized(x, y) => {
+                self.ui_visible_button.resize((*x, *y));
+                self.ui_visible_label.resize((*x, *y));
                 for element in &mut self.ui_elements {
                     element.resize((*x, *y));
                 }
@@ -226,7 +245,8 @@ impl Gui {
             Event::CursorMoved { x, y } => {
                 state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
                 state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
-
+                
+                self.ui_visible_button.mouse_moved(state.mouse_x, state.mouse_y, state);
                 for element in &mut self.ui_elements {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
                 }
@@ -239,6 +259,10 @@ impl Gui {
             } => {
                 let mut handled = false;
                 if *pressed {
+                    if self.ui_visible_button.is_within(state.mouse_x, state.mouse_y) {
+                        self.ui_visible_button.click(state.mouse_x, state.mouse_y, state);
+                        handled = true;
+                    }
                     for element in &mut self.ui_elements {
                         if element.is_within(state.mouse_x, state.mouse_y) {
                             element.click(state.mouse_x, state.mouse_y, state);
@@ -246,6 +270,7 @@ impl Gui {
                         }
                     }
                 } else {
+                    self.ui_visible_button.click_release(state.mouse_x, state.mouse_y, state);
                     for element in &mut self.ui_elements {
                         element.click_release(state.mouse_x, state.mouse_y, state);
                     }
@@ -259,8 +284,12 @@ impl Gui {
 
 impl Drawable for Gui {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
-        for element in &self.ui_elements {
-            element.draw_transformed(view_matrix);
+        self.ui_visible_button.draw_transformed(view_matrix);
+        self.ui_visible_label.draw_transformed(view_matrix);
+        if self.ui_visible_button.toggle_state() {
+            for element in &self.ui_elements {
+                element.draw_transformed(view_matrix);
+            }
         }
     }
 }
