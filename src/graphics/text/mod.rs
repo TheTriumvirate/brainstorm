@@ -33,7 +33,7 @@ impl<'a> Drawable for Text<'a> {
 }
 
 impl<'a> Text<'a> {
-    pub fn new(text: String, font: Rc<RefCell<Font<'a>>>, x: f32, y: f32) -> Self {
+    pub fn new(text: String, font: Rc<RefCell<Font<'a>>>, x: f32, y: f32, aspect_ratio: f32) -> Self {
         let vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
@@ -46,19 +46,19 @@ impl<'a> Text<'a> {
 
         t.font
             .borrow_mut()
-            .update_texture(&t.text, x, y, &mut t.vertices, &mut t.indices);
-
+            .update_texture(&t.text, x, y, &mut t.vertices, &mut t.indices, aspect_ratio);
         t
     }
 
     // TODO: DIRTY
-    pub fn set_position(&mut self, x: f32, y: f32) {
+    pub fn set_position(&mut self, x: f32, y: f32, aspect_ratio: f32) {
         self.font.borrow_mut().update_texture(
             &self.text,
             x,
             y,
             &mut self.vertices,
             &mut self.indices,
+            aspect_ratio
         );
     }
 }

@@ -63,6 +63,7 @@ impl<'a> Font<'a> {
         y: f32,
         vertices: &mut Buffer<f32>,
         indices: &mut Buffer<u16>,
+        aspect_ratio: f32,
     ) {
         let glyphs = self.layout_paragraph(Scale::uniform(24.0), 512, text);
 
@@ -98,13 +99,13 @@ impl<'a> Font<'a> {
                 let gl_rect = Rect {
                     min: origin
                         + (vector(
-                            screen_rect.min.x as f32 / 1024.0 /* Divide by aspect ratio (width / height) */ - 0.5,
+                            screen_rect.min.x as f32 / 1024.0 / aspect_ratio - 0.5,
                             1.0 - screen_rect.min.y as f32 / 1024.0 - 0.5,
                         )) * 2.0
                         + vector(1.0, -1.0 + advance_height / 512.0),
                     max: origin
                         + (vector(
-                            screen_rect.max.x as f32 / 1024.0 /* Divide by aspect ratio (width / height) */ - 0.5,
+                            screen_rect.max.x as f32 / 1024.0 / aspect_ratio - 0.5,
                             1.0 - screen_rect.max.y as f32 / 1024.0 - 0.5,
                         )) * 2.0
                         + vector(1.0, -1.0 + advance_height / 512.0),
