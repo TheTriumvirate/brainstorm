@@ -61,7 +61,7 @@ extern "system" fn callaback(source: GLEnum, type_: GLEnum, id: GLUint, severity
     unsafe {
         if severity != gl::DEBUG_SEVERITY_NOTIFICATION {
             let m = CStr::from_ptr(message);
-            println!("source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}", source, type_, id, severity, m);
+            eprintln!("source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}", source, type_, id, severity, m);
 
             if type_ == gl::DEBUG_TYPE_ERROR {
                 panic!("GL ERROR");
