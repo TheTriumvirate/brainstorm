@@ -115,9 +115,12 @@ impl App {
                 Event::Resized(w, h) => self.window.set_size(*w as u32, *h as u32),
                 _ => {}
             };
-            self.gui
+            let consumed = self.gui
                 .handle_event(&event, &mut self.state, self.window.get_size());
-            self.camera.handle_events(&event);
+
+            if !consumed {
+                self.camera.handle_events(&event);
+            }
         }
 
         // Update camera and particle system

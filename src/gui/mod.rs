@@ -205,19 +205,24 @@ impl Gui {
     }
 
     /// Handles events from the window, mutating application state as needed.
-    pub fn handle_event(&mut self, event: &Event, state: &mut State, size: (u32, u32)) {
+    /// Returns whether or not the event was "consumed".
+    pub fn handle_event(&mut self, event: &Event, state: &mut State, size: (u32, u32)) -> bool {
         match event {
             Event::Resized(x, y) => {
                 for element in &mut self.ui_elements {
                     element.resize((*x, *y));
                 }
+                false
             }
             Event::KeyboardInput {
                 pressed: true,
                 key: Key::W,
                 modifiers: ModifierKeys { ctrl: true, .. },
             }
-            | Event::Quit => state.is_running = false,
+            | Event::Quit => {
+                state.is_running = false;
+                false
+            }
             Event::CursorMoved { x, y } => {
                 state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
                 state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
@@ -225,16 +230,19 @@ impl Gui {
                 for element in &mut self.ui_elements {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
                 }
+                false
             }
             Event::CursorInput {
                 button: MouseButton::Left,
                 pressed,
                 ..
             } => {
+                let mut handled = false;
                 if *pressed {
                     for element in &mut self.ui_elements {
                         if element.is_within(state.mouse_x, state.mouse_y) {
                             element.click(state.mouse_x, state.mouse_y, state);
+                            handled = true;
                         }
                     }
                 } else {
@@ -242,8 +250,9 @@ impl Gui {
                         element.click_release(state.mouse_x, state.mouse_y, state);
                     }
                 }
+                handled
             }
-            _ => (),
+            _ => false,
         }
     }
 }
