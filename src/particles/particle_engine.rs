@@ -129,6 +129,7 @@ impl ParticleEngine {
         let radius = state.seeding_size * 0.6 + 0.01;
 
         self.streamlines.draw_streamlines(&self.field_provider, camera.get_target());
+        self.march.set_transparency();
 
         let mut respawned = 0;
         
