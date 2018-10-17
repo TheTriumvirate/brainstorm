@@ -38,13 +38,19 @@ impl Slider {
             margin_horizontal: pos_abs.margin_horizontal,
         };
 
+        let initial_value_directional = match track_pos.anchor {
+            position::WindowCorner::BotRight | position::WindowCorner::TopRight =>
+                1.0 - initial_value,
+            _ => initial_value,
+        };
+
         let slider_pos = position::Absolute {
             height: pos_abs.height,
             width: pos_abs.width / 20,
             anchor: pos_abs.anchor,
             margin_vertical: pos_abs.margin_vertical,
             margin_horizontal: pos_abs.margin_horizontal - (pos_abs.width / 40)
-                + (pos_abs.width as f32 * initial_value) as u32,
+                + (pos_abs.width as f32 * initial_value_directional) as u32,
         };
 
         let pos_rel = pos_abs.to_relative(screensize);

@@ -47,7 +47,7 @@ impl Gui {
                 margin_horizontal: 40,
             },
             20,
-            0.0,
+            1.0,
             screensize,
             Box::new(|ref mut context, value| {
                 context.lowpass_filter = value;
@@ -62,7 +62,7 @@ impl Gui {
                 margin_horizontal: 40,
             },
             20,
-            1.0,
+            0.0,
             screensize,
             Box::new(|ref mut context, value| {
                 context.highpass_filter = value;
