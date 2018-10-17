@@ -8,6 +8,8 @@ use std::str;
 
 use resources::shaders::{TEXT_FRAGMENT_SHADER, TEXT_VERTEX_SHADER};
 
+use {WINDOW_WIDTH, WINDOW_HEIGHT};
+
 lazy_static! {
     static ref SHADER: OurShader = OurShader::new(
         str::from_utf8(TEXT_VERTEX_SHADER).expect("Failed to read vertex shader"),
@@ -63,7 +65,7 @@ impl<'a> Font<'a> {
         y: f32,
         vertices: &mut Buffer<f32>,
         indices: &mut Buffer<u16>,
-        aspect_ratio: f32,
+        screen_size: (f32, f32),
     ) {
         let glyphs = self.layout_paragraph(Scale::uniform(24.0), 512, text);
 
@@ -93,20 +95,23 @@ impl<'a> Font<'a> {
         let v_metrics = self.font.v_metrics(Scale::uniform(24.0));
         let advance_height = v_metrics.ascent - v_metrics.descent + v_metrics.line_gap;
 
+        let aspect_ratio_w = screen_size.0 / WINDOW_WIDTH as f32;
+        let aspect_ratio_h = screen_size.1 / WINDOW_HEIGHT as f32;
+
         for g in glyphs {
             if let Ok(Some((uv_rect, screen_rect))) = self.cache.rect_for(0, &g) {
                 // TODO: font-ids
                 let gl_rect = Rect {
                     min: origin
                         + (vector(
-                            screen_rect.min.x as f32 / 1024.0 / aspect_ratio - 0.5,
-                            1.0 - screen_rect.min.y as f32 / 1024.0 - 0.5,
+                            screen_rect.min.x as f32 / 1024.0 / aspect_ratio_w - 0.5,
+                            1.0 - screen_rect.min.y as f32 / 1024.0 / aspect_ratio_h - 0.5,
                         )) * 2.0
                         + vector(1.0, -1.0 + advance_height / 512.0),
                     max: origin
                         + (vector(
-                            screen_rect.max.x as f32 / 1024.0 / aspect_ratio - 0.5,
-                            1.0 - screen_rect.max.y as f32 / 1024.0 - 0.5,
+                            screen_rect.max.x as f32 / 1024.0 / aspect_ratio_w - 0.5,
+                            1.0 - screen_rect.max.y as f32 / 1024.0 / aspect_ratio_h - 0.5,
                         )) * 2.0
                         + vector(1.0, -1.0 + advance_height / 512.0),
                 };

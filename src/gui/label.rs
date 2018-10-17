@@ -22,7 +22,7 @@ impl<'a> Label<'a> {
 
         Self {
             pos,
-            text: Text::new(text, font, coords.x1, coords.y1, screensize.0 / screensize.1),
+            text: Text::new(text, font, coords.x1, coords.y1, screensize),
         }
     }
 }
@@ -30,7 +30,7 @@ impl<'a> Label<'a> {
 impl<'a> UiElement for Label<'a> {
     fn resize(&mut self, screensize: (f32, f32)) {
         let text_coords = self.pos.to_relative(screensize).get_coordinates();
-        self.text.set_position(text_coords.x1, text_coords.y1, screensize.0 / screensize.1);
+        self.text.set_position(text_coords.x1, text_coords.y1, screensize);
     }
 }
 

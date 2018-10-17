@@ -35,6 +35,9 @@ use camera::Camera;
 use gui::{Gui};
 use gl_context::window::{AbstractWindow, Window, Event};
 
+pub const WINDOW_WIDTH : u32 = 1000;
+pub const WINDOW_HEIGHT : u32 = 1000;
+
 /// Holds application resources.
 pub struct App {
     camera: camera::ArcBall,
@@ -91,7 +94,7 @@ impl App {
     pub fn new(path: Option<PathBuf>) -> App {
         #[allow(unused_assignments)]
         let mut particles = None;
-        let window = Window::new("Brainstorm!", 900, 900);
+        let window = Window::new("Brainstorm!", WINDOW_WIDTH, WINDOW_HEIGHT);
 
         // For web we embed the data in the executable.
         #[cfg(target_arch = "wasm32")]
