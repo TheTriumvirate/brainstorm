@@ -23,7 +23,7 @@ git submodule update --recursive --init
 ### As a native desktop app
 
 ```sh
-cargo run --release
+cargo run --release -- resources\src\fields\brain.bincode
 ```
 
 ### As a web application
