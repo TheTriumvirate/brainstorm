@@ -383,4 +383,8 @@ impl AbstractContext for WebGLContext {
     fn disable(&self, cap: GLEnum) {
         self.context.disable(cap);
     }
+    
+    fn depth_mask(&self, flag: bool) {
+        self.context.depth_mask(flag);
+    }
 }

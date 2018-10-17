@@ -2,7 +2,7 @@
 //! Go check out their code! https://github.com/sebcrozet/kiss3d
 #![allow(unused_results)]
 
-use gl_context::{AbstractContext, Context};
+use {AbstractContext, Context};
 
 use stdweb::unstable::TryInto;
 use stdweb::web::event::MouseButton as WebMouseButton;
