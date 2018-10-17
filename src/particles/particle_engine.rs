@@ -136,7 +136,7 @@ impl ParticleEngine {
 
             let mut data = &mut self.particles[i];
             // Respawn particle if it's too old.
-            if data.lifetime > 100.0 {
+            if data.lifetime > state.lifetime {
                 if respawned > 1000 {continue;}
                 data.lifetime = 0.0;
                 let mut dx = self.rng.gen_range::<f32>(-1.0, 1.0);
@@ -165,18 +165,18 @@ impl ParticleEngine {
 
             let dist = (dx*dx+dy*dy+dz*dz).sqrt();
             if dist.is_nan() {
-                data.lifetime = 500.0;
+                data.lifetime = state.lifetime * 5.0;
                 continue;
             }
 
             // High-pass filter
             if dist < self.max_dist * state.highpass_filter {
-                data.lifetime = 500.0;
+                data.lifetime = state.lifetime * 5.0;
                 continue;
             }
             // Low-pass filter
             if dist > self.max_dist * state.lowpass_filter {
-                data.lifetime = 500.0;
+                data.lifetime = state.lifetime * 5.0;
                 continue;
             }
 

@@ -57,6 +57,7 @@ pub struct State {
     lowpass_filter: f32,
     speed_multiplier: f32,
     seeding_size: f32,
+    lifetime: f32,
 }
 
 impl State {
@@ -70,6 +71,7 @@ impl State {
             lowpass_filter: 1.0,
             speed_multiplier: 0.5,
             seeding_size: 1.0,
+            lifetime: 100.0,
         }
     }
 }

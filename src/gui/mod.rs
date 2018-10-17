@@ -98,6 +98,21 @@ impl Gui {
                 context.seeding_size = value;
             }),
         )));
+        ui_elements.push(Box::new(Slider::new(
+            position::Absolute {
+                height: 40,
+                width: 225,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 200,
+                margin_horizontal: 40,
+            },
+            80,
+            0.2,
+            screensize,
+            Box::new(|ref mut context, value| {
+                context.lifetime = value * 500.0;
+            }),
+        )));
         ui_elements.push(Box::new(Label::new(
             position::Absolute {
                 height: 0,
@@ -144,6 +159,18 @@ impl Gui {
             },
             screensize,
             "Seeding size".to_owned(),
+            font.clone(),
+        )));
+        ui_elements.push(Box::new(Label::new(
+            position::Absolute {
+                height: 0,
+                width: 0,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 255,
+                margin_horizontal: 265,
+            },
+            screensize,
+            "Lifetime".to_owned(),
             font.clone(),
         )));
 
