@@ -126,7 +126,7 @@ impl ParticleEngine {
 
         self.max_camera_dist = 0.0;
         self.min_camera_dist = f32::MAX;
-        let radius = state.transparency * 0.6 + 0.01;
+        let radius = state.seeding_size * 0.6 + 0.01;
 
         self.streamlines.draw_streamlines(&self.field_provider, camera.get_target());
 

@@ -56,7 +56,7 @@ pub struct State {
     highpass_filter: f32,
     lowpass_filter: f32,
     speed_multiplier: f32,
-    transparency: f32,
+    seeding_size: f32,
 }
 
 impl State {
@@ -69,7 +69,7 @@ impl State {
             highpass_filter: 0.0,
             lowpass_filter: 1.0,
             speed_multiplier: 0.5,
-            transparency: 0.5,
+            seeding_size: 1.0,
         }
     }
 }
@@ -132,9 +132,9 @@ impl App {
         self.circle1.set_color(1.0, 0.0, 0.0);
         self.circle2.set_color(0.0, 1.0, 0.0);
         self.circle3.set_color(0.0, 0.0, 1.0);
-        self.circle1.set_radius(self.state.transparency * 0.6 + 0.01);
-        self.circle2.set_radius(self.state.transparency * 0.6 + 0.01);
-        self.circle3.set_radius(self.state.transparency * 0.6 + 0.01);
+        self.circle1.set_radius(self.state.seeding_size * 0.6 + 0.01);
+        self.circle2.set_radius(self.state.seeding_size * 0.6 + 0.01);
+        self.circle3.set_radius(self.state.seeding_size * 0.6 + 0.01);
         self.circle1.set_center(self.camera.get_target());
         self.circle2.set_center(self.camera.get_target());
         self.circle3.set_center(self.camera.get_target());

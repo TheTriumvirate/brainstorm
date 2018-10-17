@@ -95,7 +95,7 @@ impl Gui {
             1.0,
             screensize,
             Box::new(|ref mut context, value| {
-                context.transparency = value;
+                context.seeding_size = value;
             }),
         )));
         ui_elements.push(Box::new(Label::new(
