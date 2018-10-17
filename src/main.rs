@@ -1,9 +1,10 @@
 extern crate particles;
+extern crate gl_context;
 
-use particles::window::AbstractWindow;
-use particles::*;
+use gl_context::window::AbstractWindow;
+use particles::App;
 
 fn main() {
     let mut app = App::new();
-    particles::window::Window::run_loop(move |_| app.run());
+    gl_context::window::Window::run_loop(move |_| app.run());
 }

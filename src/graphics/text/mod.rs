@@ -1,5 +1,3 @@
-use graphics::Drawable;
-
 pub mod font;
 use self::font::Font;
 
@@ -8,7 +6,8 @@ use std::rc::Rc;
 
 use gl_context::{shaders::OurShader, Buffer, BufferType, Texture};
 
-use graphics::*;
+use graphics::{render_target, DrawMode, Drawable};
+use na::Matrix4;
 
 pub struct Text<'a> {
     text: String,

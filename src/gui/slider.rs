@@ -1,4 +1,4 @@
-use graphics::*;
+use graphics::{Drawable, position, Rectangle};
 use gui::UiElement;
 use State;
 use na::Matrix4;

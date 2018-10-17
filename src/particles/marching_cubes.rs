@@ -4,7 +4,7 @@ use gl_context::{Buffer, BufferType, shaders::OurShader, shaders::ShaderAttribut
 use particles::fieldprovider::FieldProvider;
 use resources::shaders::{OBJ_FRAGMENT_SHADER, OBJ_VERTEX_SHADER};
 
-use graphics::*;
+use graphics::{Drawable, DrawMode, render_target};
 use na::Matrix4;
 use std::str;
 

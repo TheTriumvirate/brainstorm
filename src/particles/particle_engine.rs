@@ -8,10 +8,10 @@ use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformL
 use particles::fieldprovider::FieldProvider;
 use State;
 
-use window::{Window, AbstractWindow};
+use gl_context::window::{Window, AbstractWindow};
 use camera::{Camera, ArcBall};
 
-use resources::shaders::*;
+use resources::shaders::{PARTICLES_VERTEX_SHADER, PARTICLES_FRAGMENT_SHADER};
 use graphics::Drawable;
 
 use particles::MarchingCubes;

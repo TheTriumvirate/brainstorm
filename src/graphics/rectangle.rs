@@ -1,5 +1,5 @@
 use gl_context::{Buffer, BufferType};
-use graphics::*;
+use graphics::{Drawable, DrawMode, render_target, position};
 use na::Matrix4;
 
 /// Represents a drawable rectangle.

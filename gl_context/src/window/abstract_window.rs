@@ -1,5 +1,5 @@
 use window::Event as EventWrapper;
-use gl_context::{AbstractContext, Context};
+use {AbstractContext, Context};
 
 /// The "abstract interface" for a "window" in both web and desktop
 /// environments.

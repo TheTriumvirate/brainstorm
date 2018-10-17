@@ -41,6 +41,16 @@ impl GLContext {
         unsafe {
             gl::Enable(gl::DEBUG_OUTPUT);
             gl::DebugMessageCallback(callaback, ptr::null());
+            
+            // Global vertex array buffer to keep state... Don't ask...
+            let mut vao = 0;
+            gl::GenVertexArrays(1, &mut vao);
+            gl::BindVertexArray(vao);
+
+            gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
+            gl::Enable(gl::BLEND);
+            gl::Enable(gl::PROGRAM_POINT_SIZE);
+            gl::LineWidth(4.0);
         }
         GLContext {}
     }

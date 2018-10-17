@@ -1,8 +1,4 @@
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
-#[cfg(not(target_arch = "wasm32"))]
-extern crate gl;
-#[cfg(not(target_arch = "wasm32"))]
-extern crate glutin;
 #[macro_use]
 extern crate lazy_static;
 extern crate nalgebra as na;
@@ -27,7 +23,6 @@ pub mod camera;
 pub mod graphics;
 pub mod gui;
 pub mod particles;
-pub mod window;
 
 use gl_context::{AbstractContext, Context};
 use graphics::{Drawable, Circle, Cube};
@@ -36,8 +31,8 @@ use particles::ParticleEngine;
 use std::f32;
 
 use camera::Camera;
-use gui::*;
-use window::*;
+use gui::{Gui};
+use gl_context::window::{AbstractWindow, Window, Event};
 
 /// Holds application resources.
 pub struct App {

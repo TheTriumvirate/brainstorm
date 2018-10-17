@@ -2,7 +2,7 @@ use particles::fieldprovider::FieldProvider;
 
 use gl_context::{Buffer, BufferType};
 
-use graphics::*;
+use graphics::{render_target, DrawMode, Drawable};
 
 use na::Matrix4;
 

@@ -1,13 +1,14 @@
 //! This is heavily inspired by kiss3d's implementation of window and context.
 //! Go check out their code! https://github.com/sebcrozet/kiss3d
 
-use gl_context::{AbstractContext, Context};
+use {AbstractContext, Context};
 use window::{abstract_window::*, Event as EventWrapper, MouseButton as MouseButtonWrapper, *};
 
 use gl;
+
 use glutin::{
     self,
-    dpi::*,
+    dpi::{LogicalSize, LogicalPosition},
     ElementState, GlContext, GlRequest, KeyboardInput as KeyboardData, ModifiersState,
     MouseScrollDelta, VirtualKeyCode,
     WindowEvent::{
@@ -102,13 +103,6 @@ impl AbstractWindow for GLWindow {
 
         gl::load_with(|symbol| gl_window.get_proc_address(symbol) as *const _);
 
-        unsafe {
-            // Global vertex array buffer to keep state... Don't ask...
-            let mut vao = 0;
-            gl::GenVertexArrays(1, &mut vao);
-            gl::BindVertexArray(vao);
-        }
-
         GLWindow {
             window: gl_window,
             events: events_loop,
@@ -119,14 +113,6 @@ impl AbstractWindow for GLWindow {
 
     fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
         while callback(0.0) {
-            // TODO: Proper wrapper
-            // Temporary solution
-            unsafe {
-                gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
-                gl::Enable(gl::BLEND);
-                gl::Enable(gl::PROGRAM_POINT_SIZE);
-                gl::LineWidth(4.0);
-            }
         }
     }
 
