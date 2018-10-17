@@ -1,9 +1,9 @@
 [package]
-name = "particles"
-version = "0.7.0"
+name = "brainstorm"
+version = "0.8.0"
 authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "Vegard Itland <veggitland@hotmail.com>"]
 readme = "readme.md"
-homepage = "https://github.com/stisol/particles"
+homepage = "https://github.com/TheTriumvirate/particles"
 
 [dependencies]
 nalgebra = "0.16"

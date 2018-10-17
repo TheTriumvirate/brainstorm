@@ -1,4 +1,4 @@
-# Particles
+# Brainstorm
 
 [![Build Status](https://travis-ci.org/TheTriumvirate/particles.svg?branch=master)](https://travis-ci.org/travis-ci/travis-api)
 
@@ -14,19 +14,25 @@ You will need to have rust installed, this can be found and downloaded from [her
 
 Note: The first build will take a long time to compile.
 
+First, initialize the git submodules:
+
+```sh
+git submodule update --recursive --init
+```
+
 ### As a native desktop app
 
-```
+```sh
 cargo run --release
 ```
 
 ### As a web application
 
-Note: Your browser of choice requires support for WebGL2 to run in web. Both Firefox and Chrome should work fine.
+Note: Your browser of choice requires support for WebGL to run in web. Both Firefox and Chrome should work fine.
 
 Prerequisites: (Only done once)
 
-```
+```sh
 rustup install nightly
 cargo install cargo-web
 rustup target install wasm32-unknown-unknown
@@ -34,6 +40,6 @@ rustup target install wasm32-unknown-unknown
 
 Running:
 
-```
+```sh
 cargo +nightly web start --release
 ```
