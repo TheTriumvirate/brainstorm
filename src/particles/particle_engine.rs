@@ -129,12 +129,15 @@ impl ParticleEngine {
         let radius = state.transparency * 0.6 + 0.01;
 
         self.streamlines.draw_streamlines(&self.field_provider, camera.get_target());
+
+        let mut respawned = 0;
         
         for i in 0..PARTICLE_COUNT {
 
             let mut data = &mut self.particles[i];
             // Respawn particle if it's too old.
             if data.lifetime > 100.0 {
+                if respawned > 1000 {continue;}
                 data.lifetime = 0.0;
                 let mut dx = self.rng.gen_range::<f32>(-1.0, 1.0);
                 let mut dy = self.rng.gen_range::<f32>(-1.0, 1.0);
@@ -149,6 +152,7 @@ impl ParticleEngine {
                     dy * dist + ty,
                     dz * dist + tz,
                 );
+                respawned += 1;
             }
 
             // Update particle position
