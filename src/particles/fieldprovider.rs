@@ -1,8 +1,6 @@
 use bincode::deserialize;
 use std::f32;
 
-use resources::fields::TEST_DATA;
-
 type Vector4 = (f32, f32, f32, f32);
 
 #[derive(Serialize, Deserialize)]
@@ -66,9 +64,9 @@ impl FieldProvider {
         self.data[z + y * self.width + x * self.width * self.height]
     }
 
-    pub fn new() -> Self {
+    pub fn new(raw_data: &[u8]) -> Self {
         let mut data = Vec::new();
-        let x: VectorField = deserialize(TEST_DATA).unwrap();
+        let x: VectorField = deserialize(raw_data).expect("Failed to deserialize data.");
         for plane in x.vectors {
             for row in plane {
                 for elem in row {

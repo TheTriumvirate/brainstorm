@@ -43,15 +43,9 @@ pub struct ParticleEngine {
     streamlines: Streamlines,
 }
 
-impl Default for ParticleEngine {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl ParticleEngine {
     /// Initializes a new particle engine.
-    pub fn new() -> Self {
+    pub fn new(field_provider: FieldProvider) -> Self {
         let mut rng = SmallRng::from_entropy();
 
         // Set up particles.
@@ -89,7 +83,6 @@ impl ParticleEngine {
         let mvp_uniform = shader.get_uniform_location();
 
         // Find the max velocity to be used with the high-pass filter later.
-        let field_provider = FieldProvider::new();
         let mut max_dist: f32 = 0.0;
         for (dx,dy,dz,fa) in field_provider.data() {
             let dist = ((dx*fa).powf(2.0) + (dy*fa).powf(2.0) + (dz*fa).powf(2.0)).sqrt();

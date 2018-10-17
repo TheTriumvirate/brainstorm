@@ -24,12 +24,13 @@ pub mod graphics;
 pub mod gui;
 pub mod particles;
 
+use std::path::PathBuf;
+use std::f32;
+use std::io::Read;
+
 use gl_context::{AbstractContext, Context};
 use graphics::{Drawable, Circle, Cube};
-use particles::ParticleEngine;
-
-use std::f32;
-
+use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
 use gl_context::window::{AbstractWindow, Window, Event};
@@ -86,18 +87,36 @@ impl Default for State {
 
 impl App {
     /// Starts the application.
-    pub fn new() -> App {
+    /// Expects a file path for non-web compile targets.
+    pub fn new(path: Option<PathBuf>) -> App {
+        #[allow(unused_assignments)]
+        let mut particles = None;
+        let window = Window::new("Brainstorm!", 900, 900);
+
+        // For web we embed the data in the executable.
         #[cfg(target_arch = "wasm32")]
         {
             stdweb::initialize();
+            let field_provider = FieldProvider::new(resources::fields::TEST_DATA);
+            particles = Some(ParticleEngine::new(field_provider));
+        }
+        // For desktop we load a file.
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let path = path.expect("No file specified!");
+            let mut file = std::fs::File::open(path).expect("Failed to open file!");
+            let mut content = Vec::new();
+            file.read_to_end(&mut content).expect("Failed to read file!");
+            let field_provider = FieldProvider::new(&content);
+            particles = Some(ParticleEngine::new(field_provider));
         }
         App {
-            window: Window::new("Brainstorm!", 900, 900),
+            window,
+            particles: particles.unwrap(),
             camera: camera::ArcBall::new(),
             time: 0.0,
             gui: Gui::new((1000.0, 1000.0)),
             state: State::new(),
-            particles: ParticleEngine::new(),
             circle1: Circle::new(0.0,0.0,0.0,0.5, 0.0, (1.0, 0.0, 0.0), false),
             circle2: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 1.0, 0.0), false),
             circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
@@ -165,8 +184,3 @@ impl App {
     }
 }
 
-impl Default for App {
-    fn default() -> Self {
-        Self::new()
-    }
-}
