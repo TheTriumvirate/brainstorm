@@ -130,7 +130,7 @@ impl ParticleEngine {
             let mut data = &mut self.particles[i];
             // Respawn particle if it's too old.
             if data.lifetime > state.lifetime {
-                if respawned > 1000 {continue;}
+                if respawned > state.particle_respawn_per_tick {continue;}
                 data.lifetime = 0.0;
                 let mut dx = self.rng.gen_range::<f32>(-1.0, 1.0);
                 let mut dy = self.rng.gen_range::<f32>(-1.0, 1.0);
