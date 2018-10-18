@@ -133,7 +133,7 @@ impl ParticleEngine {
             // Respawn particle if it's too old.
             if data.lifetime > state.lifetime {
                 data.lifetime = 500.0;
-                if respawned > 1000 {continue;}
+                if respawned > state.particle_respawn_per_tick {continue;}
                 data.lifetime = 0.0;
                 let mut dx = self.rng.gen_range::<f32>(-1.0, 1.0);
                 let mut dy = self.rng.gen_range::<f32>(-1.0, 1.0);
@@ -210,6 +210,7 @@ impl ParticleEngine {
             self.shader.uniform1f("min_dist", self.min_camera_dist);
             self.shader.uniform1f("max_dist", self.max_camera_dist);
             self.shader.uniform1f("transparency", 0.5);
+            self.shader.uniform1f("part_size", state.particle_size);
             self.shader.bind_attribs();
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
             context.draw_arrays(Context::POINTS, 0, self.alive_count as i32);
