@@ -50,7 +50,7 @@ impl ParticleEngine {
 
         // Set up particles.
         let mut data: Buffer<f32> = Buffer::new(BufferType::Array);
-        data.resize(PARTICLE_COUNT * 4, 0.0);
+        data.resize(PARTICLE_COUNT * 3, 0.0);
         let mut particles = Vec::with_capacity(PARTICLE_COUNT);
         for i in 0..PARTICLE_COUNT {
             particles.push(ParticleData {
@@ -74,7 +74,7 @@ impl ParticleEngine {
         let mut attributes = Vec::new();
         attributes.push(shaders::ShaderAttribute {
             name: "position".to_string(),
-            size: 4,
+            size: 3,
         });
 
         let shader = shaders::OurShader::new(vertex_shader, fragment_shader, &attributes);
@@ -121,7 +121,9 @@ impl ParticleEngine {
         self.min_camera_dist = f32::MAX;
         let radius = state.seeding_size * 0.6 + 0.01;
 
-        self.streamlines.draw_streamlines(&self.field_provider, camera.get_target());
+        let speed_multiplier = 0.016 * state.speed_multiplier;
+
+        self.streamlines.draw_streamlines(speed_multiplier, state.lifetime as i32, radius, &self.field_provider, camera.get_target());
         
         let mut respawned = 0;
         
@@ -130,6 +132,7 @@ impl ParticleEngine {
             let mut data = &mut self.particles[i];
             // Respawn particle if it's too old.
             if data.lifetime > state.lifetime {
+                data.lifetime = 500.0;
                 if respawned > 1000 {continue;}
                 data.lifetime = 0.0;
                 let mut dx = self.rng.gen_range::<f32>(-1.0, 1.0);
@@ -151,25 +154,24 @@ impl ParticleEngine {
             // Update particle position
             let (dx,dy,dz,fa) = self.field_provider.delta(data.position);
             let (dx,dy,dz) = (fa*dx,fa*dy,fa*dz);
-            let speed_multiplier = 0.016 * state.speed_multiplier;
             data.position.0 += dx * speed_multiplier;
             data.position.1 += dy * speed_multiplier;
             data.position.2 += dz * speed_multiplier;
 
             let dist = (dx*dx+dy*dy+dz*dz).sqrt();
             if dist.is_nan() {
-                data.lifetime = state.lifetime * 5.0;
+                data.lifetime = 500.0;
                 continue;
             }
 
             // High-pass filter
             if dist < self.max_dist * state.highpass_filter {
-                data.lifetime = state.lifetime * 5.0;
+                data.lifetime = 500.0;
                 continue;
             }
             // Low-pass filter
             if dist > self.max_dist * state.lowpass_filter {
-                data.lifetime = state.lifetime * 5.0;
+                data.lifetime = 500.0;
                 continue;
             }
 
@@ -186,10 +188,9 @@ impl ParticleEngine {
                 .min((dx * dx + dy * dy + dz * dz).sqrt());
 
             // Send the data to the GPU.
-            self.particle_data[self.alive_count * 4] = data.position.0;
-            self.particle_data[self.alive_count * 4 + 1] = data.position.1;
-            self.particle_data[self.alive_count * 4 + 2] = data.position.2;
-            self.particle_data[self.alive_count * 4 + 3] = dist * 4.0;
+            self.particle_data[self.alive_count * 3] = data.position.0;
+            self.particle_data[self.alive_count * 3 + 1] = data.position.1;
+            self.particle_data[self.alive_count * 3 + 2] = data.position.2;
 
             // Update lifetime and alive count.
             data.lifetime += 1.0;
@@ -204,7 +205,7 @@ impl ParticleEngine {
         if self.alive_count > 0 {
             self.particle_data.bind();
             self.particle_data
-                .upload_data(0, self.alive_count * 4, false);
+                .upload_data(0, self.alive_count * 3, false);
             self.shader.use_program();
             self.shader.uniform1f("min_dist", self.min_camera_dist);
             self.shader.uniform1f("max_dist", self.max_camera_dist);
