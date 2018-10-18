@@ -263,10 +263,12 @@ impl Gui {
                         self.ui_visible_button.click(state.mouse_x, state.mouse_y, state);
                         handled = true;
                     }
-                    for element in &mut self.ui_elements {
-                        if element.is_within(state.mouse_x, state.mouse_y) {
-                            element.click(state.mouse_x, state.mouse_y, state);
-                            handled = true;
+                    if self.ui_visible_button.toggle_state() {
+                        for element in &mut self.ui_elements {
+                            if element.is_within(state.mouse_x, state.mouse_y) {
+                                element.click(state.mouse_x, state.mouse_y, state);
+                                handled = true;
+                            }
                         }
                     }
                 } else {
