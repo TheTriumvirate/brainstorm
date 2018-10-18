@@ -1,4 +1,4 @@
-extern crate particles;
+extern crate brainstorm;
 extern crate gl_context;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -6,7 +6,7 @@ extern crate gl_context;
 extern crate structopt;
 
 use gl_context::window::AbstractWindow;
-use particles::App;
+use brainstorm::App;
 
 #[cfg(not(target_arch = "wasm32"))]
 use structopt::StructOpt;
