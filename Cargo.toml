@@ -4,6 +4,7 @@ version = "0.8.0"
 authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "Vegard Itland <veggitland@hotmail.com>"]
 readme = "readme.md"
 homepage = "https://github.com/TheTriumvirate/particles"
+publish = false
 
 [dependencies]
 nalgebra = "0.16"
@@ -26,3 +27,4 @@ rand = {version = "0.5", features = ["stdweb"]}
 
 [profile.dev]
 opt-level = 2   
+codegen-units = 5
