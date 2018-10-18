@@ -209,6 +209,7 @@ impl ParticleEngine {
             self.shader.uniform1f("min_dist", self.min_camera_dist);
             self.shader.uniform1f("max_dist", self.max_camera_dist);
             self.shader.uniform1f("transparency", 0.5);
+            self.shader.uniform1f("part_size", state.particle_size);
             self.shader.bind_attribs();
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
             context.draw_arrays(Context::POINTS, 0, self.alive_count as i32);

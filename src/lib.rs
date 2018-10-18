@@ -63,6 +63,7 @@ pub struct State {
     seeding_size: f32,
     lifetime: f32,
     mesh_transparency: f32,
+    particle_size: f32,
 }
 
 impl State {
@@ -78,6 +79,7 @@ impl State {
             seeding_size: 1.0,
             lifetime: 100.0,
             mesh_transparency: 0.1,
+            particle_size: 8.0,
         }
     }
 }
