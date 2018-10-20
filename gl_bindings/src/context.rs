@@ -24,7 +24,6 @@ pub trait GlPrimitive: Copy {
 // TODO: Auto-destruct Buffer, etc
 pub type UniformLocation = ContextImpl::UniformLocation;
 pub type GLEnum = ContextImpl::GLEnum;
-pub type GLsizeiptr = ContextImpl::GLsizeiptr;
 pub type GLintptr = ContextImpl::GLintptr;
 pub type Buffer = ContextImpl::GLBuffer;
 pub type GLUint = ContextImpl::GLUint;

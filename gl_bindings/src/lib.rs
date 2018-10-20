@@ -20,18 +20,12 @@ extern crate lazy_static;
 extern crate nalgebra as na;
 extern crate image;
 
-#[cfg(not(target_arch = "wasm32"))]
-extern crate gl;
-#[cfg(not(target_arch = "wasm32"))]
-extern crate glutin;
-
 
 #[cfg(target_arch = "wasm32")]
 pub mod webgl;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod opengl;
 pub mod shaders;
-pub mod window;
 mod context;
 mod buffer;
 mod texture;
@@ -43,7 +37,7 @@ pub use webgl::WebGLContext as Context;
 
 pub use context::Buffer as NativeBuffer;
 pub use context::Texture as NativeTexture;
-pub use context::*;
+pub use context::{Program, Shader, AbstractContext, GlPrimitive, UniformLocation};
 pub use buffer::Buffer;
 pub use buffer::BufferType;
 pub use texture::Texture;

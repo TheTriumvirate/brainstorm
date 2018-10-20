@@ -9,7 +9,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use graphics::{position, Drawable, Font};
 use resources::fonts;
-use gl_bindings::window::{ModifierKeys, MouseButton, Event, Key};
+use window::{ModifierKeys, MouseButton, Event, Key};
 use State;
 use na::Matrix4;
 

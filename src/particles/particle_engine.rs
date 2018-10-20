@@ -8,7 +8,7 @@ use gl_bindings::{shaders, AbstractContext, Buffer, BufferType, Context, Uniform
 use particles::fieldprovider::FieldProvider;
 use State;
 
-use gl_bindings::window::{Window, AbstractWindow};
+use window::{Window, AbstractWindow};
 use camera::{Camera, ArcBall};
 
 use resources::shaders::{PARTICLES_VERTEX_SHADER, PARTICLES_FRAGMENT_SHADER};

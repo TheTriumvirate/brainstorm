@@ -5,7 +5,7 @@ pub use self::arcball::ArcBall;
 
 use na::Matrix4;
 use std::f32;
-use gl_bindings::window::Event;
+use window::Event;
 
 /// Represents a camera in 3D space.
 pub trait Camera {

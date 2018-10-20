@@ -5,7 +5,7 @@ extern crate gl_bindings;
 #[macro_use]
 extern crate structopt;
 
-use gl_bindings::window::AbstractWindow;
+use brainstorm::window::AbstractWindow;
 use brainstorm::App;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -16,7 +16,7 @@ use std::path::PathBuf;
 #[cfg(target_arch = "wasm32")]
 fn main() {
     let mut app = App::new(None);
-    gl_bindings::window::Window::run_loop(move |_| app.run());
+    window::Window::run_loop(move |_| app.run());
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -37,5 +37,5 @@ fn main() {
     }
 
     let mut app = App::new(Some(opt.file));
-    gl_bindings::window::Window::run_loop(move |_| app.run());
+    brainstorm::window::Window::run_loop(move |_| app.run());
 }

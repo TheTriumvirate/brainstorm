@@ -9,6 +9,9 @@ extern crate serde_derive;
 extern crate bincode;
 extern crate serde;
 
+#[cfg(not(target_arch = "wasm32"))]
+extern crate glutin;
+
 extern crate gl_bindings;
 
 extern crate resources;
@@ -21,6 +24,7 @@ pub mod camera;
 pub mod graphics;
 pub mod gui;
 pub mod particles;
+pub mod window;
 
 use std::path::PathBuf;
 use std::f32;
@@ -31,7 +35,7 @@ use graphics::{Drawable, Circle, Cube};
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
-use gl_bindings::window::{AbstractWindow, Window, Event};
+use window::{AbstractWindow, Window, Event};
 
 pub const WINDOW_WIDTH : u32 = 1000;
 pub const WINDOW_HEIGHT : u32 = 1000;
