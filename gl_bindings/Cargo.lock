@@ -41,9 +41,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "gl"
+version = "0.1.0"
+
+[[package]]
 name = "gl_bindings"
 version = "0.1.0"
 dependencies = [
+ "gl 0.1.0",
  "image 0.19.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "nalgebra 0.16.5 (registry+https://github.com/rust-lang/crates.io-index)",

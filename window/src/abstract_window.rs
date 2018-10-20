@@ -1,6 +1,4 @@
-use window::Event as EventWrapper;
-use {AbstractContext, Context};
-
+use Event as EventWrapper;
 /// The "abstract interface" for a "window" in both web and desktop
 /// environments.
 pub trait AbstractWindow {
@@ -23,6 +21,7 @@ pub trait AbstractWindow {
     /// Gets the size of the window.
     fn get_size(&self) -> (u32, u32);
 
+    /* FIXME: Move to context
     /// Enables depth testing
     fn enable_depth(&self) {
         Context::get_context().enable(Context::DEPTH_TEST);
@@ -36,5 +35,5 @@ pub trait AbstractWindow {
 
     fn depth_mask(&self, flag: bool) {
         Context::get_context().depth_mask(flag);
-    }
+    }*/
 }

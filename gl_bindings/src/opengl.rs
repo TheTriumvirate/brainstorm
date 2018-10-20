@@ -1,6 +1,4 @@
-mod gl {
-    include!("gl_bindings.rs");
-}
+extern crate gl;
 
 use std::ffi::CString;
 use std::ffi::CStr;
@@ -54,14 +52,6 @@ impl GLContext {
             gl::LineWidth(2.0);
         }
         GLContext {}
-    }
-
-    pub fn load_symbols<F>(load_fn: F)
-    where
-        F: FnMut(&'static str) -> *const c_void 
-    {
-        gl::load_with(load_fn);
-
     }
 
 }

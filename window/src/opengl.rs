@@ -1,8 +1,8 @@
 //! This is heavily inspired by kiss3d's implementation of window and context.
 //! Go check out their code! https://github.com/sebcrozet/kiss3d
+extern crate gl;
 
-use gl_bindings::{AbstractContext, Context};
-use window::{Event as EventWrapper, MouseButton as MouseButtonWrapper, ModifierKeys, Key, AbstractWindow};
+use {Event as EventWrapper, MouseButton as MouseButtonWrapper, ModifierKeys, Key, AbstractWindow};
 
 use glutin::{
     self,
@@ -99,7 +99,8 @@ impl AbstractWindow for GLWindow {
             gl_window.make_current().unwrap();
         };
 
-        Context::load_symbols(|symbol| gl_window.get_proc_address(symbol) as *const _);
+
+        gl::load_with(|symbol| gl_window.get_proc_address(symbol) as *const _);
 
         GLWindow {
             window: gl_window,
@@ -132,7 +133,10 @@ impl AbstractWindow for GLWindow {
     }
 
     fn set_size(&mut self, width: u32, height: u32) {
-        Context::get_context().viewport(0, 0, width as i32, height as i32);
+        // FIXME: Do this with a call from context instead
+        unsafe {
+            gl::Viewport(0,0,width as i32, height as i32);
+        }
         self.height = height;
         self.width = width;
     }

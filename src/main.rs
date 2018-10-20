@@ -1,11 +1,12 @@
 extern crate brainstorm;
 extern crate gl_bindings;
+extern crate window;
 
 #[cfg(not(target_arch = "wasm32"))]
 #[macro_use]
 extern crate structopt;
 
-use brainstorm::window::AbstractWindow;
+use window::AbstractWindow;
 use brainstorm::App;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -37,5 +38,5 @@ fn main() {
     }
 
     let mut app = App::new(Some(opt.file));
-    brainstorm::window::Window::run_loop(move |_| app.run());
+    window::Window::run_loop(move |_| app.run());
 }

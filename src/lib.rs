@@ -9,9 +9,6 @@ extern crate serde_derive;
 extern crate bincode;
 extern crate serde;
 
-#[cfg(not(target_arch = "wasm32"))]
-extern crate glutin;
-
 extern crate gl_bindings;
 
 extern crate resources;
@@ -19,12 +16,12 @@ extern crate resources;
 extern crate unicode_normalization;
 
 extern crate rusttype;
+extern crate window;
 
 pub mod camera;
 pub mod graphics;
 pub mod gui;
 pub mod particles;
-pub mod window;
 
 use std::path::PathBuf;
 use std::f32;
@@ -161,7 +158,7 @@ impl App {
         context.clear(Context::DEPTH_BUFFER_BIT);
 
         // Draw everything
-        self.window.enable_depth();
+        Context::get_context().enable(Context::DEPTH_TEST);
         let projection_matrix = self.camera.get_projection_matrix();
 
         self.circle1.set_color(1.0, 0.0, 0.0);
@@ -182,8 +179,8 @@ impl App {
         self.circle2.draw_transformed(&projection_matrix);
         self.circle3.draw_transformed(&projection_matrix);
 
-        self.particles.draw(&projection_matrix, &self.state, &self.window);
-        self.window.disable_depth();
+        self.particles.draw(&projection_matrix, &self.state);
+        Context::get_context().disable(Context::DEPTH_TEST);
         self.gui.draw();
 
         self.window.swap_buffers();
