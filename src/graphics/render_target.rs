@@ -7,7 +7,7 @@ fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
     let context = Context::get_context();
 
     let shader: &OurShader = match states.shader {
-        Some(s) => s,
+        Some(ref s) => &s,
         _ => OurShader::default(),
     };
 
@@ -37,7 +37,7 @@ fn unbind_all(states: &RenderStates) {
     }
 
     let shader: &OurShader = match states.shader {
-        Some(s) => s,
+        Some(ref s) => &s,
         _ => OurShader::default(),
     };
     shader.unbind_attribs();

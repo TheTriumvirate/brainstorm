@@ -1,6 +1,4 @@
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
-#[macro_use]
-extern crate lazy_static;
 extern crate nalgebra as na;
 extern crate rand;
 #[cfg(target_arch = "wasm32")]

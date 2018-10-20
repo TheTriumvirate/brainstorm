@@ -31,7 +31,7 @@ pub trait Drawable {
     fn get_texture(&self) -> Option<Rc<Texture>> {
         None
     }
-    fn get_shader(&self) -> Option<&OurShader> {
+    fn get_shader(&self) -> Option<Rc<OurShader>> {
         None
     }
 
@@ -52,6 +52,6 @@ pub trait Drawable {
 
 pub struct RenderStates<'a> {
     pub texture: Option<Rc<Texture>>,
-    pub shader: Option<&'a OurShader>,
+    pub shader: Option<Rc<OurShader>>,
     pub transform: Option<&'a Matrix4<f32>>,
 }

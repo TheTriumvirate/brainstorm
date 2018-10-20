@@ -7,16 +7,17 @@ use resources::shaders::{STREAMLINES_VERTEX_SHADER, STREAMLINES_FRAGMENT_SHADER}
 use graphics::{render_target, DrawMode, Drawable};
 use std::str;
 use na::Matrix4;
+use std::rc::Rc;
 
 pub struct Streamlines {
     vertices: Buffer<f32>,
-    shader: shaders::OurShader,
+    shader: Rc<shaders::OurShader>,
     transparency: f32
 }
 
 impl Drawable for Streamlines {
-    fn get_shader(&self) -> Option<&shaders::OurShader> {
-        Some(&self.shader)
+    fn get_shader(&self) -> Option<Rc<shaders::OurShader>> {
+        Some(self.shader.clone())
     }
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
@@ -45,7 +46,7 @@ impl Streamlines {
 
         Streamlines {
             vertices: Buffer::<f32>::new(BufferType::Array),
-            shader,
+            shader: Rc::new(shader),
             transparency: 0.0
         }
     }

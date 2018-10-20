@@ -23,7 +23,7 @@ impl<'a> Drawable for Text<'a> {
         //None
     }
 
-    fn get_shader(&self) -> Option<&OurShader> {
+    fn get_shader(&self) -> Option<Rc<OurShader>> {
         Some(self.font.borrow().get_shader())
     }
 

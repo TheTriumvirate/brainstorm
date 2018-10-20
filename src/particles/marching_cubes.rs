@@ -7,33 +7,18 @@ use resources::shaders::{OBJ_FRAGMENT_SHADER, OBJ_VERTEX_SHADER};
 use graphics::{Drawable, DrawMode, render_target};
 use na::Matrix4;
 use std::str;
+use std::rc::Rc;
 
 pub struct MarchingCubes {
     vertices: Buffer<f32>,
-}
-
-lazy_static! {
-    static ref SHADER: OurShader = OurShader::new(
-        str::from_utf8(OBJ_VERTEX_SHADER).expect("Failed to read vertex shader"),
-        str::from_utf8(OBJ_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
-        &[
-            ShaderAttribute {
-                name: "a_position".to_string(),
-                size: 3
-            },
-            ShaderAttribute {
-                name: "a_normal".to_string(),
-                size: 3
-            },
-        ]
-    );
+    shader: Rc<OurShader>,
 }
 
 type Vector3 = (f32, f32, f32);
 
 impl Drawable for MarchingCubes {
-    fn get_shader(&self) -> Option<&OurShader> {
-        Some(&SHADER)
+    fn get_shader(&self) -> Option<Rc<OurShader>> {
+        Some(self.shader.clone())
     }
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
@@ -46,13 +31,13 @@ impl MarchingCubes {
     /// Sets the direction of the light illuminating the mesh.
     pub fn set_light_dir(&self, (x, y, z): Vector3) {
         let dist = (x * x + y * y + z * z).sqrt();
-        SHADER.uniform3f("lightDir", x/dist, y/dist, z/dist);
+        self.shader.uniform3f("lightDir", x/dist, y/dist, z/dist);
     }
 
     /// Sets the transparency of the mesh.
     /// Argument should be 0.0 <= x <= 1.0.
     pub fn set_transparency(&self, transparency: f32) {
-        SHADER.uniform1f("u_transparency", transparency);
+        self.shader.uniform1f("u_transparency", transparency);
     }
 
     pub fn marching_cubes(field: &FieldProvider) -> MarchingCubes {
@@ -139,8 +124,23 @@ impl MarchingCubes {
         let len = vertices.len();
         vertices.upload_data(0, len, true);
 
+        let shader : OurShader = OurShader::new(
+            str::from_utf8(OBJ_VERTEX_SHADER).expect("Failed to read vertex shader"),
+            str::from_utf8(OBJ_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
+            &[
+                ShaderAttribute {
+                    name: "a_position".to_string(),
+                    size: 3
+                },
+                ShaderAttribute {
+                    name: "a_normal".to_string(),
+                    size: 3
+                },
+            ]
+        );
         MarchingCubes {
             vertices,
+            shader: Rc::new(shader),
         }
     }
 

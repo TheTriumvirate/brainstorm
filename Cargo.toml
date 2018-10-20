@@ -8,7 +8,6 @@ publish = false
 
 [dependencies]
 nalgebra = "0.16"
-lazy_static = "1.1.0"
 gl_context = {version = "*", path = "./gl_context"}
 resources = {version = "*", path = "./resources"}
 serde = "1.0"
