@@ -1,7 +1,7 @@
 use camera::Camera;
 use na::{Isometry3, Matrix4, Perspective3, Point3, Vector2, Vector3};
 use std::f32;
-use gl_context::window::{Event, Key, MouseButton};
+use gl_bindings::window::{Event, Key, MouseButton};
 
 /// A camera that orbits around a point in space.
 pub struct ArcBall {

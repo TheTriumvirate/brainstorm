@@ -14,7 +14,7 @@ pub use self::text::font::Font;
 pub use self::text::Text;
 pub use self::cube::Cube;
 
-use gl_context::{shaders::OurShader, Texture};
+use gl_bindings::{shaders::OurShader, Texture};
 
 use std::rc::Rc;
 

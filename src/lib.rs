@@ -9,7 +9,7 @@ extern crate serde_derive;
 extern crate bincode;
 extern crate serde;
 
-extern crate gl_context;
+extern crate gl_bindings;
 
 extern crate resources;
 
@@ -26,12 +26,12 @@ use std::path::PathBuf;
 use std::f32;
 use std::io::Read;
 
-use gl_context::{AbstractContext, Context};
+use gl_bindings::{AbstractContext, Context};
 use graphics::{Drawable, Circle, Cube};
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
-use gl_context::window::{AbstractWindow, Window, Event};
+use gl_bindings::window::{AbstractWindow, Window, Event};
 
 pub const WINDOW_WIDTH : u32 = 1000;
 pub const WINDOW_HEIGHT : u32 = 1000;

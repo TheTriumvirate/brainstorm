@@ -1,6 +1,6 @@
 use particles::fieldprovider::FieldProvider;
 
-use gl_context::{shaders, Buffer, BufferType};
+use gl_bindings::{shaders, Buffer, BufferType};
 
 use resources::shaders::{STREAMLINES_VERTEX_SHADER, STREAMLINES_FRAGMENT_SHADER};
 

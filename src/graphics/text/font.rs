@@ -1,7 +1,7 @@
 use rusttype::gpu_cache::Cache;
 use rusttype::{point, vector, Font as TFont, PositionedGlyph, Rect, Scale};
 
-use gl_context::{shaders::OurShader, shaders::ShaderAttribute, Buffer, Texture, TextureFormat};
+use gl_bindings::{shaders::OurShader, shaders::ShaderAttribute, Buffer, Texture, TextureFormat};
 
 use std::rc::Rc;
 use std::str;

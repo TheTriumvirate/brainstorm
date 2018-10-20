@@ -1,5 +1,5 @@
 //! Methods for interacting with the render target.
-use gl_context::{shaders::*, AbstractContext, Buffer, Context, GlPrimitive};
+use gl_bindings::{shaders::*, AbstractContext, Buffer, Context, GlPrimitive};
 use graphics::{RenderStates, DrawMode};
 use na::Matrix4;
 

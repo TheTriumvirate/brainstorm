@@ -4,11 +4,11 @@ use rand::{FromEntropy, Rng};
 
 use std::{f32, str};
 
-use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
+use gl_bindings::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
 use particles::fieldprovider::FieldProvider;
 use State;
 
-use gl_context::window::{Window, AbstractWindow};
+use gl_bindings::window::{Window, AbstractWindow};
 use camera::{Camera, ArcBall};
 
 use resources::shaders::{PARTICLES_VERTEX_SHADER, PARTICLES_FRAGMENT_SHADER};

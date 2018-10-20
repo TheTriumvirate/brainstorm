@@ -1,6 +1,6 @@
 // Largely translated from this: http://paulbourke.net/geometry/polygonise/
 
-use gl_context::{Buffer, BufferType, shaders::OurShader, shaders::ShaderAttribute};
+use gl_bindings::{Buffer, BufferType, shaders::OurShader, shaders::ShaderAttribute};
 use particles::fieldprovider::FieldProvider;
 use resources::shaders::{OBJ_FRAGMENT_SHADER, OBJ_VERTEX_SHADER};
 

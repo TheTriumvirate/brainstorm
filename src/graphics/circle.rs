@@ -1,5 +1,5 @@
 #![allow(dead_code)] // Not yet in use.
-use gl_context::{Buffer, BufferType};
+use gl_bindings::{Buffer, BufferType};
 use graphics::{render_target, Drawable, DrawMode};
 use std::f32;
 use na::Matrix4;

@@ -1,4 +1,4 @@
-use gl_context::{Buffer, BufferType};
+use gl_bindings::{Buffer, BufferType};
 use graphics::{Drawable, DrawMode, render_target, position};
 use na::Matrix4;
 
