@@ -148,6 +148,21 @@ impl Gui {
                 context.particle_respawn_per_tick = (value * 2000.0) as u32;
             }),
         )));
+        ui_elements.push(Box::new(Slider::new(
+            position::Absolute {
+                height: 40,
+                width: 225,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 360,
+                margin_horizontal:285,
+            },
+            50,
+            0.5,
+            screensize,
+            Box::new(|ref mut context, value| {
+                context.texture_idx = value;
+            }),
+        )));
         ui_elements.push(Box::new(Label::new(
             position::Absolute {
                 height: 0,
@@ -242,6 +257,18 @@ impl Gui {
             },
             screensize,
             "Particle spawn rate".to_owned(),
+            font.clone(),
+        )));
+        ui_elements.push(Box::new(Label::new(
+            position::Absolute {
+                height: 0,
+                width: 0,
+                anchor: position::WindowCorner::BotRight,
+                margin_vertical: 410,
+                margin_horizontal: 510,
+            },
+            screensize,
+            "Texture idx".to_owned(),
             font.clone(),
         )));
         

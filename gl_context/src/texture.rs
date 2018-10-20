@@ -17,6 +17,60 @@ pub struct Texture {
 }
 
 impl Texture {
+    pub fn from_data(width: u32, height: u32, format: TextureFormat, data: &[f32]) -> Self {
+        let context = Context::get_context();
+
+        let texture = context.create_texture().unwrap();
+        context.bind_texture(Context::TEXTURE_2D, &texture);
+        
+        let formatv : u32 = format.into();
+
+        context.tex_image2d_f(
+            Context::TEXTURE_2D,
+            0,
+            formatv as i32,
+            width as i32,
+            height as i32,
+            0,
+            formatv,
+            Some(data)
+        );
+
+        //context.tex_image2d(Context::TEXTURE_2D, 0, Context::RGBA as i32, width as i32, height as i32, 0, Context::RGBA, &data);
+        //context.generate_mipmap(Context::TEXTURE_2D);
+        
+        context.tex_parameteri(
+            Context::TEXTURE_2D,
+            Context::TEXTURE_WRAP_S,
+            Context::CLAMP_TO_EDGE as i32
+        );
+
+        context.tex_parameteri(
+            Context::TEXTURE_2D,
+            Context::TEXTURE_WRAP_T,
+            Context::CLAMP_TO_EDGE as i32
+        );
+
+        /* Linear filtering usually looks best for text. */
+        context.tex_parameteri(
+            Context::TEXTURE_2D,
+            Context::TEXTURE_MIN_FILTER,
+            Context::LINEAR as i32
+        );
+        context.tex_parameteri(
+            Context::TEXTURE_2D,
+            Context::TEXTURE_MAG_FILTER,
+            Context::LINEAR as i32
+        );
+
+        context.pixel_storei(Context::UNPACK_ALIGNMENT, 1);
+
+        Texture {
+            texture,
+            _format: format,
+        }
+    }
+
     // Assumes png format
     pub fn new(width: u32, height: u32, format: TextureFormat, data: Option<&[u8]>) -> Self {
         let context = Context::get_context();

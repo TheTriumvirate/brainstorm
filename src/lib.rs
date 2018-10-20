@@ -29,11 +29,14 @@ use std::f32;
 use std::io::Read;
 
 use gl_context::{AbstractContext, Context};
-use graphics::{Drawable, Circle, Cube};
+use graphics::{Drawable, Circle, Cube, position, Rectangle};
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
 use gl_context::window::{AbstractWindow, Window, Event};
+
+use particles::gpu_fieldprovider::GPUFieldProvider;
+use particles::gpu_particles::GPUParticleEngine;
 
 pub const WINDOW_WIDTH : u32 = 1000;
 pub const WINDOW_HEIGHT : u32 = 1000;
@@ -50,6 +53,9 @@ pub struct App {
     circle2: Circle,
     circle3: Circle,
     bound: Cube,
+    gpu_field: GPUFieldProvider,
+    test: Rectangle,
+    gpu_particles: GPUParticleEngine,
 }
 
 /// Holds application state.
@@ -65,6 +71,7 @@ pub struct State {
     mesh_transparency: f32,
     particle_size: f32,
     particle_respawn_per_tick: u32,
+    texture_idx: f32,
 }
 
 impl State {
@@ -82,6 +89,7 @@ impl State {
             mesh_transparency: 0.1,
             particle_size: 8.0,
             particle_respawn_per_tick: 1000,
+            texture_idx: 0.0
         }
     }
 }
@@ -98,6 +106,7 @@ impl App {
     pub fn new(path: Option<PathBuf>) -> App {
         #[allow(unused_assignments)]
         let mut particles = None;
+        let mut fieldTest = None;
         let window = Window::new("Brainstorm!", WINDOW_WIDTH, WINDOW_HEIGHT);
 
         // For web we embed the data in the executable.
@@ -106,6 +115,7 @@ impl App {
             stdweb::initialize();
             let field_provider = FieldProvider::new(resources::fields::TEST_DATA);
             particles = Some(ParticleEngine::new(field_provider));
+            fieldTest = Some(GPUFieldProvider::new(resources::fields::TEST_DATA))
         }
         // For desktop we load a file.
         #[cfg(not(target_arch = "wasm32"))]
@@ -116,6 +126,7 @@ impl App {
             file.read_to_end(&mut content).expect("Failed to read file!");
             let field_provider = FieldProvider::new(&content);
             particles = Some(ParticleEngine::new(field_provider));
+            fieldTest = Some(GPUFieldProvider::new(&content))
         }
         App {
             window,
@@ -128,6 +139,14 @@ impl App {
             circle2: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 1.0, 0.0), false),
             circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
             bound: Cube::new((-0.5, -0.5, -0.5), (1.0,1.0,1.0), (1.0,1.0,1.0)),
+            gpu_field: fieldTest.unwrap(),
+            test: Rectangle::new(position::Coordinates {
+                x1: 0.0,
+                x2: 0.5,
+                y1: 0.0,
+                y2: 0.5,
+            }, (0.0, 0.0, 0.0)),
+            gpu_particles: GPUParticleEngine::new(),
         }
     }
 
@@ -183,6 +202,12 @@ impl App {
         self.particles.draw(&projection_matrix, &self.state, &self.window);
         self.window.disable_depth();
         self.gui.draw();
+
+        let len = self.gpu_field.len();
+        self.test.set_texture(Some(self.gpu_field.get((self.state.texture_idx * (len-1) as f32) as usize)));
+        self.test.draw();
+
+        self.gpu_particles.draw_transformed(&projection_matrix);
 
         self.window.swap_buffers();
         self.time += 0.01;

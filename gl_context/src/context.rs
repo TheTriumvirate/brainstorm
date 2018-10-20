@@ -118,6 +118,7 @@ pub trait AbstractContext {
     fn tex_parameteri(&self, target: GLEnum, pname: GLEnum, param: i32);
     fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>);
     fn tex_sub_image2d(&self, target: GLEnum, level: i32, xoffset: i32, yoffset: i32, width: i32, height: i32, format: GLEnum, pixels: Option<&[u8]>);
+    fn tex_image2d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>);
     fn delete_texture(&self, texture: &Texture);
     fn active_texture(&self, _type: GLEnum);
     fn generate_mipmap(&self, target: GLEnum);

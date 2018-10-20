@@ -352,6 +352,15 @@ impl AbstractContext for GLContext {
         }
     }
 
+    fn tex_image2d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>) {
+        unsafe {
+            match pixels {
+                Some(data) => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::FLOAT, mem::transmute(&data[0])),
+                _ => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::FLOAT, ptr::null()),
+            }
+        }
+    }
+
     fn tex_sub_image2d(
         &self,
         target: GLEnum,

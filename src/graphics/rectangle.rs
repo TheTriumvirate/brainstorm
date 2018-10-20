@@ -1,11 +1,13 @@
-use gl_context::{Buffer, BufferType};
+use gl_context::{Texture, Buffer, BufferType};
 use graphics::{Drawable, DrawMode, render_target, position};
 use na::Matrix4;
+use std::rc::Rc;
 
 /// Represents a drawable rectangle.
 pub struct Rectangle {
     vertices: Buffer<f32>,
     indices: Buffer<u16>,
+    texture: Option<Rc<Texture>>
 }
 
 impl Rectangle {
@@ -30,11 +32,19 @@ impl Rectangle {
         let len = indices.len();
         indices.upload_data(0, len, true);
 
-        Rectangle { vertices, indices }
+        Rectangle { vertices, indices, texture: None }
+    }
+
+    pub fn set_texture(&mut self, texture: Option<Rc<Texture>>) {
+        self.texture = texture;
     }
 }
 
 impl Drawable for Rectangle {
+    fn get_texture(&self) -> Option<Rc<Texture>> {
+        self.texture.clone()
+    }
+
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         render_target::draw_indices(DrawMode::TRIANGLES, &self.vertices, &self.indices, self.render_states(), view_matrix);
     }

@@ -58,6 +58,7 @@ pub fn draw_indices<T>(mode: DrawMode, vertex_data: &Buffer<f32>, index_data: &B
         DrawMode::TRIANGLES => Context::TRIANGLES,
         DrawMode::LINES => Context::LINES,
         DrawMode::LINESTRIP => Context::LINE_STRIP,
+        DrawMode::POINTS => Context::POINTS,
     };
 
     context.draw_elements(
@@ -80,6 +81,7 @@ pub fn draw_vertex_array(mode: DrawMode, first: i32, count: i32, vertex_data: &B
         DrawMode::TRIANGLES => Context::TRIANGLES,
         DrawMode::LINES => Context::LINES,
         DrawMode::LINESTRIP => Context::LINE_STRIP,
+        DrawMode::POINTS => Context::POINTS,
     };
     context.draw_arrays(mode, first, count);
 
