@@ -1,6 +1,4 @@
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
-#[macro_use]
-extern crate lazy_static;
 extern crate nalgebra as na;
 extern crate rand;
 #[cfg(target_arch = "wasm32")]
@@ -11,13 +9,14 @@ extern crate serde_derive;
 extern crate bincode;
 extern crate serde;
 
-extern crate gl_context;
+extern crate gl_bindings;
 
 extern crate resources;
 
 extern crate unicode_normalization;
 
 extern crate rusttype;
+extern crate window;
 
 pub mod camera;
 pub mod graphics;
@@ -28,12 +27,12 @@ use std::path::PathBuf;
 use std::f32;
 use std::io::Read;
 
-use gl_context::{AbstractContext, Context};
 use graphics::{Drawable, Circle, Cube, position, Rectangle};
+use gl_bindings::{AbstractContext, Context};
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
-use gl_context::window::{AbstractWindow, Window, Event};
+use window::{AbstractWindow, Window, Event};
 
 use particles::gpu_fieldprovider::GPUFieldProvider;
 use particles::gpu_particles::GPUParticleEngine;
@@ -178,7 +177,7 @@ impl App {
         context.clear(Context::DEPTH_BUFFER_BIT);
 
         // Draw everything
-        self.window.enable_depth();
+        Context::get_context().enable(Context::DEPTH_TEST);
         let projection_matrix = self.camera.get_projection_matrix();
 
         self.circle1.set_color(1.0, 0.0, 0.0);
@@ -199,8 +198,8 @@ impl App {
         self.circle2.draw_transformed(&projection_matrix);
         self.circle3.draw_transformed(&projection_matrix);
 
-        self.particles.draw(&projection_matrix, &self.state, &self.window);
-        self.window.disable_depth();
+        self.particles.draw(&projection_matrix, &self.state);
+        Context::get_context().disable(Context::DEPTH_TEST);
         self.gui.draw();
 
         let len = self.gpu_field.len();

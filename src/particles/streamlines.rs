@@ -1,22 +1,23 @@
 use particles::fieldprovider::FieldProvider;
 
-use gl_context::{shaders, Buffer, BufferType};
+use gl_bindings::{shaders, Buffer, BufferType};
 
 use resources::shaders::{STREAMLINES_VERTEX_SHADER, STREAMLINES_FRAGMENT_SHADER};
 
 use graphics::{render_target, DrawMode, Drawable};
 use std::str;
 use na::Matrix4;
+use std::rc::Rc;
 
 pub struct Streamlines {
     vertices: Buffer<f32>,
-    shader: shaders::OurShader,
+    shader: Rc<shaders::OurShader>,
     transparency: f32
 }
 
 impl Drawable for Streamlines {
-    fn get_shader(&self) -> Option<&shaders::OurShader> {
-        Some(&self.shader)
+    fn get_shader(&self) -> Option<Rc<shaders::OurShader>> {
+        Some(self.shader.clone())
     }
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
@@ -45,15 +46,15 @@ impl Streamlines {
 
         Streamlines {
             vertices: Buffer::<f32>::new(BufferType::Array),
-            shader,
+            shader: Rc::new(shader),
             transparency: 0.0
         }
     }
 
     pub fn draw_streamlines(&mut self, step_size: f32, step_count: i32, bounds: f32, field: &FieldProvider, start: (f32, f32, f32)) {
         self.vertices.clear();
-        //const S : f32 = 0.05;
-        let S = bounds / 6.0;
+        const S : f32 = 0.1;
+        //let S = bounds / 6.0;
         self.transparency = (S *12.0).min(1.0).max(0.05);  
 
         {

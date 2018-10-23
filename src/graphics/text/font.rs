@@ -1,7 +1,7 @@
 use rusttype::gpu_cache::Cache;
 use rusttype::{point, vector, Font as TFont, PositionedGlyph, Rect, Scale};
 
-use gl_context::{shaders::OurShader, shaders::ShaderAttribute, Buffer, Texture, TextureFormat};
+use gl_bindings::{shaders::OurShader, shaders::ShaderAttribute, Buffer, Texture, TextureFormat};
 
 use std::rc::Rc;
 use std::str;
@@ -10,31 +10,11 @@ use resources::shaders::{TEXT_FRAGMENT_SHADER, TEXT_VERTEX_SHADER};
 
 use {WINDOW_WIDTH, WINDOW_HEIGHT};
 
-lazy_static! {
-    static ref SHADER: OurShader = OurShader::new(
-        str::from_utf8(TEXT_VERTEX_SHADER).expect("Failed to read vertex shader"),
-        str::from_utf8(TEXT_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
-        &[
-            ShaderAttribute {
-                name: "a_position".to_string(),
-                size: 2
-            },
-            ShaderAttribute {
-                name: "a_color".to_string(),
-                size: 3
-            },
-            ShaderAttribute {
-                name: "a_texture".to_string(),
-                size: 2
-            },
-        ]
-    );
-}
-
 pub struct Font<'a> {
     font: TFont<'a>,
     texture: Rc<Texture>,
     cache: Cache<'a>,
+    shader: Rc<OurShader>
 }
 
 impl<'a> Font<'a> {
@@ -43,10 +23,29 @@ impl<'a> Font<'a> {
 
         let cache = Cache::builder().dimensions(512, 512).build();
 
+        let shader : OurShader = OurShader::new(
+            str::from_utf8(TEXT_VERTEX_SHADER).expect("Failed to read vertex shader"),
+            str::from_utf8(TEXT_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
+            &[
+                ShaderAttribute {
+                    name: "a_position".to_string(),
+                    size: 2
+                },
+                ShaderAttribute {
+                    name: "a_color".to_string(),
+                    size: 3
+                },
+                ShaderAttribute {
+                    name: "a_texture".to_string(),
+                    size: 2
+                },
+            ]
+        );
         Font {
             font,
             texture: Rc::from(Texture::new(512, 512, TextureFormat::LUMINANCE, None)),
             cache,
+            shader: Rc::new(shader)
         }
     }
 
@@ -54,8 +53,8 @@ impl<'a> Font<'a> {
         self.texture.clone()
     }
 
-    pub fn get_shader(&self) -> &'static OurShader {
-        &SHADER
+    pub fn get_shader(&self) -> Rc<OurShader> {
+        self.shader.clone()
     }
 
     pub fn update_texture(

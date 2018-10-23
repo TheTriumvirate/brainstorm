@@ -1,4 +1,4 @@
-use gl_context::{Texture, Buffer, BufferType};
+use gl_bindings::{Texture, Buffer, BufferType};
 use graphics::{Drawable, DrawMode, render_target, position};
 use na::Matrix4;
 use std::rc::Rc;

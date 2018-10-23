@@ -4,11 +4,10 @@ use rand::{FromEntropy, Rng};
 
 use std::{f32, str};
 
-use gl_context::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
+use gl_bindings::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
 use particles::fieldprovider::FieldProvider;
 use State;
 
-use gl_context::window::{Window, AbstractWindow};
 use camera::{Camera, ArcBall};
 
 use resources::shaders::{PARTICLES_VERTEX_SHADER, PARTICLES_FRAGMENT_SHADER};
@@ -200,7 +199,7 @@ impl ParticleEngine {
 
     /// Draw the particles to the screen using the provided (camera)
     /// projection matrix.
-    pub fn draw(&mut self, projection_matrix: &Matrix4<f32>, state: &State, window: &Window) {
+    pub fn draw(&mut self, projection_matrix: &Matrix4<f32>, state: &State) {
         let context = Context::get_context();
         if self.alive_count > 0 {
             self.particle_data.bind();
@@ -217,12 +216,18 @@ impl ParticleEngine {
             self.shader.unbind_attribs();
 
         }
-        window.depth_mask(false);
+        if state.mesh_transparency < 1.0 {
+            Context::get_context().depth_mask(false);
+        }
         self.march.set_transparency(state.mesh_transparency);
         self.march.draw_transformed(projection_matrix);
-        window.depth_mask(true);
-        window.disable_depth();
+        
+        if state.mesh_transparency < 1.0 {
+            Context::get_context().depth_mask(true);
+        }
+        /*Context::get_context().disable(Context::DEPTH_TEST);        
         self.streamlines.draw_transformed(projection_matrix);
-        window.enable_depth();
+        Context::get_context().enable(Context::DEPTH_TEST);*/
+
     }
 }

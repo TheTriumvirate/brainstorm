@@ -1,7 +1,7 @@
 use bincode::deserialize;
 use std::f32;
 
-use gl_context::{Texture, TextureFormat};
+use gl_bindings::{Texture, TextureFormat};
 use std::rc::Rc;
 
 type Vector4 = (f32, f32, f32, f32);

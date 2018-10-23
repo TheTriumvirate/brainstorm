@@ -1,5 +1,5 @@
 //! Methods for interacting with the render target.
-use gl_context::{shaders::*, AbstractContext, Buffer, Context, GlPrimitive};
+use gl_bindings::{shaders::*, AbstractContext, Buffer, Context, GlPrimitive};
 use graphics::{RenderStates, DrawMode};
 use na::Matrix4;
 
@@ -7,7 +7,7 @@ fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
     let context = Context::get_context();
 
     let shader: &OurShader = match states.shader {
-        Some(s) => s,
+        Some(ref s) => &s,
         _ => OurShader::default(),
     };
 
@@ -37,7 +37,7 @@ fn unbind_all(states: &RenderStates) {
     }
 
     let shader: &OurShader = match states.shader {
-        Some(s) => s,
+        Some(ref s) => &s,
         _ => OurShader::default(),
     };
     shader.unbind_attribs();

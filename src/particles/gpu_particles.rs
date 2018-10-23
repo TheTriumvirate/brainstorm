@@ -1,4 +1,4 @@
-use gl_context::{Texture, TextureFormat, Buffer, shaders::OurShader, shaders::ShaderAttribute, BufferType};
+use gl_bindings::{Texture, TextureFormat, Buffer, shaders::OurShader, shaders::ShaderAttribute, BufferType};
 use graphics::{Drawable, render_target, DrawMode};
 use resources::shaders::{GPU_PARTICLES_VERTEX_SHADER, GPU_PARTICLES_FRAGMENT_SHADER};
 
@@ -6,22 +6,10 @@ use std::str;
 use std::rc::Rc;
 use na::Matrix4;
 
-lazy_static! {
-    static ref SHADER: OurShader = OurShader::new(
-        str::from_utf8(GPU_PARTICLES_VERTEX_SHADER).expect("Failed to read vertex shader"),
-        str::from_utf8(GPU_PARTICLES_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
-        &[
-            ShaderAttribute {
-                name: "v_texpos".to_string(),
-                size: 2
-            },
-        ]
-    );
-}
-
 pub struct GPUParticleEngine {
     texture: Rc<Texture>,
-    vertices: Buffer<f32>
+    vertices: Buffer<f32>,
+    shader: Rc<OurShader>
 }
 
 impl GPUParticleEngine {
@@ -38,7 +26,16 @@ impl GPUParticleEngine {
                 particle_data.push(v as f32 / 2048.0);
             }
         }
-
+        let shader: OurShader = OurShader::new(
+            str::from_utf8(GPU_PARTICLES_VERTEX_SHADER).expect("Failed to read vertex shader"),
+            str::from_utf8(GPU_PARTICLES_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
+            &[
+                ShaderAttribute {
+                    name: "v_texpos".to_string(),
+                    size: 2
+                },
+            ]
+        );
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         vertices.set_data(&particle_data[..]);
 
@@ -49,6 +46,7 @@ impl GPUParticleEngine {
         GPUParticleEngine {
             texture: Rc::new(Texture::from_data(2048, 2048, TextureFormat::RGBA, &data[..])),
             vertices,
+            shader: Rc::new(shader),
         }
     }
 }
@@ -58,8 +56,8 @@ impl Drawable for GPUParticleEngine {
         Some(self.texture.clone())
     }
 
-    fn get_shader(&self) -> Option<&OurShader> {
-        Some(&SHADER)
+    fn get_shader(&self) -> Option<Rc<OurShader>> {
+        Some(self.shader.clone())
     }
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {

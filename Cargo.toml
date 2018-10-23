@@ -7,18 +7,18 @@ homepage = "https://github.com/TheTriumvirate/particles"
 publish = false
 
 [dependencies]
-nalgebra = "0.16"
-lazy_static = "1.1.0"
-gl_context = {version = "*", path = "./gl_context"}
+nalgebra = {version= "0.16", default-features = false}
+gl_bindings = {version = "*", path = "./gl_bindings"}
 resources = {version = "*", path = "./resources"}
-serde = "1.0"
+window = {version = "*", path = "./window"}
+serde = {version="1.0", default-features = false}
 serde_derive = "1.0"
 bincode = "1.0"
-rusttype = { version = "0.7", features = [ "gpu_cache" ] }
+rusttype = { version = "0.7", features = [ "gpu_cache" ], default-features = false}
 unicode-normalization = "0.1.7"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-rand = "0.5"
+rand = {version="0.5", default-features = false}
 structopt = "0.2"
 
 [target.wasm32-unknown-unknown.dependencies]

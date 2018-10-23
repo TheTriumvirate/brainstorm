@@ -1,0 +1,21 @@
+[package]
+name = "gl_bindings"
+version = "0.1.0"
+authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "Vegard Itland <veggitland@hotmail.com>"]
+readme = "readme.md"
+publish = false
+
+[dependencies]
+nalgebra = {version= "0.16", default-features = false}
+lazy_static = {version = "1.1.0", default-features = false}
+image = {version="0.19", default-features = false}
+gl = {version = "*", path = "../gl"}
+
+[target.wasm32-unknown-unknown.dependencies]
+stdweb = "0.4"
+stdweb-derive = "0.5"
+serde = "1.0"
+serde_derive = "1.0"
+
+[profile.dev]
+codegen-units = 5

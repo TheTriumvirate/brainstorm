@@ -14,7 +14,7 @@ pub use self::text::font::Font;
 pub use self::text::Text;
 pub use self::cube::Cube;
 
-use gl_context::{shaders::OurShader, Texture};
+use gl_bindings::{shaders::OurShader, Texture};
 
 use std::rc::Rc;
 
@@ -32,7 +32,7 @@ pub trait Drawable {
     fn get_texture(&self) -> Option<Rc<Texture>> {
         None
     }
-    fn get_shader(&self) -> Option<&OurShader> {
+    fn get_shader(&self) -> Option<Rc<OurShader>> {
         None
     }
 
@@ -53,6 +53,6 @@ pub trait Drawable {
 
 pub struct RenderStates<'a> {
     pub texture: Option<Rc<Texture>>,
-    pub shader: Option<&'a OurShader>,
+    pub shader: Option<Rc<OurShader>>,
     pub transform: Option<&'a Matrix4<f32>>,
 }

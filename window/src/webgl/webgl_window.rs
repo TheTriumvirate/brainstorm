@@ -2,7 +2,9 @@
 //! Go check out their code! https://github.com/sebcrozet/kiss3d
 #![allow(unused_results)]
 
-use {AbstractContext, Context};
+use gl_bindings::{AbstractContext, Context};
+
+use {Event as EventWrapper, MouseButton as MouseButtonWrapper, ModifierKeys, Key, AbstractWindow};
 
 use stdweb::unstable::TryInto;
 use stdweb::web::event::MouseButton as WebMouseButton;
@@ -12,11 +14,6 @@ use stdweb::web::{document, window, IEventTarget, IParentNode};
 
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
-
-use window::abstract_window::*;
-use window::Event as EventWrapper;
-use window::MouseButton as MouseButtonWrapper;
-use window::*;
 
 // Shamelessly stolen from stdweb,
 // Shamelessly stolen from webplatform's TodoMVC example.

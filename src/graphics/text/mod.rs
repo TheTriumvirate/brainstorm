@@ -4,7 +4,7 @@ use self::font::Font;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gl_context::{shaders::OurShader, Buffer, BufferType, Texture};
+use gl_bindings::{shaders::OurShader, Buffer, BufferType, Texture};
 
 use graphics::{render_target, DrawMode, Drawable};
 use na::Matrix4;
@@ -23,7 +23,7 @@ impl<'a> Drawable for Text<'a> {
         //None
     }
 
-    fn get_shader(&self) -> Option<&OurShader> {
+    fn get_shader(&self) -> Option<Rc<OurShader>> {
         Some(self.font.borrow().get_shader())
     }
 
