@@ -15,7 +15,8 @@ struct VectorField {
 }
 
 pub struct GPUFieldProvider {
-    textures: Vec<Rc<Texture>>
+    textures: Vec<Rc<Texture>>,
+    size: usize
 }
 
 impl GPUFieldProvider {
@@ -37,8 +38,8 @@ impl GPUFieldProvider {
         }
         
         // TODO: RGB only
+        let mut data = Vec::new();
         for plane in x.vectors {
-            let mut data = Vec::new();
             for row in plane {
                 for elem in row {
                     let (dx, dy, dz, da) = elem;
@@ -49,18 +50,19 @@ impl GPUFieldProvider {
                     data.push(1.0);
                 }
             }
-            textures.push(Rc::new(Texture::from_data(x.width as u32, x.height as u32, TextureFormat::RGBA, &data[..])));
         }
+        textures.push(Rc::new(Texture::from_3d_data(x.width as u32, x.height as u32, x.depth as u32, TextureFormat::RGBA, &data[..])));
         GPUFieldProvider {
-            textures
+            textures,
+            size: x.depth,
         }
     }
 
     pub fn len(&self) -> usize {
-        self.textures.len()
+        self.size
     }
 
     pub fn get(&self, index: usize) -> Rc<Texture> {
-        self.textures[index].clone()
+        self.textures[0].clone()
     }
 }

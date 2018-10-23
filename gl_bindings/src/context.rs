@@ -54,6 +54,7 @@ pub trait AbstractContext {
     const UNSIGNED_SHORT: u32;
     const UNSIGNED_INT: u32;
     const TEXTURE_2D: u32;
+    const TEXTURE_3D: u32;
     const UNSIGNED_BYTE: u32;
     const RGBA: u32;
     const LUMINANCE: u32;
@@ -119,6 +120,7 @@ pub trait AbstractContext {
     fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>);
     fn tex_sub_image2d(&self, target: GLEnum, level: i32, xoffset: i32, yoffset: i32, width: i32, height: i32, format: GLEnum, pixels: Option<&[u8]>);
     fn tex_image2d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>);
+    fn tex_image3d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, depth: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>);
     fn delete_texture(&self, texture: &Texture);
     fn active_texture(&self, _type: GLEnum);
     fn generate_mipmap(&self, target: GLEnum);

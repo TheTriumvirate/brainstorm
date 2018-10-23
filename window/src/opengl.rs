@@ -3,6 +3,7 @@
 extern crate gl;
 
 use {Event as EventWrapper, MouseButton as MouseButtonWrapper, ModifierKeys, Key, AbstractWindow};
+use std::{thread, time};
 
 use glutin::{
     self,
@@ -91,8 +92,8 @@ impl AbstractWindow for GLWindow {
             .with_gl(GlRequest::GlThenGles {
                 opengl_version: (3, 2),
                 opengles_version: (2, 0),
-            }).with_multisampling(4)
-            .with_vsync(true);
+            }).with_multisampling(0);
+            //.with_vsync(true);
         let gl_window = glutin::GlWindow::new(window, context, &events_loop).unwrap();
 
         unsafe {
@@ -111,7 +112,12 @@ impl AbstractWindow for GLWindow {
     }
 
     fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
+        let mut p_delta = time::Instant::now();
         while callback(0.0) {
+            let delta = time::Instant::now();
+            println!("{:?} : {:?}", time::Duration::from_millis(16).checked_sub(delta.duration_since(p_delta)).unwrap_or(time::Duration::from_millis(0)), delta.duration_since(p_delta));
+            thread::sleep(time::Duration::from_millis(16).checked_sub(delta.duration_since(p_delta)).unwrap_or(time::Duration::from_millis(0)));
+            p_delta = delta;
         }
     }
 

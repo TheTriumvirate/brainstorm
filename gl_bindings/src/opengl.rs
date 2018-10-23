@@ -89,6 +89,7 @@ impl AbstractContext for GLContext {
     const TRIANGLES: u32 = gl::TRIANGLES;
     const UNSIGNED_SHORT: u32 = gl::UNSIGNED_SHORT;
     const TEXTURE_2D: u32 = gl::TEXTURE_2D;
+    const TEXTURE_3D: u32 = gl::TEXTURE_3D;
     const UNSIGNED_BYTE: u32 = gl::UNSIGNED_BYTE;
     const RGBA: u32 = gl::RGBA;
     const LUMINANCE: u32 = gl::RED;
@@ -357,6 +358,15 @@ impl AbstractContext for GLContext {
             match pixels {
                 Some(data) => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::FLOAT, mem::transmute(&data[0])),
                 _ => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::FLOAT, ptr::null()),
+            }
+        }
+    }
+
+    fn tex_image3d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, depth: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>) {
+        unsafe {
+            match pixels {
+                Some(data) => gl::TexImage3D(target, level, internalformat, width, height, depth, border, format, Self::FLOAT, mem::transmute(&data[0])),
+                _ => gl::TexImage3D(target, level, internalformat, width, height, depth, border, format, Self::FLOAT, ptr::null()),
             }
         }
     }

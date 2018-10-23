@@ -33,6 +33,7 @@ use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
 use window::{AbstractWindow, Window, Event};
+use std::thread;
 
 use particles::gpu_fieldprovider::GPUFieldProvider;
 use particles::gpu_particles::GPUParticleEngine;
@@ -169,7 +170,7 @@ impl App {
 
         // Update camera and particle system
         self.camera.update();
-        self.particles.update(&self.state, &mut self.camera);
+        //self.particles.update(&self.state, &mut self.camera);
 
         // Clear screen
         context.clear_color(0.0, 0.0, 0.0, 1.0);
@@ -210,8 +211,8 @@ impl App {
 
         self.window.swap_buffers();
         self.time += 0.01;
-
         self.state.is_running
+
     }
 }
 

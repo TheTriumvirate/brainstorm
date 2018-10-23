@@ -14,9 +14,39 @@ pub enum TextureFormat {
 pub struct Texture {
     texture: NativeTexture,
     _format: TextureFormat,
+    _type: u32,
 }
 
 impl Texture {
+    pub fn from_3d_data(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[f32]) -> Self {
+        let context = Context::get_context();
+
+        let texture = context.create_texture().unwrap();
+        context.bind_texture(Context::TEXTURE_3D, &texture);
+        
+        let formatv : u32 = format.into();
+
+        context.tex_image3d_f(
+            Context::TEXTURE_3D,
+            0,
+            formatv as i32,
+            width as i32,
+            height as i32,
+            depth as i32,
+            0,
+            formatv,
+            Some(data)
+        );
+
+        let texture = Texture {
+            texture,
+            _format: format,
+            _type: Context::TEXTURE_3D,
+        };
+        texture.init(Context::TEXTURE_3D);
+        texture
+    }
+
     pub fn from_data(width: u32, height: u32, format: TextureFormat, data: &[f32]) -> Self {
         let context = Context::get_context();
 
@@ -36,39 +66,13 @@ impl Texture {
             Some(data)
         );
 
-        //context.tex_image2d(Context::TEXTURE_2D, 0, Context::RGBA as i32, width as i32, height as i32, 0, Context::RGBA, &data);
-        //context.generate_mipmap(Context::TEXTURE_2D);
-        
-        context.tex_parameteri(
-            Context::TEXTURE_2D,
-            Context::TEXTURE_WRAP_S,
-            Context::CLAMP_TO_EDGE as i32
-        );
-
-        context.tex_parameteri(
-            Context::TEXTURE_2D,
-            Context::TEXTURE_WRAP_T,
-            Context::CLAMP_TO_EDGE as i32
-        );
-
-        /* Linear filtering usually looks best for text. */
-        context.tex_parameteri(
-            Context::TEXTURE_2D,
-            Context::TEXTURE_MIN_FILTER,
-            Context::LINEAR as i32
-        );
-        context.tex_parameteri(
-            Context::TEXTURE_2D,
-            Context::TEXTURE_MAG_FILTER,
-            Context::LINEAR as i32
-        );
-
-        context.pixel_storei(Context::UNPACK_ALIGNMENT, 1);
-
-        Texture {
+        let texture = Texture {
             texture,
             _format: format,
-        }
+            _type: Context::TEXTURE_2D,
+        };
+        texture.init(Context::TEXTURE_2D);
+        texture
     }
 
     // Assumes png format
@@ -114,44 +118,47 @@ impl Texture {
             }
         }
 
-        //context.tex_image2d(Context::TEXTURE_2D, 0, Context::RGBA as i32, width as i32, height as i32, 0, Context::RGBA, &data);
-        //context.generate_mipmap(Context::TEXTURE_2D);
-        
+        let texture = Texture {
+            texture,
+            _format: format,
+            _type: Context::TEXTURE_2D,
+        };
+        texture.init(Context::TEXTURE_2D);
+        texture
+    }
+
+    fn init(&self, _type: u32) {
+        let context = Context::get_context();
         context.tex_parameteri(
-            Context::TEXTURE_2D,
+            _type,
             Context::TEXTURE_WRAP_S,
             Context::CLAMP_TO_EDGE as i32
         );
 
         context.tex_parameteri(
-            Context::TEXTURE_2D,
+            _type,
             Context::TEXTURE_WRAP_T,
             Context::CLAMP_TO_EDGE as i32
         );
 
         /* Linear filtering usually looks best for text. */
         context.tex_parameteri(
-            Context::TEXTURE_2D,
+            _type,
             Context::TEXTURE_MIN_FILTER,
             Context::LINEAR as i32
         );
         context.tex_parameteri(
-            Context::TEXTURE_2D,
+            _type,
             Context::TEXTURE_MAG_FILTER,
             Context::LINEAR as i32
         );
 
         context.pixel_storei(Context::UNPACK_ALIGNMENT, 1);
-
-        Texture {
-            texture,
-            _format: format,
-        }
     }
 
     pub fn bind(&self) {
         let context = Context::get_context();
-        context.bind_texture(Context::TEXTURE_2D, &self.texture);
+        context.bind_texture(self._type, &self.texture);
     }
 
     pub fn activate(&self, shader: Option<&OurShader>) {
@@ -166,7 +173,7 @@ impl Texture {
 
     pub fn unbind(&self) {
         let context = Context::get_context();
-        context.unbind_texture(Context::TEXTURE_2D);   
+        context.unbind_texture(self._type);   
     }
 
     pub fn update_sub_rect(&self, x: i32, y: i32, w: i32, h: i32, data: &[u8]) {
