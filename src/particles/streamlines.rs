@@ -53,7 +53,7 @@ impl Streamlines {
 
     pub fn draw_streamlines(&mut self, step_size: f32, step_count: i32, bounds: f32, field: &FieldProvider, start: (f32, f32, f32)) {
         self.vertices.clear();
-        const S : f32 = 0.05;
+        const S : f32 = 0.1;
         //let S = bounds / 6.0;
         self.transparency = (S *12.0).min(1.0).max(0.05);  
 

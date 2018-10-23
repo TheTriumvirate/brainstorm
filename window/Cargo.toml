@@ -14,6 +14,7 @@ gl = {version = "*", path = "../gl"}
 
 [target.wasm32-unknown-unknown.dependencies]
 stdweb = "0.4"
+gl_bindings = {version = "*", path = "../gl_bindings"}
 
 [profile.dev]
 opt-level = 2   

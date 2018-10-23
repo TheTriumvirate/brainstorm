@@ -962,6 +962,7 @@ name = "window"
 version = "0.8.0"
 dependencies = [
  "gl 0.1.0",
+ "gl_bindings 0.1.0",
  "glutin 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "stdweb 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
