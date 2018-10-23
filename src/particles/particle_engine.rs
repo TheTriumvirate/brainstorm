@@ -216,13 +216,18 @@ impl ParticleEngine {
             self.shader.unbind_attribs();
 
         }
-        Context::get_context().depth_mask(false);
+        if state.mesh_transparency < 1.0 {
+            Context::get_context().depth_mask(false);
+        }
         self.march.set_transparency(state.mesh_transparency);
         self.march.draw_transformed(projection_matrix);
-        Context::get_context().depth_mask(true);
-        Context::get_context().disable(Context::DEPTH_TEST);        
+        
+        if state.mesh_transparency < 1.0 {
+            Context::get_context().depth_mask(true);
+        }
+        /*Context::get_context().disable(Context::DEPTH_TEST);        
         self.streamlines.draw_transformed(projection_matrix);
-        Context::get_context().enable(Context::DEPTH_TEST);
+        Context::get_context().enable(Context::DEPTH_TEST);*/
 
     }
 }

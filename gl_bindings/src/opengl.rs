@@ -49,7 +49,7 @@ impl GLContext {
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
             gl::Enable(gl::BLEND);
             gl::Enable(gl::PROGRAM_POINT_SIZE);
-            gl::LineWidth(2.0);
+            gl::LineWidth(1.0);
         }
         GLContext {}
     }
