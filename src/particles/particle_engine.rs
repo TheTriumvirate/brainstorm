@@ -121,8 +121,15 @@ impl ParticleEngine {
         let radius = state.seeding_size * 0.6 + 0.01;
 
         let speed_multiplier = 0.016 * state.speed_multiplier;
-
-        self.streamlines.draw_streamlines(speed_multiplier, state.lifetime as i32, radius, &self.field_provider, camera.get_target());
+        if state.show_streamlines {
+            self.streamlines.draw_streamlines(
+                speed_multiplier,
+                state.lifetime as i32,
+                radius,
+                &self.field_provider,
+                camera.get_target()
+            );
+        }
         
         let mut respawned = 0;
         
@@ -217,17 +224,17 @@ impl ParticleEngine {
 
         }
         if state.mesh_transparency < 1.0 {
-            Context::get_context().depth_mask(false);
+            context.depth_mask(false);
         }
+
         self.march.set_transparency(state.mesh_transparency);
         self.march.draw_transformed(projection_matrix);
         
-        if state.mesh_transparency < 1.0 {
-            Context::get_context().depth_mask(true);
+        if state.show_streamlines {
+            context.depth_mask(false);
+            self.streamlines.draw_transformed(projection_matrix);
         }
-        /*Context::get_context().disable(Context::DEPTH_TEST);        
-        self.streamlines.draw_transformed(projection_matrix);
-        Context::get_context().enable(Context::DEPTH_TEST);*/
 
+        context.depth_mask(true);
     }
 }

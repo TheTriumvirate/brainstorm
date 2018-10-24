@@ -64,6 +64,7 @@ pub struct State {
     mesh_transparency: f32,
     particle_size: f32,
     particle_respawn_per_tick: u32,
+    show_streamlines: bool,
 }
 
 impl State {
@@ -81,6 +82,7 @@ impl State {
             mesh_transparency: 0.1,
             particle_size: 8.0,
             particle_respawn_per_tick: 1000,
+            show_streamlines: true,
         }
     }
 }
