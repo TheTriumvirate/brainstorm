@@ -1,21 +1,20 @@
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
-extern crate nalgebra as na;
-extern crate rand;
+
 #[cfg(target_arch = "wasm32")]
 #[macro_use]
 extern crate stdweb;
-#[macro_use]
-extern crate serde_derive;
+
 extern crate bincode;
+extern crate nalgebra as na;
+extern crate nfd;
+extern crate rand;
+extern crate rusttype;
 extern crate serde;
-
-extern crate gl_bindings;
-
-extern crate resources;
-
+#[macro_use] extern crate serde_derive;
 extern crate unicode_normalization;
 
-extern crate rusttype;
+extern crate gl_bindings;
+extern crate resources;
 extern crate window;
 
 pub mod camera;
@@ -65,6 +64,8 @@ pub struct State {
     particle_size: f32,
     particle_respawn_per_tick: u32,
     show_streamlines: bool,
+    file_path: Option<PathBuf>,
+    reload_file: bool,
 }
 
 impl State {
@@ -83,6 +84,8 @@ impl State {
             particle_size: 8.0,
             particle_respawn_per_tick: 1000,
             show_streamlines: true,
+            file_path: None,
+            reload_file: false
         }
     }
 }
@@ -108,23 +111,29 @@ impl App {
             let field_provider = FieldProvider::new(resources::fields::TEST_DATA);
             particles = Some(ParticleEngine::new(field_provider));
         }
-        // For desktop we load a file.
+        // For desktop we load a file if it exists.
         #[cfg(not(target_arch = "wasm32"))]
         {
-            let path = path.expect("No file specified!");
-            let mut file = std::fs::File::open(path).expect("Failed to open file!");
-            let mut content = Vec::new();
-            file.read_to_end(&mut content).expect("Failed to read file!");
+            let content: Vec<u8> = if let Some(ref path) = path {
+                let mut file = std::fs::File::open(path).expect("Failed to open file!");
+                let mut content = Vec::new();
+                file.read_to_end(&mut content).expect("Failed to read file!");
+                content
+            } else {
+                Vec::from(resources::fields::DEFAULT_SPIRAL)
+            };
             let field_provider = FieldProvider::new(&content);
             particles = Some(ParticleEngine::new(field_provider));
         }
+        let mut state = State::new();
+        state.file_path = path;
         App {
             window,
+            state,
             particles: particles.unwrap(),
             camera: camera::ArcBall::new(),
             time: 0.0,
             gui: Gui::new((1000.0, 1000.0)),
-            state: State::new(),
             circle1: Circle::new(0.0,0.0,0.0,0.5, 0.0, (1.0, 0.0, 0.0), false),
             circle2: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 1.0, 0.0), false),
             circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
@@ -147,6 +156,17 @@ impl App {
 
             if !consumed {
                 self.camera.handle_events(&event);
+            }
+        }
+
+        // Replace particle data if requested.
+        if self.state.reload_file {
+            if let Some(ref path) = self.state.file_path {
+                let mut file = std::fs::File::open(path).expect("Failed to open file!");
+                let mut content = Vec::new();
+                file.read_to_end(&mut content).expect("Failed to read file!");
+                let field_provider = FieldProvider::new(&content);
+                self.particles = ParticleEngine::new(field_provider);
             }
         }
 

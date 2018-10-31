@@ -25,18 +25,13 @@ fn main() {
 struct Opt {
     /// File to process
     #[structopt(name = "FILE", parse(from_os_str))]
-    file: PathBuf,
+    file: Option<PathBuf>,
 }
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
     let opt = Opt::from_args();
     
-    if std::fs::File::open(&opt.file).is_err() {
-        println!("File not found");
-        return;
-    }
-
-    let mut app = App::new(Some(opt.file));
+    let mut app = App::new(opt.file);
     window::Window::run_loop(move |_| app.run());
 }
