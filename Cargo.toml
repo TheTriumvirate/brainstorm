@@ -20,10 +20,12 @@ unicode-normalization = "0.1.7"
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 rand = {version="0.5", default-features = false}
 structopt = "0.2"
+nfd = "0.0.4"
 
 [target.wasm32-unknown-unknown.dependencies]
 stdweb = "0.4"
 rand = {version = "0.5", features = ["stdweb"]}
+base64 = "0.10.0"
 
 [profile.dev]
 opt-level = 2   

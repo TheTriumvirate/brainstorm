@@ -133,3 +133,10 @@ impl Into<u32> for TextureFormat {
         }
     }
 }
+
+impl Drop for Texture {
+    fn drop(&mut self) {
+        let context = Context::get_context();
+        context.delete_texture(&self.texture);
+    }
+}

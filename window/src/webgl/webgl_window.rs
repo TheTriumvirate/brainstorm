@@ -90,7 +90,6 @@ impl AbstractWindow for WebGLWindow {
             let y = js!(return @{&event}.clientY;).try_into().unwrap_or(0.0);
                 
             let len = pointers.len().to_string();
-            js!(console.log("pointers: ", @{len}););
 
             for i in 0..pointers.len() {
                 if pointers[i].id == event.pointer_id() {

@@ -16,7 +16,46 @@
     </style>
 </head>
 <body>
+    <input type="file" id="fileElem" onchange="handleFiles(this.files)" style="display:none">
     <canvas id="canvas"></canvas>
     <script src="brainstorm.js"></script>
+    <script>
+    let updated = false;
+    let data = null;
+
+    function getData() {
+        //console.log(data);
+        return data;
+    }
+    
+    function isUpdated() {
+        if (updated) {
+            //console.log("Data imported!");
+            updated = false;
+            return true;
+        }
+        return false;
+    }
+    
+    function openFileDialog() {
+        let fileSelect = document.getElementById("fileElem");
+        fileSelect.click();
+    }
+    
+    function handleFiles(files) {
+        if (files !== undefined && files.length === 1) {
+            let file = files.item(0);
+            let reader = new FileReader();
+            reader.onload = onLoad;
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    function onLoad(newData) {
+        data = newData.target.result;
+        updated = true;
+        //console.log("File loaded!");
+    }
+    </script>
 </body>
 </html>

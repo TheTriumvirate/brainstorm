@@ -5,13 +5,16 @@ mod label;
 mod slider;
 mod ui_element;
 
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, path::PathBuf, rc::Rc};
 
 use graphics::{position, Drawable, Font};
 use resources::fonts;
 use window::{ModifierKeys, MouseButton, Event, Key};
 use State;
 use na::Matrix4;
+
+#[cfg(not(target_arch = "wasm32"))]
+use nfd;
 
 use self::{button::Button, label::Label, slider::Slider, ui_element::UiElement};
 
@@ -269,6 +272,41 @@ impl Gui {
             },
             screensize,
             "Streamlines".to_owned(),
+            font.clone(),
+        )));
+        ui_elements.push(Box::new(Button::new(
+            position::Absolute {
+                height: 40,
+                width: 120,
+                anchor: position::WindowCorner::BotLeft,
+                margin_vertical: 200,
+                margin_horizontal: 40,
+            },
+            (0.44, 0.5, 0.56),
+            screensize,
+            false,
+            Box::new(|ref mut context, _toggle_state| {
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    if let Ok(nfd::Response::Okay(path)) = nfd::open_file_dialog(None, None) {
+                        context.file_path = Some(PathBuf::from(path));
+                        context.reload_file = true;
+                    }
+                }
+                #[cfg(target_arch = "wasm32")]
+                js!(openFileDialog());
+            }),
+        )));
+        ui_elements.push(Box::new(Label::new(
+            position::Absolute {
+                height: 40,
+                width: 120,
+                anchor: position::WindowCorner::BotLeft,
+                margin_vertical: 210,
+                margin_horizontal: 45,
+            },
+            screensize,
+            "Load file".to_owned(),
             font.clone(),
         )));
         
