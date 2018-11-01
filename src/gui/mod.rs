@@ -12,6 +12,8 @@ use resources::fonts;
 use window::{ModifierKeys, MouseButton, Event, Key};
 use State;
 use na::Matrix4;
+
+#[cfg(not(target_arch = "wasm32"))]
 use nfd;
 
 use self::{button::Button, label::Label, slider::Slider, ui_element::UiElement};
@@ -284,10 +286,15 @@ impl Gui {
             screensize,
             false,
             Box::new(|ref mut context, _toggle_state| {
-                if let Ok(nfd::Response::Okay(path)) = nfd::open_file_dialog(None, None) {
-                    context.file_path = Some(PathBuf::from(path));
-                    context.reload_file = true;
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    if let Ok(nfd::Response::Okay(path)) = nfd::open_file_dialog(None, None) {
+                        context.file_path = Some(PathBuf::from(path));
+                        context.reload_file = true;
+                    }
                 }
+                #[cfg(target_arch = "wasm32")]
+                js!(openFileDialog());
             }),
         )));
         ui_elements.push(Box::new(Label::new(

@@ -25,6 +25,7 @@ nfd = "0.0.4"
 [target.wasm32-unknown-unknown.dependencies]
 stdweb = "0.4"
 rand = {version = "0.5", features = ["stdweb"]}
+base64 = "0.10.0"
 
 [profile.dev]
 opt-level = 2   

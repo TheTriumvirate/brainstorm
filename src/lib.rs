@@ -1,12 +1,14 @@
 #![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
 
 #[cfg(target_arch = "wasm32")]
-#[macro_use]
-extern crate stdweb;
+extern crate base64;
+#[cfg(target_arch = "wasm32")]
+#[macro_use] extern crate stdweb;
+#[cfg(not(target_arch = "wasm32"))]
+extern crate nfd;
 
 extern crate bincode;
 extern crate nalgebra as na;
-extern crate nfd;
 extern crate rand;
 extern crate rusttype;
 extern crate serde;
@@ -160,6 +162,30 @@ impl App {
         }
 
         // Replace particle data if requested.
+        #[cfg(target_arch = "wasm32")]
+        {
+            let updated = match js!(return isUpdated();) {
+                stdweb::Value::Bool(b) => b,
+                a => panic!("Unknown isUpdated return type"),
+            };
+            if updated {
+                match js!(return getData();).into_string() {
+                    Some(b64) => {
+                        let pos = b64.find(",").map(|i| i + 1).unwrap_or(0);
+                        let b64 = b64.split_at(pos).1;
+                        match base64::decode(b64) {
+                            Ok(data) => {
+                                let field_provider = FieldProvider::new(&data);
+                                self.particles = ParticleEngine::new(field_provider);
+                            }
+                            Err(e) => { js!(console.log("Failed to decode base64 content.")); },
+                        }
+                    }
+                    None => { js!(console.log("Failed to get string from JS.")); },
+                }
+            }
+        }
+
         if self.state.reload_file {
             if let Some(ref path) = self.state.file_path {
                 let mut file = std::fs::File::open(path).expect("Failed to open file!");
