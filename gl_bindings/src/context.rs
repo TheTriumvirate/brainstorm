@@ -31,6 +31,7 @@ pub type GLUint = ContextImpl::GLUint;
 pub type Shader = ContextImpl::GLShader;
 pub type Program = ContextImpl::GLProgram;
 pub type Texture = ContextImpl::GLTexture;
+pub type FrameBuffer = ContextImpl::GLFrameBuffer;
 
 /// Represents the common interface of OpenGL and WebGL.
 /// Check the OpenGL and WebGL documentation for details.
@@ -57,6 +58,7 @@ pub trait AbstractContext {
     const TEXTURE_3D: u32;
     const UNSIGNED_BYTE: u32;
     const RGBA: u32;
+    const RGBA32F: u32;
     const LUMINANCE: u32;
     const TEXTURE0: u32;
     const TEXTURE_WRAP_S: u32;
@@ -69,6 +71,8 @@ pub trait AbstractContext {
     const DEPTH_BUFFER_BIT: u32;
     const FRONT_AND_BACK: u32;
     const DEPTH_TEST: u32;
+    const FRAMEBUFFER: u32;
+    const COLOR_ATTACHMENT0: u32;
 
     fn get_context() -> &'static Context;
     
@@ -92,6 +96,12 @@ pub trait AbstractContext {
     fn bind_buffer(&self, target: GLEnum, buffer: &Buffer);
     fn buffer_data<T: GlPrimitive>(&self, target: GLEnum, data: &[T], usage: GLEnum);
     fn delete_buffer(&self, buffer: &Buffer);
+
+    fn create_framebuffer(&self) -> Option<FrameBuffer>;
+    fn bind_framebuffer(&self, target: GLEnum, framebuffer: Option<&FrameBuffer>);
+    fn delete_framebuffer(&self, framebuffer: &FrameBuffer);
+    fn framebuffer_texture2d(&self, target: GLEnum, attachment: GLEnum, textarget: GLEnum, texture: &Texture, level: i32);
+    fn framebuffer_texture_layer(&self, target: GLEnum, attachment: GLEnum, texture: &Texture, level: i32, layer: i32);
 
     fn get_attrib_location(&self, program: &Program, name: &str) -> GLUint;
     fn vertex_attrib_pointer(

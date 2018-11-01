@@ -28,12 +28,11 @@ use std::f32;
 use std::io::Read;
 
 use graphics::{Drawable, Circle, Cube, position, Rectangle};
-use gl_bindings::{AbstractContext, Context};
+use gl_bindings::{AbstractContext, Context, shaders::OurShader};
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
 use window::{AbstractWindow, Window, Event};
-use std::thread;
 
 use particles::gpu_fieldprovider::GPUFieldProvider;
 use particles::gpu_particles::GPUParticleEngine;
@@ -141,10 +140,10 @@ impl App {
             bound: Cube::new((-0.5, -0.5, -0.5), (1.0,1.0,1.0), (1.0,1.0,1.0)),
             gpu_field: fieldTest.unwrap(),
             test: Rectangle::new(position::Coordinates {
-                x1: 0.0,
-                x2: 0.5,
-                y1: 0.0,
-                y2: 0.5,
+                x1:  0.5,
+                x2:  1.0,
+                y1:  0.5,
+                y2:  1.0,
             }, (0.0, 0.0, 0.0)),
             gpu_particles: GPUParticleEngine::new(),
         }
@@ -181,33 +180,42 @@ impl App {
         Context::get_context().enable(Context::DEPTH_TEST);
         let projection_matrix = self.camera.get_projection_matrix();
 
-        self.circle1.set_color(1.0, 0.0, 0.0);
-        self.circle2.set_color(0.0, 1.0, 0.0);
-        self.circle3.set_color(0.0, 0.0, 1.0);
-        self.circle1.set_radius(self.state.seeding_size * 0.6 + 0.01);
-        self.circle2.set_radius(self.state.seeding_size * 0.6 + 0.01);
-        self.circle3.set_radius(self.state.seeding_size * 0.6 + 0.01);
-        self.circle1.set_center(self.camera.get_target());
-        self.circle2.set_center(self.camera.get_target());
-        self.circle3.set_center(self.camera.get_target());
-        self.circle1.rebuild_data();
-        self.circle2.rebuild_data();
-        self.circle3.rebuild_data();
+        //self.circle1.set_color(1.0, 0.0, 0.0);
+        //self.circle2.set_color(0.0, 1.0, 0.0);
+        //self.circle3.set_color(0.0, 0.0, 1.0);
+        //self.circle1.set_radius(self.state.seeding_size * 0.6 + 0.01);
+        //self.circle2.set_radius(self.state.seeding_size * 0.6 + 0.01);
+        //self.circle3.set_radius(self.state.seeding_size * 0.6 + 0.01);
+        //self.circle1.set_center(self.camera.get_target());
+        //self.circle2.set_center(self.camera.get_target());
+        //self.circle3.set_center(self.camera.get_target());
+        //self.circle1.rebuild_data();
+        //self.circle2.rebuild_data();
+        //self.circle3.rebuild_data();
+//
+        //self.bound.draw_transformed(&projection_matrix);
+        //self.circle1.draw_transformed(&projection_matrix);
+        //self.circle2.draw_transformed(&projection_matrix);
+        //self.circle3.draw_transformed(&projection_matrix);
 
-        self.bound.draw_transformed(&projection_matrix);
-        self.circle1.draw_transformed(&projection_matrix);
-        self.circle2.draw_transformed(&projection_matrix);
-        self.circle3.draw_transformed(&projection_matrix);
-
-        self.particles.draw(&projection_matrix, &self.state);
         Context::get_context().disable(Context::DEPTH_TEST);
+        self.gpu_particles.update(&self.gpu_field);
+        Context::get_context().enable(Context::DEPTH_TEST);
+        self.particles.draw(&projection_matrix, &self.state);
+        self.gpu_particles.draw_transformed(&projection_matrix);
+        Context::get_context().disable(Context::DEPTH_TEST);
+
+        
         self.gui.draw();
 
         let len = self.gpu_field.len();
-        self.test.set_texture(Some(self.gpu_field.get((self.state.texture_idx * (len-1) as f32) as usize)));
+        self.test.set_texture(Some(self.gpu_field.get(0)));
+        //self.test.set_texture(self.gpu_particles.get_texture());
+        OurShader::default().uniform1i("u_layer", (self.state.texture_idx * 15.0) as i32);
+        OurShader::default().uniform1f("u_percentage", self.state.texture_idx);
+        //self.test.set_texture(self.gpu_particles.get_texture());
         self.test.draw();
-
-        self.gpu_particles.draw_transformed(&projection_matrix);
+        OurShader::default().uniform1f("u_percentage", 0.0);
 
         self.window.swap_buffers();
         self.time += 0.01;

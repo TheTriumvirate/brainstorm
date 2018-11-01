@@ -29,7 +29,7 @@ impl Texture {
         context.tex_image3d_f(
             Context::TEXTURE_3D,
             0,
-            formatv as i32,
+            Context::RGBA32F as i32,
             width as i32,
             height as i32,
             depth as i32,
@@ -58,7 +58,7 @@ impl Texture {
         context.tex_image2d_f(
             Context::TEXTURE_2D,
             0,
-            formatv as i32,
+            Context::RGBA32F as i32,
             width as i32,
             height as i32,
             0,
@@ -161,13 +161,13 @@ impl Texture {
         context.bind_texture(self._type, &self.texture);
     }
 
-    pub fn activate(&self, shader: Option<&OurShader>) {
+    pub fn activate(&self, shader: Option<&OurShader>, idx: i32, name: &str) {
         let context = Context::get_context();
-        context.active_texture(Context::TEXTURE0);
+        context.active_texture(Context::TEXTURE0 + idx as u32);
         
         if let Some(shader) = shader {
             self.bind();
-            shader.uniform1i("uSampler", 0);
+            shader.uniform1i(name, idx);
         }
     }
 
@@ -178,11 +178,15 @@ impl Texture {
 
     pub fn update_sub_rect(&self, x: i32, y: i32, w: i32, h: i32, data: &[u8]) {
         self.bind();
-        self.activate(None);
+        self.activate(None, 0, "uSampler");
         let context = Context::get_context();
         //let format = self.format.into();
         context.tex_sub_image2d(Context::TEXTURE_2D, 0, x, y, w, h, Context::LUMINANCE, Some(&data));
         self.unbind();
+    }
+
+    pub fn get_native(&self) -> NativeTexture {
+        self.texture
     }
 }
 

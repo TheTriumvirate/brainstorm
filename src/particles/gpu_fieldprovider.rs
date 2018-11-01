@@ -25,6 +25,7 @@ impl GPUFieldProvider {
         let x: VectorField = deserialize(raw_data).expect("Failed to deserialize data.");
         
         let mut max : f32 = 0.0;
+        let mut min : f32 = 0.0;
         for plane in x.vectors.iter() {
             for row in plane {
                 for elem in row {
@@ -33,6 +34,9 @@ impl GPUFieldProvider {
                     max = max.max(dx);
                     max = max.max(dy);
                     max = max.max(dz);
+                    min = min.min(dx);
+                    min = min.min(dy);
+                    min = min.min(dz);
                 }
             }
         }
@@ -44,9 +48,17 @@ impl GPUFieldProvider {
                 for elem in row {
                     let (dx, dy, dz, da) = elem;
                     let (dx, dy, dz) = (dx * da, dy * da, dz *da);
-                    data.push(dx / max);
-                    data.push(dy / max);
-                    data.push(dz / max);
+                    
+                    let dx = (dx - min) / (max - min);
+                    let dy = (dy - min) / (max - min);
+                    let dz = (dz - min) / (max - min);
+
+                    //data.push(if dy > 0.01 {dy} else {0.0});
+                    //data.push(if dx > 0.01 {dx} else {0.0});
+                    //data.push(if dz > 0.01 {dz} else {0.0});
+                    data.push(dx);
+                    data.push(dy);
+                    data.push(dz);
                     data.push(1.0);
                 }
             }

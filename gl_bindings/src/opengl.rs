@@ -29,6 +29,7 @@ pub type GLBuffer = u32;
 pub type GLVertexArray = u32;
 pub type GLUint = u32;
 pub type GLTexture = u32;
+pub type GLFrameBuffer = u32;
 
 lazy_static! {
     static ref CONTEXT: Context = GLContext::new();
@@ -92,6 +93,7 @@ impl AbstractContext for GLContext {
     const TEXTURE_3D: u32 = gl::TEXTURE_3D;
     const UNSIGNED_BYTE: u32 = gl::UNSIGNED_BYTE;
     const RGBA: u32 = gl::RGBA;
+    const RGBA32F: u32 = gl::RGBA16F;
     const LUMINANCE: u32 = gl::RED;
     const TEXTURE0: u32 = gl::TEXTURE0;
     const TEXTURE_WRAP_S: u32 = gl::TEXTURE_WRAP_S;
@@ -105,6 +107,8 @@ impl AbstractContext for GLContext {
     const FRONT_AND_BACK: u32 = gl::FRONT_AND_BACK;
     const DEPTH_TEST: u32 = gl::DEPTH_TEST;
     const UNSIGNED_INT: u32 = gl::UNSIGNED_INT;
+    const FRAMEBUFFER: u32 = gl::FRAMEBUFFER;
+    const COLOR_ATTACHMENT0: u32 = gl::COLOR_ATTACHMENT0;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -240,6 +244,28 @@ impl AbstractContext for GLContext {
         unsafe {
             gl::DeleteBuffers(1, buffer);
         }
+    }
+
+    fn create_framebuffer(&self) -> Option<GLFrameBuffer> {
+        let mut fbo = 0;
+        unsafe { gl::GenFramebuffers(1, &mut fbo) };
+        Some(fbo)
+    }
+
+    fn bind_framebuffer(&self, target: GLEnum, framebuffer: Option<&GLFrameBuffer>) {
+        unsafe { gl::BindFramebuffer(target, *framebuffer.unwrap_or(&0)) }
+    }
+
+    fn delete_framebuffer(&self, framebuffer: &GLFrameBuffer) {
+        unsafe { gl::DeleteFramebuffers(1, framebuffer) }
+    }
+
+    fn framebuffer_texture2d(&self, target: GLEnum, attachment: GLEnum, textarget: GLEnum, texture: &GLTexture, level: i32) {
+        unsafe { gl::FramebufferTexture2D(target, attachment, textarget, *texture, level) }
+    }
+    
+    fn framebuffer_texture_layer(&self, target: GLEnum, attachment: GLEnum, texture: &GLTexture, level: i32, layer: i32) {
+        unsafe {gl::FramebufferTextureLayer(target, attachment, *texture, level, layer)}
     }
 
     fn get_attrib_location(&self, program: &Program, name: &str) -> GLUint {

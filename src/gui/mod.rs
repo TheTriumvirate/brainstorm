@@ -156,8 +156,8 @@ impl Gui {
                 margin_vertical: 360,
                 margin_horizontal:285,
             },
-            50,
-            0.5,
+            800,
+            0.0,
             screensize,
             Box::new(|ref mut context, value| {
                 context.texture_idx = value;

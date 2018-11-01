@@ -29,6 +29,7 @@ pub mod shaders;
 mod context;
 mod buffer;
 mod texture;
+mod framebuffer;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub use opengl::GLContext as Context;
@@ -37,8 +38,10 @@ pub use webgl::WebGLContext as Context;
 
 pub use context::Buffer as NativeBuffer;
 pub use context::Texture as NativeTexture;
+pub use context::FrameBuffer as NativeFrameBuffer;
 pub use context::{Program, Shader, AbstractContext, GlPrimitive, UniformLocation};
 pub use buffer::Buffer;
 pub use buffer::BufferType;
 pub use texture::Texture;
 pub use texture::TextureFormat;
+pub use framebuffer::FrameBuffer;

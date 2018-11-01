@@ -25,8 +25,7 @@ fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
     context.uniform_matrix_4fv(&mvp_uniform, 1, false, &mvp); // FIXME: use shader function isntead!
 
     if let Some(texture) = &states.texture {
-        texture.bind();
-        texture.activate(Some(shader));
+        texture.activate(Some(shader), 0, "uSampler");
     }
 }
 
