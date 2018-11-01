@@ -71,6 +71,8 @@ pub struct State {
     particle_size: f32,
     particle_respawn_per_tick: u32,
     texture_idx: f32,
+    window_w: f32,
+    window_h: f32,
 }
 
 impl State {
@@ -88,7 +90,9 @@ impl State {
             mesh_transparency: 0.1,
             particle_size: 8.0,
             particle_respawn_per_tick: 1000,
-            texture_idx: 0.0
+            texture_idx: 0.0,
+            window_w: 0.0,
+            window_h: 0.0,
         }
     }
 }
@@ -156,7 +160,11 @@ impl App {
         // Handle events
         for event in &self.window.get_events() {
             match event {
-                Event::Resized(w, h) => self.window.set_size(*w as u32, *h as u32),
+                Event::Resized(w, h) => {
+                    self.state.window_w = *w;
+                    self.state.window_h = *h;
+                    self.window.set_size(*w as u32, *h as u32)
+                },
                 _ => {}
             };
             let consumed = self.gui
@@ -199,7 +207,7 @@ impl App {
         //self.circle3.draw_transformed(&projection_matrix);
 
         Context::get_context().disable(Context::DEPTH_TEST);
-        self.gpu_particles.update(&self.gpu_field);
+        self.gpu_particles.update(&self.gpu_field, self.state.window_w, self.state.window_h);
         Context::get_context().enable(Context::DEPTH_TEST);
         self.particles.draw(&projection_matrix, &self.state);
         self.gpu_particles.draw_transformed(&projection_matrix);

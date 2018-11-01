@@ -98,7 +98,7 @@ impl GPUParticleEngine {
         }
     }
 
-    pub fn update(&mut self, field_provider: &GPUFieldProvider) {
+    pub fn update(&mut self, field_provider: &GPUFieldProvider, window_w: f32, window_h: f32) {
         self.timer += 0.1;
         //if self.timer < 1.0 {
         //    return;
@@ -121,7 +121,7 @@ impl GPUParticleEngine {
         render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), &Matrix4::<f32>::identity());
         self.framebuffer.unbind();
         // TODO: Resize to window size...
-        Context::get_context().viewport(0, 0, 1024, 1024);
+        Context::get_context().viewport(0, 0, window_w as i32, window_h as i32);
         self.update = false;
     }
 }
