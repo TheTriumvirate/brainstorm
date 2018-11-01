@@ -9,7 +9,7 @@ use std::rc::Rc;
 use na::Matrix4;
 
 use State;
-use camera::{Camera, ArcBall};
+use camera::{ArcBall};
 
 use rand::{FromEntropy, Rng};
 use rand::rngs::SmallRng;
@@ -124,7 +124,7 @@ impl GPUParticleEngine {
         Context::get_context().viewport(0, 0, TEXTURESIZE as i32, TEXTURESIZE as i32);
         let len = self.vertices.len() as i32 / 2;
         self.framebuffer.bind();
-        field_provider.get(0).activate(Some(&self.update_shader), 1, "uData");
+        field_provider.get_texture().activate(Some(&self.update_shader), 1, "uData");
         self.noise.activate(Some(&self.update_shader), 2, "uNoise");
         render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), &Matrix4::<f32>::identity());
         self.framebuffer.unbind();

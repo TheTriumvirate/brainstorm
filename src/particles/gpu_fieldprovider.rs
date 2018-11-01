@@ -15,13 +15,12 @@ struct VectorField {
 }
 
 pub struct GPUFieldProvider {
-    textures: Vec<Rc<Texture>>,
+    texture: Rc<Texture>,
     size: usize
 }
 
 impl GPUFieldProvider {
     pub fn new(raw_data: &[u8]) -> Self {
-        let mut textures = Vec::new();
         let x: VectorField = deserialize(raw_data).expect("Failed to deserialize data.");
         
         let mut max : f32 = 0.0;
@@ -63,9 +62,8 @@ impl GPUFieldProvider {
                 }
             }
         }
-        textures.push(Rc::new(Texture::from_3d_data(x.width as u32, x.height as u32, x.depth as u32, TextureFormat::RGBA, &data[..])));
         GPUFieldProvider {
-            textures,
+            texture: Rc::new(Texture::from_3d_data(x.width as u32, x.height as u32, x.depth as u32, TextureFormat::RGBA, &data[..])),
             size: x.depth,
         }
     }
@@ -74,7 +72,7 @@ impl GPUFieldProvider {
         self.size
     }
 
-    pub fn get(&self, index: usize) -> Rc<Texture> {
-        self.textures[0].clone()
+    pub fn get_texture(&self) -> Rc<Texture> {
+        self.texture.clone()
     }
 }

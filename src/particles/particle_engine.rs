@@ -11,10 +11,6 @@ use State;
 use camera::{Camera, ArcBall};
 
 use resources::shaders::{PARTICLES_VERTEX_SHADER, PARTICLES_FRAGMENT_SHADER};
-use graphics::Drawable;
-
-use particles::MarchingCubes;
-use particles::Streamlines;
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -37,9 +33,7 @@ pub struct ParticleEngine {
     alive_count: usize,
     max_dist: f32,
     max_camera_dist: f32,
-    min_camera_dist: f32,
-    march: MarchingCubes,
-    streamlines: Streamlines,
+    min_camera_dist: f32
 }
 
 impl ParticleEngine {
@@ -87,9 +81,6 @@ impl ParticleEngine {
             let dist = ((dx*fa).powf(2.0) + (dy*fa).powf(2.0) + (dz*fa).powf(2.0)).sqrt();
             max_dist = max_dist.max(dist);
         }
-        
-        let march = MarchingCubes::marching_cubes(&field_provider);
-        let streamlines = Streamlines::new();
 
         ParticleEngine {
             particles,
@@ -102,8 +93,6 @@ impl ParticleEngine {
             max_dist,
             max_camera_dist: 0.0,
             min_camera_dist: 0.0,
-            march,
-            streamlines,
         }
     }
 
@@ -114,15 +103,12 @@ impl ParticleEngine {
         let (cx, cy, cz) = camera.get_position();
         let (tx, ty, tz) = camera.get_target();
 
-        self.march.set_light_dir((cx, cy, cz));
 
         self.max_camera_dist = 0.0;
         self.min_camera_dist = f32::MAX;
         let radius = state.seeding_size * 0.6 + 0.01;
 
         let speed_multiplier = 0.016 * state.speed_multiplier;
-
-        self.streamlines.draw_streamlines(speed_multiplier, state.lifetime as i32, radius, &self.field_provider, camera.get_target());
         
         let mut respawned = 0;
         
@@ -219,15 +205,10 @@ impl ParticleEngine {
         if state.mesh_transparency < 1.0 {
             Context::get_context().depth_mask(false);
         }
-        self.march.set_transparency(state.mesh_transparency);
-        self.march.draw_transformed(projection_matrix);
         
         if state.mesh_transparency < 1.0 {
             Context::get_context().depth_mask(true);
         }
-        /*Context::get_context().disable(Context::DEPTH_TEST);        
-        self.streamlines.draw_transformed(projection_matrix);
-        Context::get_context().enable(Context::DEPTH_TEST);*/
 
     }
 }

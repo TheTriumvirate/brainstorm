@@ -36,6 +36,7 @@ use window::{AbstractWindow, Window, Event};
 
 use particles::gpu_fieldprovider::GPUFieldProvider;
 use particles::gpu_particles::GPUParticleEngine;
+use particles::{MarchingCubes, Streamlines};
 
 pub const WINDOW_WIDTH : u32 = 1000;
 pub const WINDOW_HEIGHT : u32 = 1000;
@@ -55,6 +56,8 @@ pub struct App {
     gpu_field: GPUFieldProvider,
     test: Rectangle,
     gpu_particles: GPUParticleEngine,
+    march: MarchingCubes,
+    streamlines: Streamlines,
 }
 
 /// Holds application state.
@@ -110,17 +113,17 @@ impl App {
     /// Expects a file path for non-web compile targets.
     pub fn new(path: Option<PathBuf>) -> App {
         #[allow(unused_assignments)]
-        let mut particles = None;
-        let mut fieldTest = None;
+        let mut field_provider = None;
+        #[allow(unused_assignments)]
+        let mut gpu_field = None;
         let window = Window::new("Brainstorm!", WINDOW_WIDTH, WINDOW_HEIGHT);
 
         // For web we embed the data in the executable.
         #[cfg(target_arch = "wasm32")]
         {
             stdweb::initialize();
-            let field_provider = FieldProvider::new(resources::fields::TEST_DATA);
-            particles = Some(ParticleEngine::new(field_provider));
-            fieldTest = Some(GPUFieldProvider::new(resources::fields::TEST_DATA))
+            field_provider = Some(FieldProvider::new(resources::fields::TEST_DATA));
+            gpu_field = Some(GPUFieldProvider::new(resources::fields::TEST_DATA))
         }
         // For desktop we load a file.
         #[cfg(not(target_arch = "wasm32"))]
@@ -129,10 +132,16 @@ impl App {
             let mut file = std::fs::File::open(path).expect("Failed to open file!");
             let mut content = Vec::new();
             file.read_to_end(&mut content).expect("Failed to read file!");
-            let field_provider = FieldProvider::new(&content);
-            particles = Some(ParticleEngine::new(field_provider));
-            fieldTest = Some(GPUFieldProvider::new(&content))
+            field_provider = Some(FieldProvider::new(&content));
+            gpu_field = Some(GPUFieldProvider::new(&content))
         }
+
+        let field_provider = field_provider.unwrap();
+        let march = MarchingCubes::marching_cubes(&field_provider);
+        let particles = Some(ParticleEngine::new(field_provider));
+        
+        let streamlines = Streamlines::new();
+
         App {
             window,
             particles: particles.unwrap(),
@@ -144,7 +153,7 @@ impl App {
             circle2: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 1.0, 0.0), false),
             circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
             bound: Cube::new((-0.5, -0.5, -0.5), (1.0,1.0,1.0), (1.0,1.0,1.0)),
-            gpu_field: fieldTest.unwrap(),
+            gpu_field: gpu_field.unwrap(),
             test: Rectangle::new(position::Coordinates {
                 x1:  0.5,
                 x2:  1.0,
@@ -152,6 +161,8 @@ impl App {
                 y2:  1.0,
             }, (0.0, 0.0, 0.0)),
             gpu_particles: GPUParticleEngine::new(),
+            march,
+            streamlines,
         }
     }
 
@@ -180,6 +191,12 @@ impl App {
         // Update camera and particle system
         self.camera.update();
         
+        let (cx, cy, cz) = self.camera.get_position();
+        self.march.set_light_dir((cx, cy, cz));
+
+        let radius = self.state.seeding_size * 0.6 + 0.01;
+        let speed_multiplier = 0.016 * self.state.speed_multiplier;
+        //self.streamlines.draw_streamlines(speed_multiplier, self.state.lifetime as i32, radius, &self.field_provider, self.camera.get_target());
 
         // Clear screen
         context.clear_color(0.0, 0.0, 0.0, 1.0);
@@ -218,13 +235,24 @@ impl App {
             self.particles.update(&self.state, &mut self.camera);
             self.particles.draw(&projection_matrix, &self.state);
         }
+        
+        if self.state.mesh_transparency < 1.0 {
+            Context::get_context().depth_mask(false);
+        }
+
+        self.march.set_transparency(self.state.mesh_transparency);
+        self.march.draw_transformed(&projection_matrix);
+        
+        if self.state.mesh_transparency < 1.0 {
+            Context::get_context().depth_mask(true);
+        }
 
         Context::get_context().disable(Context::DEPTH_TEST);
 
+        //self.streamlines.draw_transformed(projection_matrix);
         
         self.gui.draw();
 
-        let len = self.gpu_field.len();
         //self.test.set_texture(Some(self.gpu_field.get(0)));
         self.test.set_texture(self.gpu_particles.get_texture());
         let layer = self.gpu_particles.get_layer();
