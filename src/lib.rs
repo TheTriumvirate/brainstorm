@@ -167,6 +167,7 @@ impl App {
                 file.read_to_end(&mut content).expect("Failed to read file!");
                 let field_provider = FieldProvider::new(&content);
                 self.particles = ParticleEngine::new(field_provider);
+                self.state.reload_file = false;
             }
         }
 
