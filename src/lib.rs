@@ -213,7 +213,6 @@ impl App {
         //self.test.set_texture(self.gpu_particles.get_texture());
         OurShader::default().uniform1i("u_layer", (self.state.texture_idx * 15.0) as i32);
         OurShader::default().uniform1f("u_percentage", self.state.texture_idx);
-        //self.test.set_texture(self.gpu_particles.get_texture());
         self.test.draw();
         OurShader::default().uniform1f("u_percentage", 0.0);
 

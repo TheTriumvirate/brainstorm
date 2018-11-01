@@ -11,7 +11,7 @@ use na::Matrix4;
 use rand::{FromEntropy, Rng};
 use rand::rngs::SmallRng;
 
-const TEXTURESIZE: usize = 1024;
+const TEXTURESIZE: usize = 512;
 const MAXSTREAMLETSIZE: usize = 16;
 
 pub struct GPUParticleEngine {
@@ -99,7 +99,7 @@ impl GPUParticleEngine {
     }
 
     pub fn update(&mut self, field_provider: &GPUFieldProvider) {
-        self.timer += 0.01;
+        self.timer += 0.1;
         //if self.timer < 1.0 {
         //    return;
         //}
@@ -113,13 +113,15 @@ impl GPUParticleEngine {
         
         self.timer = 0.0;
         self.update = true;
-        Context::get_context().viewport(0, 0, 1024, 1024);
+        Context::get_context().viewport(0, 0, TEXTURESIZE as i32, TEXTURESIZE as i32);
         let len = self.vertices.len() as i32 / 2;
         self.framebuffer.bind();
         field_provider.get(0).activate(Some(&self.update_shader), 1, "uData");
         self.noise.activate(Some(&self.update_shader), 2, "uNoise");
         render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), &Matrix4::<f32>::identity());
         self.framebuffer.unbind();
+        // TODO: Resize to window size...
+        Context::get_context().viewport(0, 0, 1024, 1024);
         self.update = false;
     }
 }
