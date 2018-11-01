@@ -61,7 +61,7 @@ impl FieldProvider {
     }
 
     pub fn get(&self, x: usize, y: usize, z: usize) -> (f32, f32, f32, f32) {
-        self.data[z + y * self.width + x * self.width * self.height]
+        self.data[x + y * self.width + z * self.width * self.height]
     }
 
     pub fn new(raw_data: &[u8]) -> Self {
