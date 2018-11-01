@@ -14,7 +14,7 @@ use camera::{Camera, ArcBall};
 use rand::{FromEntropy, Rng};
 use rand::rngs::SmallRng;
 
-const TEXTURESIZE: usize = 512;
+const TEXTURESIZE: usize = 1024;
 const MAXSTREAMLETSIZE: usize = 16;
 
 pub struct GPUParticleEngine {
@@ -41,9 +41,6 @@ impl GPUParticleEngine {
                     data.push(rng.gen_range::<f32>(0.0, 1.0));
                     data.push(rng.gen_range::<f32>(0.0, 1.0));
                     data.push(rng.gen_range::<f32>(0.0, 1.0));
-                    //data.push(u as f32 / TEXTURESIZE as f32);
-                    //data.push(v as f32 / TEXTURESIZE as f32);
-                    //data.push(v as f32 / TEXTURESIZE as f32);
                     data.push(1.0);
                     if q == 0 {
                         particle_data.push(u as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
@@ -110,8 +107,8 @@ impl GPUParticleEngine {
         self.shader.uniform1f("u_size", TEXTURESIZE as f32);
 
         self.update_shader.uniform1f("u_speed", state.speed_multiplier * 0.016);
-        self.update_shader.uniform1f("u_lowpass", state.highpass_filter);
-        self.update_shader.uniform1f("u_highpass", state.lowpass_filter);
+        self.update_shader.uniform1f("u_lowpass", state.lowpass_filter);
+        self.update_shader.uniform1f("u_highpass", state.highpass_filter);
         self.update_shader.uniform1f("u_seedsize", state.seeding_size * 0.6 + 0.01);
 
         let (cx, cy, cz) = camera.get_target();
