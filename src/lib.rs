@@ -73,6 +73,7 @@ pub struct State {
     texture_idx: f32,
     window_w: f32,
     window_h: f32,
+    use_gpu_particles: bool,
 }
 
 impl State {
@@ -93,6 +94,7 @@ impl State {
             texture_idx: 0.0,
             window_w: 0.0,
             window_h: 0.0,
+            use_gpu_particles: false,
         }
     }
 }
@@ -177,7 +179,7 @@ impl App {
 
         // Update camera and particle system
         self.camera.update();
-        //self.particles.update(&self.state, &mut self.camera);
+        
 
         // Clear screen
         context.clear_color(0.0, 0.0, 0.0, 1.0);
@@ -206,11 +208,17 @@ impl App {
         self.circle2.draw_transformed(&projection_matrix);
         self.circle3.draw_transformed(&projection_matrix);
 
-        Context::get_context().disable(Context::DEPTH_TEST);
-        self.gpu_particles.update(&self.gpu_field, &self.state, &self.camera);
-        Context::get_context().enable(Context::DEPTH_TEST);
-        self.particles.draw(&projection_matrix, &self.state);
-        self.gpu_particles.draw_transformed(&projection_matrix);
+
+        if self.state.use_gpu_particles {
+            Context::get_context().disable(Context::DEPTH_TEST);
+            self.gpu_particles.update(&self.gpu_field, &self.state, &self.camera);
+            Context::get_context().enable(Context::DEPTH_TEST);
+            self.gpu_particles.draw_transformed(&projection_matrix);
+        } else {
+            self.particles.update(&self.state, &mut self.camera);
+            self.particles.draw(&projection_matrix, &self.state);
+        }
+
         Context::get_context().disable(Context::DEPTH_TEST);
 
         

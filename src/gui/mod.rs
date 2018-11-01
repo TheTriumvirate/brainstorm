@@ -299,6 +299,35 @@ impl Gui {
             Box::new(|ref mut _context, _toggle_state| {}),
         );
 
+        ui_elements.push(Box::new(Button::new(
+            position::Absolute {
+                height: 40,
+                width: 120,
+                anchor: position::WindowCorner::BotLeft,
+                margin_vertical: 120,
+                margin_horizontal: 40,
+            },
+            (0.44, 0.5, 0.56),
+            screensize,
+            true,
+            Box::new(|ref mut context, toggle_state| {
+                context.use_gpu_particles = toggle_state
+            }),
+        )));
+
+        ui_elements.push(Box::new(Label::new(
+            position::Absolute {
+                height: 40,
+                width: 120,
+                anchor: position::WindowCorner::BotLeft,
+                margin_vertical: 120,
+                margin_horizontal: 60,
+            },
+            screensize,
+            "Toggle Particles".to_owned(),
+            font.clone(),
+        )));
+
         Gui { ui_elements, ui_visible_button, ui_visible_label }
     }
 
