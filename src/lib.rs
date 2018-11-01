@@ -188,26 +188,26 @@ impl App {
         Context::get_context().enable(Context::DEPTH_TEST);
         let projection_matrix = self.camera.get_projection_matrix();
 
-        //self.circle1.set_color(1.0, 0.0, 0.0);
-        //self.circle2.set_color(0.0, 1.0, 0.0);
-        //self.circle3.set_color(0.0, 0.0, 1.0);
-        //self.circle1.set_radius(self.state.seeding_size * 0.6 + 0.01);
-        //self.circle2.set_radius(self.state.seeding_size * 0.6 + 0.01);
-        //self.circle3.set_radius(self.state.seeding_size * 0.6 + 0.01);
-        //self.circle1.set_center(self.camera.get_target());
-        //self.circle2.set_center(self.camera.get_target());
-        //self.circle3.set_center(self.camera.get_target());
-        //self.circle1.rebuild_data();
-        //self.circle2.rebuild_data();
-        //self.circle3.rebuild_data();
-//
-        //self.bound.draw_transformed(&projection_matrix);
-        //self.circle1.draw_transformed(&projection_matrix);
-        //self.circle2.draw_transformed(&projection_matrix);
-        //self.circle3.draw_transformed(&projection_matrix);
+        self.circle1.set_color(1.0, 0.0, 0.0);
+        self.circle2.set_color(0.0, 1.0, 0.0);
+        self.circle3.set_color(0.0, 0.0, 1.0);
+        self.circle1.set_radius(self.state.seeding_size * 0.6 + 0.01);
+        self.circle2.set_radius(self.state.seeding_size * 0.6 + 0.01);
+        self.circle3.set_radius(self.state.seeding_size * 0.6 + 0.01);
+        self.circle1.set_center(self.camera.get_target());
+        self.circle2.set_center(self.camera.get_target());
+        self.circle3.set_center(self.camera.get_target());
+        self.circle1.rebuild_data();
+        self.circle2.rebuild_data();
+        self.circle3.rebuild_data();
+
+        self.bound.draw_transformed(&projection_matrix);
+        self.circle1.draw_transformed(&projection_matrix);
+        self.circle2.draw_transformed(&projection_matrix);
+        self.circle3.draw_transformed(&projection_matrix);
 
         Context::get_context().disable(Context::DEPTH_TEST);
-        self.gpu_particles.update(&self.gpu_field, self.state.window_w, self.state.window_h);
+        self.gpu_particles.update(&self.gpu_field, &self.state, &self.camera);
         Context::get_context().enable(Context::DEPTH_TEST);
         self.particles.draw(&projection_matrix, &self.state);
         self.gpu_particles.draw_transformed(&projection_matrix);
@@ -219,7 +219,8 @@ impl App {
         let len = self.gpu_field.len();
         //self.test.set_texture(Some(self.gpu_field.get(0)));
         self.test.set_texture(self.gpu_particles.get_texture());
-        OurShader::default().uniform1i("u_layer", (self.state.texture_idx * 15.0) as i32);
+        let layer = self.gpu_particles.get_layer();
+        OurShader::default().uniform1i("u_layer", layer);
         OurShader::default().uniform1f("u_percentage", self.state.texture_idx);
         self.test.draw();
         OurShader::default().uniform1f("u_percentage", 0.0);

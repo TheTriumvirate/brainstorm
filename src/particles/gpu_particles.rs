@@ -8,6 +8,9 @@ use std::str;
 use std::rc::Rc;
 use na::Matrix4;
 
+use State;
+use camera::{Camera, ArcBall};
+
 use rand::{FromEntropy, Rng};
 use rand::rngs::SmallRng;
 
@@ -48,7 +51,7 @@ impl GPUParticleEngine {
                         noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
                         noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
                         noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
-                        noise_data.push(1.0);
+                        noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
                     }
                 }
             }
@@ -98,13 +101,21 @@ impl GPUParticleEngine {
         }
     }
 
-    pub fn update(&mut self, field_provider: &GPUFieldProvider, window_w: f32, window_h: f32) {
+    pub fn update(&mut self, field_provider: &GPUFieldProvider, state: &State, camera: &ArcBall) {
         self.timer += 0.1;
         //if self.timer < 1.0 {
         //    return;
         //}
         self.update_shader.uniform1f("u_size", TEXTURESIZE as f32);
         self.shader.uniform1f("u_size", TEXTURESIZE as f32);
+
+        self.update_shader.uniform1f("u_speed", state.speed_multiplier * 0.016);
+        self.update_shader.uniform1f("u_lowpass", state.highpass_filter);
+        self.update_shader.uniform1f("u_highpass", state.lowpass_filter);
+        self.update_shader.uniform1f("u_seedsize", state.seeding_size * 0.6 + 0.01);
+
+        let (cx, cy, cz) = camera.get_target();
+        self.update_shader.uniform3f("u_seedpos", cx / 2.0 + 0.5, cy / 2.0 + 0.5, cz / 2.0 + 0.5);
 
         self.update_shader.uniform1i("u_layer", (self.layer) as i32);
         self.layer = (self.layer + 1) % MAXSTREAMLETSIZE as i32;
@@ -121,8 +132,12 @@ impl GPUParticleEngine {
         render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), &Matrix4::<f32>::identity());
         self.framebuffer.unbind();
         // TODO: Resize to window size...
-        Context::get_context().viewport(0, 0, window_w as i32, window_h as i32);
+        Context::get_context().viewport(0, 0, state.window_w as i32, state.window_h as i32);
         self.update = false;
+    }
+
+    pub fn get_layer(&self) -> i32 {
+        self.layer
     }
 }
 
