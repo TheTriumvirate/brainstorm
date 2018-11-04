@@ -224,13 +224,15 @@ impl AbstractContext for GLContext {
     }
 
     fn buffer_data<T>(&self, target: GLEnum, data: &[T], usage: GLEnum) {
-        unsafe {
-            gl::BufferData(
-                target,
-                (data.len() * mem::size_of::<T>()) as GLsizeiptr,
-                mem::transmute(&data[0]),
-                usage,
-            );  
+        if data.len() != 0 {
+            unsafe {
+                gl::BufferData(
+                    target,
+                    (data.len() * mem::size_of::<T>()) as GLsizeiptr,
+                    mem::transmute(&data[0]),
+                    usage,
+                );  
+            }
         }
     }
 
