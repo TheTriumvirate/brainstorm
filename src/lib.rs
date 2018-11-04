@@ -124,7 +124,7 @@ impl App {
             } else {
                 Vec::from(resources::fields::DEFAULT_SPIRAL)
             };
-            let field_provider = FieldProvider::new(&content);
+            let field_provider = FieldProvider::new(&content).expect("Failed to parse data.");
             particles = Some(ParticleEngine::new(field_provider));
         }
         let mut state = State::new();
@@ -186,14 +186,14 @@ impl App {
             }
         }
 
-        if self.state.reload_file {
-            if let Some(ref path) = self.state.file_path {
-                let mut file = std::fs::File::open(path).expect("Failed to open file!");
-                let mut content = Vec::new();
-                file.read_to_end(&mut content).expect("Failed to read file!");
-                let field_provider = FieldProvider::new(&content);
-                self.particles = ParticleEngine::new(field_provider);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            if self.state.reload_file {
                 self.state.reload_file = false;
+                match self.reload_file() {
+                    Ok(particle_engine) => self.particles = particle_engine,
+                    Err(e) => eprintln!("Failed to load file: {}", e),
+                }
             }
         }
 
@@ -237,5 +237,13 @@ impl App {
 
         self.state.is_running
     }
-}
 
+    fn reload_file(&self) -> Result<ParticleEngine, &'static str> {
+        let path = self.state.file_path.as_ref().ok_or("No file path saved.")?;
+        let mut file = std::fs::File::open(path).map_err(|_| "Failed to open file.")?;
+        let mut content = Vec::new();
+        file.read_to_end(&mut content).map_err(|_| "Failed to read file.")?;
+        let field_provider = FieldProvider::new(&content).map_err(|_| "Failed to parse file.")?;
+        return Ok(ParticleEngine::new(field_provider));
+    }
+}

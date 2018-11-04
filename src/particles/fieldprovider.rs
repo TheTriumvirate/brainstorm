@@ -1,4 +1,3 @@
-use bincode::deserialize;
 use std::f32;
 
 type Vector4 = (f32, f32, f32, f32);
@@ -64,9 +63,9 @@ impl FieldProvider {
         self.data[z + y * self.width + x * self.width * self.height]
     }
 
-    pub fn new(raw_data: &[u8]) -> Self {
+    pub fn new(raw_data: &[u8]) -> Result<Self, Box<bincode::ErrorKind>> {
         let mut data = Vec::new();
-        let x: VectorField = deserialize(raw_data).expect("Failed to deserialize data.");
+        let x: VectorField = bincode::deserialize(raw_data)?;
         for plane in x.vectors {
             for row in plane {
                 for elem in row {
@@ -74,12 +73,12 @@ impl FieldProvider {
                 }
             }
         }
-        FieldProvider {
+        Ok(FieldProvider {
             width: x.width,
             height: x.height,
             depth: x.depth,
             data,
-        }
+        })
     }
 
     pub fn delta(&self, (x, y, z): (f32, f32, f32)) -> (f32, f32, f32, f32) {
