@@ -2,7 +2,9 @@
 
 #[cfg(not(target_arch = "wasm32"))]
 use nfd;
-use std::{cell::RefCell, path::PathBuf, rc::Rc};
+#[cfg(not(target_arch = "wasm32"))]
+use std::path::PathBuf;
+use std::{cell::RefCell, rc::Rc};
 
 use graphics::{position, Font};
 use super::{Button, Slider, StatusLabel, UiElement};

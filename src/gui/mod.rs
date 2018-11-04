@@ -118,6 +118,7 @@ impl Gui {
 impl Drawable for Gui {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         self.ui_visible_button.draw_transformed(view_matrix);
+        self.status.draw_transformed(view_matrix);
         if self.ui_visible_button.toggle_state() {
             for element in &self.ui_elements {
                 element.draw_transformed(view_matrix);

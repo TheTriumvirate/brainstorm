@@ -24,9 +24,10 @@ pub mod graphics;
 pub mod gui;
 pub mod particles;
 
-use std::path::PathBuf;
 use std::f32;
+#[cfg(not(target_arch = "wasm32"))]
 use std::io::Read;
+use std::path::PathBuf;
 
 use gl_bindings::{AbstractContext, Context};
 use graphics::{Drawable, Circle, Cube};
@@ -110,7 +111,8 @@ impl App {
         #[cfg(target_arch = "wasm32")]
         {
             stdweb::initialize();
-            let field_provider = FieldProvider::new(resources::fields::TEST_DATA);
+            let field_provider = FieldProvider::new(resources::fields::TEST_DATA)
+                .expect("Failed to parse built-in field data.");
             particles = Some(ParticleEngine::new(field_provider));
         }
         // For desktop we load a file if it exists.
@@ -162,39 +164,18 @@ impl App {
         }
 
         // Replace particle data if requested.
-        #[cfg(target_arch = "wasm32")]
-        {
-            let updated = match js!(return isUpdated();) {
+        #[cfg(target_arch = "wasm32")] {
+            self.state.reload_file = match js!(return isUpdated();) {
                 stdweb::Value::Bool(b) => b,
-                a => panic!("Unknown isUpdated return type"),
+                _ => panic!("Unknown isUpdated return type"),
             };
-            if updated {
-                match js!(return getData();).into_string() {
-                    Some(b64) => {
-                        let pos = b64.find(",").map(|i| i + 1).unwrap_or(0);
-                        let b64 = b64.split_at(pos).1;
-                        match base64::decode(b64) {
-                            Ok(data) => {
-                                let field_provider = FieldProvider::new(&data);
-                                self.particles = ParticleEngine::new(field_provider);
-                            }
-                            Err(e) =>
-                                self.gui.status.set_status("Failed to decode base64 content.".to_owned()),
-                        }
-                    }
-                    None => self.gui.status.set_status("Failed to get string from JS.".to_owned()),
-                }
-            }
         }
 
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            if self.state.reload_file {
-                self.state.reload_file = false;
-                match self.reload_file() {
-                    Ok(particle_engine) => self.particles = particle_engine,
-                    Err(e) => self.gui.status.set_status(format!("Failed to load file: {}", e)),
-                }
+        if self.state.reload_file {
+            self.state.reload_file = false;
+            match self.reload_file() {
+                Ok(particle_engine) => self.particles = particle_engine,
+                Err(e) => self.gui.status.set_status(format!("Failed to load file: {}", e)),
             }
         }
 
@@ -239,12 +220,23 @@ impl App {
         self.state.is_running
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     fn reload_file(&self) -> Result<ParticleEngine, &'static str> {
         let path = self.state.file_path.as_ref().ok_or("No file path saved.")?;
         let mut file = std::fs::File::open(path).map_err(|_| "Failed to open file.")?;
         let mut content = Vec::new();
         file.read_to_end(&mut content).map_err(|_| "Failed to read file.")?;
         let field_provider = FieldProvider::new(&content).map_err(|_| "Failed to parse file.")?;
-        return Ok(ParticleEngine::new(field_provider));
+        Ok(ParticleEngine::new(field_provider))
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    fn reload_file(&self) -> Result<ParticleEngine, &'static str> {
+        let content = js!(return getData();).into_string().ok_or("Failed to get data from JS")?;
+        let pos = content.find(",").map(|i| i + 1).unwrap_or(0);
+        let b64 = content.split_at(pos).1;
+        let data = base64::decode(b64).map_err(|_| "Failed to decode base64 content")?;
+        let field_provider = FieldProvider::new(&data).map_err(|_| "Failed to parse data")?;
+        Ok(ParticleEngine::new(field_provider))
     }
 }
