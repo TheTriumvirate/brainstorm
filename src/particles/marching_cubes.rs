@@ -43,7 +43,7 @@ impl MarchingCubes {
     pub fn marching_cubes(field: &FieldProvider) -> MarchingCubes {
         let mut vertices = Buffer::<f32>::new(BufferType::Array);
     
-        const EPSILON: f32 = 0.0; // NOTE: 0.1 to reduce noise in data.
+        const EPSILON: f32 = 0.1; // NOTE: 0.1 to reduce noise in data.
         const S : usize = 1; // step size
 
         let mut verts: [Vector3; 12] = [(0.0,0.0,0.0); 12];
