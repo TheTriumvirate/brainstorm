@@ -3,6 +3,7 @@
 mod button;
 mod label;
 mod slider;
+mod status_label;
 mod ui_element;
 mod ui_definitions;
 
@@ -14,10 +15,17 @@ use window::{ModifierKeys, MouseButton, Event, Key};
 use State;
 use na::Matrix4;
 
-use self::{button::Button, label::Label, slider::Slider, ui_element::UiElement};
+use self::{
+    button::Button,
+    label::Label,
+    slider::Slider,
+    status_label::StatusLabel,
+    ui_element::UiElement
+};
 
 /// Represents the GUI for the application.
 pub struct Gui {
+    pub status: StatusLabel,
     pub ui_visible_button: Button,
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
 }
@@ -41,7 +49,8 @@ impl Gui {
         ];
         
         let ui_visible_button = ui_definitions::toggle_ui(screensize, font.clone());
-        Gui { ui_elements, ui_visible_button }
+        let status = ui_definitions::status_label(screensize, font.clone());
+        Gui { status, ui_elements, ui_visible_button }
     }
 
     /// Handles events from the window, mutating application state as needed.

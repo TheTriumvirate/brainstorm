@@ -14,6 +14,9 @@ pub struct Text<'a> {
     font: Rc<RefCell<Font<'a>>>,
     vertices: Buffer<f32>,
     indices: Buffer<u16>,
+    x: f32,
+    y: f32,
+    screen_size: (f32, f32),
 }
 
 impl<'a> Drawable for Text<'a> {
@@ -34,20 +37,20 @@ impl<'a> Drawable for Text<'a> {
 
 impl<'a> Text<'a> {
     pub fn new(text: String, font: Rc<RefCell<Font<'a>>>, x: f32, y: f32, screen_size: (f32, f32)) -> Self {
-        let vertices: Buffer<f32> = Buffer::new(BufferType::Array);
-        let indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
+        let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
+        let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
-        let mut t = Text {
+        let font = font.clone();
+        font.borrow_mut().update_texture(&text, x, y, &mut vertices, &mut indices, screen_size);
+        Text {
             text,
-            font: font.clone(),
+            font,
             vertices,
             indices,
-        };
-
-        t.font
-            .borrow_mut()
-            .update_texture(&t.text, x, y, &mut t.vertices, &mut t.indices, screen_size);
-        t
+            x,
+            y,
+            screen_size,
+        }
     }
 
     // TODO: DIRTY
@@ -58,7 +61,19 @@ impl<'a> Text<'a> {
             y,
             &mut self.vertices,
             &mut self.indices,
-            screen_size
+            screen_size,
+        );
+    }
+
+    pub fn set_text(&mut self, text: String) {
+        self.text = text;
+        self.font.borrow_mut().update_texture(
+            &self.text,
+            self.x,
+            self.y,
+            &mut self.vertices,
+            &mut self.indices,
+            self.screen_size,
         );
     }
 }

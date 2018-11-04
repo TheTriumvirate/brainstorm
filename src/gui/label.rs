@@ -25,6 +25,10 @@ impl<'a> Label<'a> {
             text: Text::new(text, font, coords.x1, coords.y1, screensize),
         }
     }
+
+    pub fn set_text(&mut self, text: String) {
+        self.text.set_text(text);
+    }
 }
 
 impl<'a> UiElement for Label<'a> {

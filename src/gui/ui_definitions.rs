@@ -5,7 +5,7 @@ use nfd;
 use std::{cell::RefCell, path::PathBuf, rc::Rc};
 
 use graphics::{position, Font};
-use super::{Button, Slider, UiElement};
+use super::{Button, Slider, StatusLabel, UiElement};
 
 /// A slider acting as a low-pass filter.
 pub fn lowpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
@@ -240,6 +240,21 @@ pub fn toggle_ui(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Bu
         true,
         Box::new(|ref mut _context, _toggle_state| {}),
         "     Toggle UI".to_owned(),
+        font.clone(),
+    )
+}
+
+/// A label with additional methods for displaying statuses.
+pub fn status_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> StatusLabel {
+    StatusLabel::new(
+        position::Absolute {
+            height: 0,
+            width: 0,
+            anchor: position::WindowCorner::BotLeft,
+            margin_vertical: 10,
+            margin_horizontal: 10,
+        },
+        screensize,
         font.clone(),
     )
 }

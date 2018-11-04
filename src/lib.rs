@@ -178,10 +178,11 @@ impl App {
                                 let field_provider = FieldProvider::new(&data);
                                 self.particles = ParticleEngine::new(field_provider);
                             }
-                            Err(e) => { js!(console.log("Failed to decode base64 content.")); },
+                            Err(e) =>
+                                self.gui.status.set_status("Failed to decode base64 content.".to_owned()),
                         }
                     }
-                    None => { js!(console.log("Failed to get string from JS.")); },
+                    None => self.gui.status.set_status("Failed to get string from JS.".to_owned()),
                 }
             }
         }
@@ -192,7 +193,7 @@ impl App {
                 self.state.reload_file = false;
                 match self.reload_file() {
                     Ok(particle_engine) => self.particles = particle_engine,
-                    Err(e) => eprintln!("Failed to load file: {}", e),
+                    Err(e) => self.gui.status.set_status(format!("Failed to load file: {}", e)),
                 }
             }
         }
