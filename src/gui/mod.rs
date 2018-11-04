@@ -59,6 +59,7 @@ impl Gui {
         match event {
             Event::Resized(x, y) => {
                 self.ui_visible_button.resize((*x, *y));
+                self.status.resize((*x, *y));
                 for element in &mut self.ui_elements {
                     element.resize((*x, *y));
                 }
