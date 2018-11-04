@@ -4,23 +4,20 @@ mod button;
 mod label;
 mod slider;
 mod ui_element;
+mod ui_definitions;
 
-use std::{cell::RefCell, path::PathBuf, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
-use graphics::{position, Drawable, Font};
+use graphics::{Drawable, Font};
 use resources::fonts;
 use window::{ModifierKeys, MouseButton, Event, Key};
 use State;
 use na::Matrix4;
 
-#[cfg(not(target_arch = "wasm32"))]
-use nfd;
-
 use self::{button::Button, label::Label, slider::Slider, ui_element::UiElement};
 
 /// Represents the GUI for the application.
 pub struct Gui {
-    pub ui_visible_label: Box<ui_element::UiElement>,
     pub ui_visible_button: Button,
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
 }
@@ -30,314 +27,21 @@ impl Gui {
     pub fn new(screensize: (f32, f32)) -> Self {
         let font = Rc::from(RefCell::from(Font::from_bytes(fonts::DEFAULT)));
 
-        let mut ui_elements: Vec<Box<ui_element::UiElement>> = Vec::new();
-        ui_elements.push(Box::new(Slider::new(
-            position::Absolute {
-                height: 40,
-                width: 225,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 40,
-                margin_horizontal: 40,
-            },
-            20,
-            1.0,
-            screensize,
-            Box::new(|ref mut context, value| {
-                context.lowpass_filter = value;
-            }),
-        )));
-        ui_elements.push(Box::new(Slider::new(
-            position::Absolute {
-                height: 40,
-                width: 225,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 120,
-                margin_horizontal: 40,
-            },
-            20,
-            0.0,
-            screensize,
-            Box::new(|ref mut context, value| {
-                context.highpass_filter = value;
-            }),
-        )));
-        ui_elements.push(Box::new(Slider::new(
-            position::Absolute {
-                height: 40,
-                width: 225,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 40,
-                margin_horizontal: 285,
-            },
-            10,
-            0.5,
-            screensize,
-            Box::new(|ref mut context, value| {
-                context.speed_multiplier = value;
-            }),
-        )));
-        ui_elements.push(Box::new(Slider::new(
-            position::Absolute {
-                height: 40,
-                width: 225,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 120,
-                margin_horizontal: 285,
-            },
-            80,
-            1.0,
-            screensize,
-            Box::new(|ref mut context, value| {
-                context.seeding_size = value;
-            }),
-        )));
-        ui_elements.push(Box::new(Slider::new(
-            position::Absolute {
-                height: 40,
-                width: 225,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 200,
-                margin_horizontal: 40,
-            },
-            80,
-            0.2,
-            screensize,
-            Box::new(|ref mut context, value| {
-                context.lifetime = value * 500.0;
-            }),
-        )));
-        ui_elements.push(Box::new(Slider::new(
-            position::Absolute {
-                height: 40,
-                width: 225,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 200,
-                margin_horizontal: 285,
-            },
-            50,
-            0.1,
-            screensize,
-            Box::new(|ref mut context, value| {
-                context.mesh_transparency = value;
-            }),
-        )));
-        ui_elements.push(Box::new(Slider::new(
-            position::Absolute {
-                height: 40,
-                width: 225,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 280,
-                margin_horizontal: 40,
-            },
-            20,
-            0.5,
-            screensize,
-            Box::new(|ref mut context, value| {
-                context.particle_size = value * 16.0;
-            }),
-        )));
-        ui_elements.push(Box::new(Slider::new(
-            position::Absolute {
-                height: 40,
-                width: 225,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 280,
-                margin_horizontal:285,
-            },
-            50,
-            0.5,
-            screensize,
-            Box::new(|ref mut context, value| {
-                context.particle_respawn_per_tick = (value * 2000.0) as u32;
-            }),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 0,
-                width: 0,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 85,
-                margin_horizontal: 265,
-            },
-            screensize,
-            "Low-pass filter".to_owned(),
-            font.clone(),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 0,
-                width: 0,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 165,
-                margin_horizontal: 265,
-            },
-            screensize,
-            "High-pass filter".to_owned(),
-            font.clone(),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 0,
-                width: 0,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 85,
-                margin_horizontal: 510,
-            },
-            screensize,
-            "Speed".to_owned(),
-            font.clone(),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 0,
-                width: 0,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 165,
-                margin_horizontal: 510,
-            },
-            screensize,
-            "Seeding size".to_owned(),
-            font.clone(),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 0,
-                width: 0,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 250,
-                margin_horizontal: 265,
-            },
-            screensize,
-            "Lifetime".to_owned(),
-            font.clone(),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 0,
-                width: 0,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 250,
-                margin_horizontal: 510,
-            },
-            screensize,
-            "Mesh transparency".to_owned(),
-            font.clone(),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 0,
-                width: 0,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 335,
-                margin_horizontal: 265,
-            },
-            screensize,
-            "Particle size".to_owned(),
-            font.clone(),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 0,
-                width: 0,
-                anchor: position::WindowCorner::BotRight,
-                margin_vertical: 335,
-                margin_horizontal: 510,
-            },
-            screensize,
-            "Particle spawn rate".to_owned(),
-            font.clone(),
-        )));
-        ui_elements.push(Box::new(Button::new(
-            position::Absolute {
-                height: 40,
-                width: 120,
-                anchor: position::WindowCorner::BotLeft,
-                margin_vertical: 120,
-                margin_horizontal: 40,
-            },
-            (0.44, 0.5, 0.56),
-            screensize,
-            true,
-            Box::new(|ref mut context, toggle_state| {
-                context.show_streamlines = !toggle_state;
-            }),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 40,
-                width: 120,
-                anchor: position::WindowCorner::BotLeft,
-                margin_vertical: 130,
-                margin_horizontal: 45,
-            },
-            screensize,
-            "Streamlines".to_owned(),
-            font.clone(),
-        )));
-        ui_elements.push(Box::new(Button::new(
-            position::Absolute {
-                height: 40,
-                width: 120,
-                anchor: position::WindowCorner::BotLeft,
-                margin_vertical: 200,
-                margin_horizontal: 40,
-            },
-            (0.44, 0.5, 0.56),
-            screensize,
-            false,
-            Box::new(|ref mut context, _toggle_state| {
-                #[cfg(not(target_arch = "wasm32"))]
-                {
-                    if let Ok(nfd::Response::Okay(path)) = nfd::open_file_dialog(None, None) {
-                        context.file_path = Some(PathBuf::from(path));
-                        context.reload_file = true;
-                    }
-                }
-                #[cfg(target_arch = "wasm32")]
-                js!(openFileDialog());
-            }),
-        )));
-        ui_elements.push(Box::new(Label::new(
-            position::Absolute {
-                height: 40,
-                width: 120,
-                anchor: position::WindowCorner::BotLeft,
-                margin_vertical: 210,
-                margin_horizontal: 45,
-            },
-            screensize,
-            "Load file".to_owned(),
-            font.clone(),
-        )));
+        let ui_elements: Vec<Box<ui_element::UiElement>> = vec![
+            ui_definitions::lowpass_filter(screensize, font.clone()),
+            ui_definitions::highpass_filter(screensize, font.clone()),
+            ui_definitions::speed_multiplier(screensize, font.clone()),
+            ui_definitions::seeding_size(screensize, font.clone()),
+            ui_definitions::lifetime(screensize, font.clone()),
+            ui_definitions::mesh_transparency(screensize, font.clone()),
+            ui_definitions::particle_size(screensize, font.clone()),
+            ui_definitions::particle_spawn_rate(screensize, font.clone()),
+            ui_definitions::toggle_streamlines(screensize, font.clone()),
+            ui_definitions::load_file(screensize, font.clone()),
+        ];
         
-        let ui_visible_label = Box::new(Label::new(
-            position::Absolute {
-                height: 40,
-                width: 120,
-                anchor: position::WindowCorner::BotLeft,
-                margin_vertical: 50,
-                margin_horizontal: 60,
-            },
-            screensize,
-            "Toggle UI".to_owned(),
-            font.clone(),
-        ));
-
-        let ui_visible_button = Button::new(
-            position::Absolute {
-                height: 40,
-                width: 120,
-                anchor: position::WindowCorner::BotLeft,
-                margin_vertical: 40,
-                margin_horizontal: 40,
-            },
-            (0.44, 0.5, 0.56),
-            screensize,
-            true,
-            Box::new(|ref mut _context, _toggle_state| {}),
-        );
-
-        Gui { ui_elements, ui_visible_button, ui_visible_label }
+        let ui_visible_button = ui_definitions::toggle_ui(screensize, font.clone());
+        Gui { ui_elements, ui_visible_button }
     }
 
     /// Handles events from the window, mutating application state as needed.
@@ -346,7 +50,6 @@ impl Gui {
         match event {
             Event::Resized(x, y) => {
                 self.ui_visible_button.resize((*x, *y));
-                self.ui_visible_label.resize((*x, *y));
                 for element in &mut self.ui_elements {
                     element.resize((*x, *y));
                 }
@@ -364,7 +67,7 @@ impl Gui {
             Event::CursorMoved { x, y } => {
                 state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
                 state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
-                
+
                 self.ui_visible_button.mouse_moved(state.mouse_x, state.mouse_y, state);
                 for element in &mut self.ui_elements {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
@@ -406,7 +109,6 @@ impl Gui {
 impl Drawable for Gui {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         self.ui_visible_button.draw_transformed(view_matrix);
-        self.ui_visible_label.draw_transformed(view_matrix);
         if self.ui_visible_button.toggle_state() {
             for element in &self.ui_elements {
                 element.draw_transformed(view_matrix);

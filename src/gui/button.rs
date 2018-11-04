@@ -1,7 +1,9 @@
-use graphics::{Drawable, Rectangle, position};
-use gui::UiElement;
-use State;
 use na::Matrix4;
+use std::{cell::RefCell, rc::Rc};
+
+use graphics::{Drawable, Font, position, position::WindowCorner, Rectangle};
+use gui::{Label, UiElement};
+use State;
 
 /// A simple button that can be pressed.
 pub struct Button {
@@ -13,6 +15,7 @@ pub struct Button {
     color: (f32, f32, f32),
     color_toggled: (f32, f32, f32),
     func: Box<dyn FnMut(&mut State, bool)>,
+    label: Label<'static>,
 }
 
 impl Button {
@@ -26,12 +29,36 @@ impl Button {
         screensize: (f32, f32),
         button_toggles: bool,
         func: Box<dyn FnMut(&mut State, bool)>,
+        text: String,
+        font: Rc<RefCell<Font<'static>>>
     ) -> Self {
         let pos_rel = pos_abs.to_relative(screensize);
         let mut color_toggled = color.clone();
         color_toggled.0 += 0.1;
         color_toggled.1 += 0.1;
         color_toggled.2 += 0.1;
+
+        let label = Label::new(
+            position::Absolute {
+                height: 0,
+                width: 0,
+                anchor: pos_abs.anchor,
+                margin_vertical: match pos_abs.anchor {
+                    WindowCorner::BotLeft | WindowCorner::BotRight
+                        => pos_abs.margin_vertical + pos_abs.height / 4,
+                    _ => pos_abs.margin_vertical - pos_abs.height / 4,
+                },
+                margin_horizontal: match pos_abs.anchor {
+                    WindowCorner::BotRight | WindowCorner::TopRight
+                        => pos_abs.margin_horizontal + pos_abs.width,
+                    _ => pos_abs.margin_horizontal
+                },
+            },
+            screensize,
+            text,
+            font,
+        );
+
         Self {
             pos_abs,
             pos_rel,
@@ -41,6 +68,7 @@ impl Button {
             color,
             color_toggled,
             rect: Rectangle::new(pos_rel.get_coordinates(), color),
+            label,
         }
     }
 
@@ -80,11 +108,13 @@ impl UiElement for Button {
             self.color_toggled
         };
         self.rect = Rectangle::new(self.pos_rel.get_coordinates(), color);
+        self.label.resize(screensize);
     }
 }
 
 impl Drawable for Button {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         self.rect.draw_transformed(view_matrix);
+        self.label.draw_transformed(view_matrix);
     }
 }

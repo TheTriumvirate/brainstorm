@@ -1,7 +1,9 @@
-use graphics::{Drawable, position, Rectangle};
-use gui::UiElement;
-use State;
 use na::Matrix4;
+use std::{cell::RefCell, rc::Rc};
+
+use graphics::{Drawable, Font, position, position::WindowCorner, Rectangle};
+use gui::{Label, UiElement};
+use State;
 
 /// A simple slider giving a value from 0.0 to 1.0.
 pub struct Slider {
@@ -13,10 +15,10 @@ pub struct Slider {
     value: f32,
     steps: f32,
     is_clicked: bool,
-    rect_background: Rectangle,
     rect_track: Rectangle,
     rect_slider: Rectangle,
     func: Box<dyn FnMut(&mut State, f32)>,
+    label: Label<'static>,
 }
 
 impl Slider {
@@ -28,6 +30,8 @@ impl Slider {
         initial_value: f32,
         screensize: (f32, f32),
         func: Box<dyn FnMut(&mut State, f32)>,
+        text: String,
+        font: Rc<RefCell<Font<'static>>>
     ) -> Self {
         assert!(initial_value >= 0.0 && initial_value <= 1.0);
         let track_pos = position::Absolute {
@@ -39,8 +43,7 @@ impl Slider {
         };
 
         let initial_value_directional = match track_pos.anchor {
-            position::WindowCorner::BotRight | position::WindowCorner::TopRight =>
-                1.0 - initial_value,
+            WindowCorner::BotRight | WindowCorner::TopRight => 1.0 - initial_value,
             _ => initial_value,
         };
 
@@ -53,11 +56,30 @@ impl Slider {
                 + (pos_abs.width as f32 * initial_value_directional) as u32,
         };
 
-        let pos_rel = pos_abs.to_relative(screensize);
+        let label = Label::new(
+            position::Absolute {
+                height: 0,
+                width: 0,
+                anchor: pos_abs.anchor,
+                margin_vertical: match pos_abs.anchor {
+                    WindowCorner::BotLeft | WindowCorner::BotRight
+                        => pos_abs.margin_vertical + pos_abs.height,
+                    _ => pos_abs.margin_vertical - pos_abs.height,
+                },
+                margin_horizontal: match pos_abs.anchor {
+                    WindowCorner::BotRight | WindowCorner::TopRight
+                        => pos_abs.margin_horizontal + pos_abs.width,
+                    _ => pos_abs.margin_horizontal
+                },
+            },
+            screensize,
+            text,
+            font,
+        );
 
         Self {
             pos_abs,
-            pos_rel,
+            pos_rel: pos_abs.to_relative(screensize),
             track_pos,
             slider_pos,
             func,
@@ -65,7 +87,6 @@ impl Slider {
             is_clicked: false,
             value: initial_value,
             steps: steps as f32,
-            rect_background: Rectangle::new(pos_rel.get_coordinates(), (0.44, 0.5, 0.56)),
             rect_track: Rectangle::new(
                 track_pos.to_relative(screensize).get_coordinates(),
                 (0.58, 0.64, 0.7),
@@ -74,6 +95,7 @@ impl Slider {
                 slider_pos.to_relative(screensize).get_coordinates(),
                 (0.7, 0.75, 0.8),
             ),
+            label,
         }
     }
 
@@ -139,7 +161,6 @@ impl UiElement for Slider {
     fn resize(&mut self, screensize: (f32, f32)) {
         self.cached_screensize = screensize;
         self.pos_rel = self.pos_abs.to_relative(screensize);
-        self.rect_background = Rectangle::new(self.pos_rel.get_coordinates(), (0.44, 0.5, 0.56));
         self.rect_track = Rectangle::new(
             self.track_pos.to_relative(screensize).get_coordinates(),
             (0.58, 0.64, 0.7),
@@ -148,13 +169,14 @@ impl UiElement for Slider {
             self.slider_pos.to_relative(screensize).get_coordinates(),
             (0.7, 0.75, 0.8),
         );
+        self.label.resize(screensize);
     }
 }
 
 impl Drawable for Slider {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
-        self.rect_background.draw_transformed(view_matrix);
         self.rect_track.draw_transformed(view_matrix);
         self.rect_slider.draw_transformed(view_matrix);
+        self.label.draw_transformed(view_matrix);
     }
 }
