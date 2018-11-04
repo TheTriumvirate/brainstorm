@@ -51,6 +51,7 @@ pub struct App {
     circle2: Circle,
     circle3: Circle,
     bound: Cube,
+    mid_reload: bool,
 }
 
 /// Holds application state.
@@ -88,7 +89,7 @@ impl State {
             particle_respawn_per_tick: 1000,
             show_streamlines: true,
             file_path: None,
-            reload_file: false
+            reload_file: false,
         }
     }
 }
@@ -142,6 +143,7 @@ impl App {
             circle2: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 1.0, 0.0), false),
             circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
             bound: Cube::new((-0.5, -0.5, -0.5), (1.0,1.0,1.0), (1.0,1.0,1.0)),
+            mid_reload: false,
         }
     }
 
@@ -171,13 +173,25 @@ impl App {
             };
         }
 
-        if self.state.reload_file {
+        if self.state.reload_file || self.mid_reload {
             self.state.reload_file = false;
-            match self.reload_file() {
-                Ok(particle_engine) => self.particles = particle_engine,
-                Err(e) => self.gui.status.set_status(format!("Failed to load file: {}", e)),
+            if self.mid_reload {
+                match self.reload_file() {
+                    Ok(particle_engine) => {
+                        self.gui.status.set_status("File loaded!".to_owned());
+                        self.particles = particle_engine;
+                    }
+                    Err(e) => self.gui.status.set_status(e.to_owned()),
+                }
+                self.mid_reload = false;
+            } else {
+                self.gui.status.set_status_ongoing("Loading file".to_owned());
+                self.mid_reload = true;
             }
         }
+
+        // Update status label timer
+        self.gui.status.update_status();
 
         // Update camera and particle system
         self.camera.update();
