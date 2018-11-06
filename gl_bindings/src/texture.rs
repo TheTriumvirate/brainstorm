@@ -18,16 +18,29 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn from_3d_data(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[f32]) -> Self {
+    pub fn from_3d_data(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[f32], is_array: bool) -> Self {
+        let _type = if is_array {Context::TEXTURE_2D_ARRAY} else {Context::TEXTURE_3D};
+        
         let context = Context::get_context();
 
         let texture = context.create_texture().unwrap();
-        context.bind_texture(Context::TEXTURE_3D, &texture);
+        context.bind_texture(_type, &texture);
         
         let formatv : u32 = format.into();
 
+        context.tex_parameteri(
+            _type,
+            Context::TEXTURE_MIN_FILTER,
+            Context::LINEAR as i32
+        );
+        context.tex_parameteri(
+            _type,
+            Context::TEXTURE_MAG_FILTER,
+            Context::LINEAR as i32
+        );
+
         context.tex_image3d_f(
-            Context::TEXTURE_3D,
+            _type,
             0,
             Context::RGBA32F as i32,
             width as i32,
@@ -41,9 +54,11 @@ impl Texture {
         let texture = Texture {
             texture,
             _format: format,
-            _type: Context::TEXTURE_3D,
+            _type,
         };
-        texture.init(Context::TEXTURE_3D);
+
+        //context.generate_mipmap(Context::TEXTURE_3D);
+
         texture
     }
 
@@ -145,12 +160,12 @@ impl Texture {
         context.tex_parameteri(
             _type,
             Context::TEXTURE_MIN_FILTER,
-            Context::LINEAR as i32
+            Context::NEAREST as i32
         );
         context.tex_parameteri(
             _type,
             Context::TEXTURE_MAG_FILTER,
-            Context::LINEAR as i32
+            Context::NEAREST as i32
         );
 
         context.pixel_storei(Context::UNPACK_ALIGNMENT, 1);
@@ -185,8 +200,8 @@ impl Texture {
         self.unbind();
     }
 
-    pub fn get_native(&self) -> NativeTexture {
-        self.texture
+    pub fn get_native(&self) -> &NativeTexture {
+        &self.texture
     }
 }
 

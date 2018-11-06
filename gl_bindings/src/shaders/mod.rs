@@ -33,7 +33,7 @@ pub enum ShaderType {
     Fragment,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ShaderAttribute {
     pub name: String,
     pub size: usize,
@@ -94,6 +94,14 @@ impl OurShader {
         context.attach_shader(&program, &vs);
         context.attach_shader(&program, &fs);
         context.link_program(&program);
+
+        /*if let Some(log) = context.get_program_info_log(&program) {
+                js!(console.log("error", @{log.clone()}));
+                println!("program log: {}", log);
+        } else {
+                println!("Some error occured while linking program");
+
+        }*/
 
         let mut attribute_locations : Vec<GLUint> = Vec::new();
         context.use_program(&program);

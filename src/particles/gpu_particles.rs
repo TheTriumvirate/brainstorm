@@ -53,6 +53,7 @@ impl GPUParticleEngine {
                 }
             }
         }
+
         let shader: OurShader = OurShader::new(
             str::from_utf8(GPU_PARTICLES_VERTEX_SHADER).expect("Failed to read vertex shader"),
             str::from_utf8(GPU_PARTICLES_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
@@ -63,6 +64,7 @@ impl GPUParticleEngine {
                 },
             ]
         );
+        
         let update_shader: OurShader = OurShader::new(
             str::from_utf8(GPU_PARTICLES_UPDATE_VERTEX_SHADER).expect("Failed to read vertex shader"),
             str::from_utf8(GPU_PARTICLES_UPDATE_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
@@ -73,6 +75,7 @@ impl GPUParticleEngine {
                 },
             ]
         );
+
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         vertices.set_data(&particle_data[..]);
 
@@ -80,7 +83,7 @@ impl GPUParticleEngine {
         let len = vertices.len();
         vertices.upload_data(0, len, true);
 
-        let texture = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..]));
+        let texture = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], true));
 
         let framebuffer = FrameBuffer::new();
         framebuffer.buffer_texture_layer(&texture, 0);

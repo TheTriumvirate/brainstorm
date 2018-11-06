@@ -1,4 +1,3 @@
-use context::GlPrimitive;
 use AbstractContext;
 use Context;
 use NativeFrameBuffer;

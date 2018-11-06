@@ -91,6 +91,7 @@ impl AbstractContext for GLContext {
     const UNSIGNED_SHORT: u32 = gl::UNSIGNED_SHORT;
     const TEXTURE_2D: u32 = gl::TEXTURE_2D;
     const TEXTURE_3D: u32 = gl::TEXTURE_3D;
+    const TEXTURE_2D_ARRAY: u32 = gl::TEXTURE_2D_ARRAY;
     const UNSIGNED_BYTE: u32 = gl::UNSIGNED_BYTE;
     const RGBA: u32 = gl::RGBA;
     const RGBA32F: u32 = gl::RGBA32F;
@@ -101,7 +102,9 @@ impl AbstractContext for GLContext {
     const CLAMP_TO_EDGE: u32 = gl::CLAMP_TO_EDGE;
     const TEXTURE_MIN_FILTER: u32 = gl::TEXTURE_MIN_FILTER;
     const TEXTURE_MAG_FILTER: u32 = gl::TEXTURE_MAG_FILTER;
+    const NEAREST: u32 = gl::NEAREST;
     const LINEAR: u32 = gl::LINEAR;
+    const LINEAR_MIPMAP_LINEAR: u32 = gl::LINEAR_MIPMAP_LINEAR;
     const UNPACK_ALIGNMENT: u32 = gl::UNPACK_ALIGNMENT;
     const DEPTH_BUFFER_BIT: u32 = gl::DEPTH_BUFFER_BIT;
     const FRONT_AND_BACK: u32 = gl::FRONT_AND_BACK;
@@ -201,6 +204,10 @@ impl AbstractContext for GLContext {
         unsafe {
             gl::DeleteProgram(*program);
         }
+    }
+    
+    fn get_program_info_log(&self, program: &Program) -> Option<String> {
+        None // TODO: implement
     }
 
     fn clear_color(&self, r: f32, g: f32, b: f32, a: f32) {

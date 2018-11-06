@@ -56,6 +56,7 @@ pub trait AbstractContext {
     const UNSIGNED_INT: u32;
     const TEXTURE_2D: u32;
     const TEXTURE_3D: u32;
+    const TEXTURE_2D_ARRAY: u32;
     const UNSIGNED_BYTE: u32;
     const RGBA: u32;
     const RGBA32F: u32;
@@ -66,7 +67,9 @@ pub trait AbstractContext {
     const CLAMP_TO_EDGE: u32;
     const TEXTURE_MIN_FILTER: u32;
     const TEXTURE_MAG_FILTER: u32;
+    const NEAREST: u32;
     const LINEAR: u32;
+    const LINEAR_MIPMAP_LINEAR: u32;
     const UNPACK_ALIGNMENT: u32;
     const DEPTH_BUFFER_BIT: u32;
     const FRONT_AND_BACK: u32;
@@ -91,6 +94,7 @@ pub trait AbstractContext {
     fn link_program(&self, program: &Program);
     fn use_program(&self, program: &Program);
     fn delete_program(&self, program: &Program);
+    fn get_program_info_log(&self, program: &Program) -> Option<String>;
 
     fn create_buffer(&self) -> Option<Buffer>;
     fn bind_buffer(&self, target: GLEnum, buffer: &Buffer);

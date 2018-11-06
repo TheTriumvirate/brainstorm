@@ -54,7 +54,6 @@ pub struct App {
     circle3: Circle,
     bound: Cube,
     gpu_field: GPUFieldProvider,
-    test: Rectangle,
     gpu_particles: GPUParticleEngine,
     march: MarchingCubes,
     streamlines: Streamlines,
@@ -154,12 +153,6 @@ impl App {
             circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
             bound: Cube::new((-0.5, -0.5, -0.5), (1.0,1.0,1.0), (1.0,1.0,1.0)),
             gpu_field: gpu_field.unwrap(),
-            test: Rectangle::new(position::Coordinates {
-                x1:  0.5,
-                x2:  1.0,
-                y1:  0.5,
-                y2:  1.0,
-            }, (0.0, 0.0, 0.0)),
             gpu_particles: GPUParticleEngine::new(),
             march,
             streamlines,
@@ -252,14 +245,6 @@ impl App {
         //self.streamlines.draw_transformed(projection_matrix);
         
         self.gui.draw();
-
-        //self.test.set_texture(Some(self.gpu_field.get(0)));
-        self.test.set_texture(self.gpu_particles.get_texture());
-        let layer = self.gpu_particles.get_layer();
-        OurShader::default().uniform1i("u_layer", layer);
-        OurShader::default().uniform1f("u_percentage", self.state.texture_idx);
-        self.test.draw();
-        OurShader::default().uniform1f("u_percentage", 0.0);
 
         self.window.swap_buffers();
         self.time += 0.01;

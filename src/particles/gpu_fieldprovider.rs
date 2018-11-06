@@ -63,7 +63,7 @@ impl GPUFieldProvider {
             }
         }
         GPUFieldProvider {
-            texture: Rc::new(Texture::from_3d_data(x.width as u32, x.height as u32, x.depth as u32, TextureFormat::RGBA, &data[..])),
+            texture: Rc::new(Texture::from_3d_data(x.width as u32, x.height as u32, x.depth as u32, TextureFormat::RGBA, &data[..], false)),
             size: x.depth,
         }
     }
