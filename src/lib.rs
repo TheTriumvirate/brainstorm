@@ -96,7 +96,7 @@ impl State {
             texture_idx: 0.0,
             window_w: 0.0,
             window_h: 0.0,
-            use_gpu_particles: false,
+            use_gpu_particles: true,
         }
     }
 }

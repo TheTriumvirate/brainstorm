@@ -14,13 +14,14 @@ use camera::{ArcBall};
 use rand::{FromEntropy, Rng};
 use rand::rngs::SmallRng;
 
-const TEXTURESIZE: usize = 512;
-const MAXSTREAMLETSIZE: usize = 16;
+const TEXTURESIZE: usize = 1024;
+const MAXSTREAMLETSIZE: usize = 8;
 
 pub struct GPUParticleEngine {
     texture: Rc<Texture>,
     noise: Rc<Texture>,
     vertices: Buffer<f32>,
+    indices: Buffer<u32>,
     shader: Rc<OurShader>,
     update_shader: Rc<OurShader>,
     framebuffer: FrameBuffer,
@@ -35,6 +36,9 @@ impl GPUParticleEngine {
         let mut particle_data = Vec::new();
         let mut noise_data = Vec::new();
         let mut rng = SmallRng::from_entropy();
+        let mut index_data = Vec::new();
+        let mut index = 0;
+        const offset : u32 = (TEXTURESIZE * TEXTURESIZE) as u32;
         for q in 0..MAXSTREAMLETSIZE {
             for u in 0..(TEXTURESIZE) {
                 for v in 0..(TEXTURESIZE) {
@@ -42,14 +46,20 @@ impl GPUParticleEngine {
                     data.push(rng.gen_range::<f32>(0.0, 1.0));
                     data.push(rng.gen_range::<f32>(0.0, 1.0));
                     data.push(1.0);
+                    
+                    particle_data.push(u as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
+                    particle_data.push(v as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
+
                     if q == 0 {
-                        particle_data.push(u as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
-                        particle_data.push(v as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
                         noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
                         noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
                         noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
                         noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
+                    } else {
+                        index_data.push(index-offset);
+                        index_data.push(index);
                     }
+                    index += 1;
                 }
             }
         }
@@ -83,6 +93,13 @@ impl GPUParticleEngine {
         let len = vertices.len();
         vertices.upload_data(0, len, true);
 
+        let mut indices: Buffer<u32> = Buffer::new(BufferType::IndexArray);
+        indices.set_data(&index_data[..]);
+
+        indices.bind();
+        let len = indices.len();
+        indices.upload_data(0, len, true);
+
         let texture = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], true));
 
         let framebuffer = FrameBuffer::new();
@@ -92,6 +109,7 @@ impl GPUParticleEngine {
             texture,
             noise: Rc::new(Texture::from_data(TEXTURESIZE as u32, TEXTURESIZE as u32, TextureFormat::RGBA, &noise_data[..])),
             vertices,
+            indices,
             shader: Rc::new(shader),
             update_shader: Rc::new(update_shader),
             framebuffer,
@@ -125,7 +143,7 @@ impl GPUParticleEngine {
         self.timer = 0.0;
         self.update = true;
         Context::get_context().viewport(0, 0, TEXTURESIZE as i32, TEXTURESIZE as i32);
-        let len = self.vertices.len() as i32 / 2;
+        let len = self.vertices.len() as i32 / 2 / (MAXSTREAMLETSIZE) as i32;
         self.framebuffer.bind();
         field_provider.get_texture().activate(Some(&self.update_shader), 1, "uData");
         self.noise.activate(Some(&self.update_shader), 2, "uNoise");
@@ -156,7 +174,8 @@ impl Drawable for GPUParticleEngine {
     }
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
-        let len = self.vertices.len() as i32 / 2;
-        render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), view_matrix);
+        render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, self.render_states(), view_matrix);
+        //let len = self.vertices.len() as i32 / 2 / (MAXSTREAMLETSIZE) as i32;
+        //render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), view_matrix);
     }
 }
