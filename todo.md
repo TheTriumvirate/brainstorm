@@ -24,7 +24,9 @@
 ## Stian
 
 - [x] Change dataset at runtime
-- [ ] Loading bar on start
+- [x] Loading bar on start
+- [ ] Buttons to move seeding area / camera
+- [ ] Resizing window messes with scaling
 - [ ] Notify user on start if browser is not supported (WebGL2.0 + WebAsm support)
 - [ ] Make the GUI beautiful
 - [ ] Better mobile ui friendliness (low pri)
