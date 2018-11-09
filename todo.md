@@ -25,6 +25,7 @@
 
 - [x] Change dataset at runtime
 - [x] Loading bar on start
+- [x] Fix resizing not resetting viewport
 - [ ] Buttons to move seeding area / camera
 - [ ] Resizing window messes with scaling
 - [ ] Notify user on start if browser is not supported (WebGL2.0 + WebAsm support)

@@ -104,6 +104,7 @@ impl Camera for ArcBall {
             }
             Event::Resized(w, h) => {
                 self.aspect = w / h;
+                self.recalculate_matrices();
             }
             Event::KeyboardInput {
                 pressed,
