@@ -9,6 +9,8 @@ use std::{cell::RefCell, rc::Rc};
 use graphics::{position, Font};
 use super::{Button, Slider, StatusLabel, UiElement};
 
+const DELTA_MOVEMENT: f32 = 5.0;
+
 /// A slider acting as a low-pass filter.
 pub fn lowpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
     Box::new(Slider::new(
@@ -259,4 +261,130 @@ pub fn status_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
         screensize,
         font.clone(),
     )
+}
+
+/// A button to move the camera forwards
+pub fn move_camera_x_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
+    Box::new(Button::new(
+        position::Absolute {
+            height: 40,
+            width: 40,
+            anchor: position::WindowCorner::BotLeft,
+            margin_vertical: 90,
+            margin_horizontal: 250,
+        },
+        (0.44, 0.5, 0.56),
+        screensize,
+        false,
+        Box::new(|ref mut context, _toggle_state| {
+            context.camera_delta_movement.2 += DELTA_MOVEMENT;
+        }),
+        "   W".to_owned(),
+        font.clone(),
+    ))
+}
+
+/// A button to move the camera backwards
+pub fn move_camera_x_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
+    Box::new(Button::new(
+        position::Absolute {
+            height: 40,
+            width: 40,
+            anchor: position::WindowCorner::BotLeft,
+            margin_vertical: 40,
+            margin_horizontal: 250,
+        },
+        (0.44, 0.5, 0.56),
+        screensize,
+        false,
+        Box::new(|ref mut context, _toggle_state| {
+            context.camera_delta_movement.2 -= DELTA_MOVEMENT;
+        }),
+        "   S".to_owned(),
+        font.clone(),
+    ))
+}
+
+/// A button to move the camera upwards
+pub fn move_camera_y_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
+    Box::new(Button::new(
+        position::Absolute {
+            height: 40,
+            width: 40,
+            anchor: position::WindowCorner::BotLeft,
+            margin_vertical: 90,
+            margin_horizontal: 200,
+        },
+        (0.44, 0.5, 0.56),
+        screensize,
+        false,
+        Box::new(|ref mut context, _toggle_state| {
+            context.camera_delta_movement.1 += DELTA_MOVEMENT;
+        }),
+        "   Q".to_owned(),
+        font.clone(),
+    ))
+}
+
+/// A button to move the camera downwards
+pub fn move_camera_y_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
+    Box::new(Button::new(
+        position::Absolute {
+            height: 40,
+            width: 40,
+            anchor: position::WindowCorner::BotLeft,
+            margin_vertical: 90,
+            margin_horizontal: 300,
+        },
+        (0.44, 0.5, 0.56),
+        screensize,
+        false,
+        Box::new(|ref mut context, _toggle_state| {
+            context.camera_delta_movement.1 -= DELTA_MOVEMENT;
+        }),
+        "   E".to_owned(),
+        font.clone(),
+    ))
+}
+
+/// A button to move the camera left
+pub fn move_camera_z_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
+    Box::new(Button::new(
+        position::Absolute {
+            height: 40,
+            width: 40,
+            anchor: position::WindowCorner::BotLeft,
+            margin_vertical: 40,
+            margin_horizontal: 200,
+        },
+        (0.44, 0.5, 0.56),
+        screensize,
+        false,
+        Box::new(|ref mut context, _toggle_state| {
+            context.camera_delta_movement.0 += DELTA_MOVEMENT;
+        }),
+        "   A".to_owned(),
+        font.clone(),
+    ))
+}
+
+/// A button to move the camera right
+pub fn move_camera_z_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
+    Box::new(Button::new(
+        position::Absolute {
+            height: 40,
+            width: 40,
+            anchor: position::WindowCorner::BotLeft,
+            margin_vertical: 40,
+            margin_horizontal: 300,
+        },
+        (0.44, 0.5, 0.56),
+        screensize,
+        false,
+        Box::new(|ref mut context, _toggle_state| {
+            context.camera_delta_movement.0 -= DELTA_MOVEMENT;
+        }),
+        "   D".to_owned(),
+        font.clone(),
+    ))
 }

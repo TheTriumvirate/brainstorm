@@ -125,9 +125,7 @@ impl Camera for ArcBall {
                     }
                 }
                 let (dx, dy, dz) = direction;
-                let t = self.target;
-                self.target = Point3::new(t.x + dx * 0.01, t.y + dy * 0.01, t.z + dz * 0.01);
-                self.recalculate_matrices();
+                self.move_camera(dx, dy, dz);
             }
             _ => (),
         }
@@ -138,12 +136,20 @@ impl Camera for ArcBall {
         self.projection
     }
 
+    /// Get the position of the camera.
     fn get_position(&self) -> (f32, f32, f32) {
         let ex = self.target.x + self.distance * self.yaw.cos() * self.pitch.sin();
         let ey = self.target.y + self.distance * self.pitch.cos();
         let ez = self.target.z + self.distance * self.yaw.sin() * self.pitch.sin();
         let eye = Point3::new(ex, ey, ez);
         (eye.x, eye.y, eye.z)
+    }
+
+    /// Move the camera by the specified amount.
+    fn move_camera(&mut self, dx: f32, dy: f32, dz: f32) {
+        let t = self.target;
+        self.target = Point3::new(t.x + dx * 0.01, t.y + dy * 0.01, t.z + dz * 0.01);
+        self.recalculate_matrices();
     }
 }
 

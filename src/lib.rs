@@ -70,6 +70,7 @@ pub struct State {
     show_streamlines: bool,
     file_path: Option<PathBuf>,
     reload_file: bool,
+    camera_delta_movement: (f32, f32, f32),
 }
 
 impl State {
@@ -90,6 +91,7 @@ impl State {
             show_streamlines: true,
             file_path: None,
             reload_file: false,
+            camera_delta_movement: (0.0, 0.0, 0.0),
         }
     }
 }
@@ -162,6 +164,13 @@ impl App {
             if !consumed {
                 self.camera.handle_events(&event);
             }
+        }
+
+        // Update camera position if needed.
+        if self.state.camera_delta_movement != (0.0, 0.0, 0.0) {
+            let (dx, dy, dz) = self.state.camera_delta_movement;
+            self.camera.move_camera(dx, dy, dz);
+            self.state.camera_delta_movement = (0.0, 0.0, 0.0);
         }
 
         // Replace particle data if requested.

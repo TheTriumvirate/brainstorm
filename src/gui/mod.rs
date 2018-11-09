@@ -46,6 +46,12 @@ impl Gui {
             ui_definitions::particle_spawn_rate(screensize, font.clone()),
             ui_definitions::toggle_streamlines(screensize, font.clone()),
             ui_definitions::load_file(screensize, font.clone()),
+            ui_definitions::move_camera_x_f(screensize, font.clone()),
+            ui_definitions::move_camera_x_b(screensize, font.clone()),
+            ui_definitions::move_camera_y_f(screensize, font.clone()),
+            ui_definitions::move_camera_y_b(screensize, font.clone()),
+            ui_definitions::move_camera_z_f(screensize, font.clone()),
+            ui_definitions::move_camera_z_b(screensize, font.clone()),
         ];
         
         let ui_visible_button = ui_definitions::toggle_ui(screensize, font.clone());
