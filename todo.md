@@ -19,13 +19,13 @@
     - Color or opacity based on speed?
     - Slider for number of streamlines
 - [ ] Proper transparancy handling
-- [ ] Develop entire new fields of research
 
 ## Stian
 
 - [x] Change dataset at runtime
 - [x] Loading bar on start
 - [x] Fix resizing not resetting viewport
+- [ ] Add credits
 - [ ] Buttons to move seeding area / camera
 - [ ] Resizing window messes with scaling
 - [ ] Notify user on start if browser is not supported (WebGL2.0 + WebAsm support)

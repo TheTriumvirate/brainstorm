@@ -153,12 +153,11 @@ impl App {
 
         // Handle events
         for event in &self.window.get_events() {
-            match event {
-                Event::Resized(w, h) => self.window.set_size(*w as u32, *h as u32),
-                _ => {}
-            };
-            let consumed = self.gui
-                .handle_event(&event, &mut self.state, self.window.get_size());
+            if let Event::Resized(w, h) = event {
+                self.window.set_size(*w as u32, *h as u32);
+            }
+            let consumed =
+                self.gui.handle_event(&event, &mut self.state, self.window.get_size());
 
             if !consumed {
                 self.camera.handle_events(&event);
@@ -173,6 +172,10 @@ impl App {
             };
         }
 
+        // Two-step file reload:
+        // Step 1 (reload_file): Write "Loading file".
+        // Step 2 (mid_reload): Load file.
+        // Done so in order to render "loading" before starting the process.
         if self.state.reload_file || self.mid_reload {
             self.state.reload_file = false;
             if self.mid_reload {
