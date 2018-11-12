@@ -46,6 +46,7 @@ impl Gui {
             ui_definitions::particle_spawn_rate(screensize, font.clone()),
             ui_definitions::toggle_streamlines(screensize, font.clone()),
             ui_definitions::load_file(screensize, font.clone()),
+            ui_definitions::credits_label(screensize, font.clone()),
             ui_definitions::move_camera_x_f(screensize, font.clone()),
             ui_definitions::move_camera_x_b(screensize, font.clone()),
             ui_definitions::move_camera_y_f(screensize, font.clone()),

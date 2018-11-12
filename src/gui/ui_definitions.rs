@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::{cell::RefCell, rc::Rc};
 
 use graphics::{position, Font};
-use super::{Button, Slider, StatusLabel, UiElement};
+use super::{Button, Label, Slider, StatusLabel, UiElement};
 
 const DELTA_MOVEMENT: f32 = 5.0;
 
@@ -385,6 +385,22 @@ pub fn move_camera_z_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
             context.camera_delta_movement.0 -= DELTA_MOVEMENT;
         }),
         "   D".to_owned(),
+        font.clone(),
+    ))
+}
+
+/// The credits!
+pub fn credits_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+    Box::new(Label::new(
+        position::Absolute {
+            height: 40,
+            width: 225,
+            anchor: position::WindowCorner::TopLeft,
+            margin_vertical: 0,
+            margin_horizontal: 20,
+        },
+        screensize,
+        "By Robin Grundvåg, Vegard Itland and Stian Soltvedt".to_owned(),
         font.clone(),
     ))
 }

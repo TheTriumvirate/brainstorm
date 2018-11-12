@@ -26,7 +26,7 @@
 - [x] Loading bar on start
 - [x] Fix resizing not resetting viewport
 - [x] Buttons to move seeding area / camera
-- [ ] Add credits
+- [x] Add credits
 - [ ] Notify user on start if browser is not supported (WebGL2.0 + WebAsm support)
 - [ ] Make the GUI beautiful
 - [ ] Better mobile ui friendliness (low pri)
