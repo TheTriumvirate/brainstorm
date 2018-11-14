@@ -193,7 +193,7 @@ impl App {
             let (dx, dy, dz) = self.state.camera_delta_movement;
             self.camera.move_camera(dx, dy, dz);
             self.state.camera_delta_movement = (0.0, 0.0, 0.0);
-            self.gui.seeding_sphere.retarget(self.camera.get_position());
+            self.gui.seeding_sphere.retarget(self.camera.get_target());
         }
 
         // Replace particle data if requested.
