@@ -5,10 +5,8 @@ use graphics::{Drawable, Font, position, position::WindowCorner, Rectangle};
 use gui::{Label, UiElement};
 use State;
 
-#[cfg(not(target_arch = "wasm32"))]
-const LABEL_V_DIV: i32 = 4;
-#[cfg(target_arch = "wasm32")]
-const LABEL_V_DIV: i32 = 8;
+/// Vertical offset divisor for the label.
+const LABEL_V_DIV: f32 = 1.5;
 
 /// A simple button that can be pressed.
 pub struct Button {
@@ -50,8 +48,8 @@ impl Button {
                 anchor: pos_abs.anchor,
                 margin_vertical: match pos_abs.anchor {
                     WindowCorner::BotLeft | WindowCorner::BotRight
-                        => pos_abs.margin_vertical + ((pos_abs.height) as i32 / LABEL_V_DIV) as u32,
-                    _ => pos_abs.margin_vertical - ((pos_abs.height) as i32 / LABEL_V_DIV) as u32,
+                        => pos_abs.margin_vertical + ((pos_abs.height) as f32 / LABEL_V_DIV) as u32,
+                    _ => pos_abs.margin_vertical - ((pos_abs.height) as f32 / LABEL_V_DIV) as u32,
                 },
                 margin_horizontal: match pos_abs.anchor {
                     WindowCorner::BotRight | WindowCorner::TopRight

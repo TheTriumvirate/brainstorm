@@ -28,6 +28,6 @@
 - [x] Buttons to move seeding area / camera
 - [x] Add credits
 - [x] Notify user on start if browser is not supported (WebGL2.0 + WebAsm support)
-- [ ] Fix the font moving on vertical resize
+- [x] Fix the font moving on vertical resize
 - [ ] Make the GUI beautiful
 - [ ] Better mobile ui friendliness (low pri)

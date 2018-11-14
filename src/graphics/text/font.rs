@@ -6,9 +6,7 @@ use gl_bindings::{shaders::OurShader, shaders::ShaderAttribute, Buffer, Texture,
 use std::rc::Rc;
 use std::str;
 
-use resources::shaders::{TEXT_FRAGMENT_SHADER, TEXT_VERTEX_SHADER};
-
-use {WINDOW_WIDTH, WINDOW_HEIGHT};
+use resources::shaders::{TEXT_FRAGMENT_SHADER, TEXT_VERTEX_SHADER}; 
 
 pub struct Font<'a> {
     font: TFont<'a>,
@@ -85,7 +83,6 @@ impl<'a> Font<'a> {
                 );
             }).expect("Could not construct cache texture");
 
-        let origin = point(x, y);
         let mut idx = 0;
 
         vertices.clear();
@@ -93,9 +90,7 @@ impl<'a> Font<'a> {
 
         let v_metrics = self.font.v_metrics(Scale::uniform(24.0));
         let advance_height = v_metrics.ascent - v_metrics.descent + v_metrics.line_gap;
-
-        let aspect_ratio_w = screen_size.0 / WINDOW_WIDTH as f32;
-        let aspect_ratio_h = screen_size.1 / WINDOW_HEIGHT as f32;
+        let origin = point(x, y) + vector(1.0, -1.0 + advance_height / screen_size.1 / 2.0);
 
         for g in glyphs {
             if let Ok(Some((uv_rect, screen_rect))) = self.cache.rect_for(0, &g) {
@@ -103,16 +98,14 @@ impl<'a> Font<'a> {
                 let gl_rect = Rect {
                     min: origin
                         + (vector(
-                            screen_rect.min.x as f32 / 1024.0 / aspect_ratio_w - 0.5,
-                            1.0 - screen_rect.min.y as f32 / 1024.0 / aspect_ratio_h - 0.5,
-                        )) * 2.0
-                        + vector(1.0, -1.0 + advance_height / 512.0),
+                                  screen_rect.min.x as f32 / screen_size.0 - 0.5,
+                            1.0 - screen_rect.min.y as f32 / screen_size.1 - 0.5,
+                        )) * 2.0,
                     max: origin
                         + (vector(
-                            screen_rect.max.x as f32 / 1024.0 / aspect_ratio_w - 0.5,
-                            1.0 - screen_rect.max.y as f32 / 1024.0 / aspect_ratio_h - 0.5,
-                        )) * 2.0
-                        + vector(1.0, -1.0 + advance_height / 512.0),
+                                  screen_rect.max.x as f32 / screen_size.0 - 0.5,
+                            1.0 - screen_rect.max.y as f32 / screen_size.1 - 0.5,
+                        )) * 2.0,
                 };
                 vertices.push(&[
                     gl_rect.min.x,
