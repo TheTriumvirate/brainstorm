@@ -52,10 +52,10 @@ impl GPUFieldProvider {
                     let dy = (dy - min) / (max - min);
                     let dz = (dz - min) / (max - min);
 
-                    data.push((dx * 255.0) as u8);
-                    data.push((dy * 255.0) as u8);
-                    data.push((dz * 255.0) as u8);
-                    data.push(255);
+                    data.push(dx);
+                    data.push(dy);
+                    data.push(dz);
+                    data.push(1.0);
                 }
             }
         }

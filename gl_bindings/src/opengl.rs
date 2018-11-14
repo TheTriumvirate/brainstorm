@@ -90,6 +90,7 @@ impl AbstractContext for GLContext {
     const UNSIGNED_BYTE: u32 = gl::UNSIGNED_BYTE;
     const RGBA: u32 = gl::RGBA;
     const RGBA32F: u32 = gl::RGBA32F;
+    const RGBA8: u32 = gl::RGBA8;
     const LUMINANCE: u32 = gl::RED;
     const TEXTURE0: u32 = gl::TEXTURE0;
     const TEXTURE_WRAP_S: u32 = gl::TEXTURE_WRAP_S;

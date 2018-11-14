@@ -61,6 +61,7 @@ pub trait AbstractContext {
     const UNSIGNED_BYTE: u32;
     const RGBA: u32;
     const RGBA32F: u32;
+    const RGBA8: u32;
     const LUMINANCE: u32;
     const TEXTURE0: u32;
     const TEXTURE_WRAP_S: u32;

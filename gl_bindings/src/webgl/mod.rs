@@ -102,6 +102,7 @@ impl AbstractContext for WebGLContext {
     const UNSIGNED_BYTE: u32 = WebGL2RenderingContext::UNSIGNED_BYTE;
     const RGBA: u32 = WebGL2RenderingContext::RGBA;
     const RGBA32F: u32 = WebGL2RenderingContext::RGBA32F;
+    const RGBA8: u32 = WebGL2RenderingContext::RGBA8;
     const LUMINANCE: u32 = WebGL2RenderingContext::LUMINANCE;
     const TEXTURE0: u32 = WebGL2RenderingContext::TEXTURE0;
     const TEXTURE_WRAP_S: u32 = WebGL2RenderingContext::TEXTURE_WRAP_S;

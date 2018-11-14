@@ -44,10 +44,10 @@ impl GPUParticleEngine {
         for q in 0..MAXSTREAMLETSIZE {
             for u in 0..(TEXTURESIZE) {
                 for v in 0..(TEXTURESIZE) {
-                    data.push(0);
-                    data.push(0);
-                    data.push(0);
-                    data.push(255);
+                    data.push(0.0);
+                    data.push(0.0);
+                    data.push(0.0);
+                    data.push(255.0);
                     
                     particle_data.push(u as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
                     particle_data.push(v as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
@@ -102,10 +102,13 @@ impl GPUParticleEngine {
         let len = indices.len();
         indices.upload_data(0, len, true);
 
-        let texture = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], true));
-        let texture2 = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], true));
+        let texture = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], false));
+        let texture2 = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], false));
 
         let framebuffer = FrameBuffer::new();
+
+        shader.uniform1f("u_size", TEXTURESIZE as f32);
+        shader.uniform1i("u_layer", 0);
 
         GPUParticleEngine {
             texture,
@@ -124,13 +127,12 @@ impl GPUParticleEngine {
     }
 
     pub fn update(&mut self, field_provider: &GPUFieldProvider, state: &State, camera: &ArcBall) {
-        self.timer += 0.1;
+        self.timer += 0.004;
+        let context = Context::get_context();
         //if self.timer < 1.0 {
         //    return;
         //}
         self.update_shader.uniform1f("u_size", TEXTURESIZE as f32);
-        self.shader.uniform1f("u_size", TEXTURESIZE as f32);
-
         self.update_shader.uniform1f("u_speed", state.speed_multiplier * 0.016);
         self.update_shader.uniform1f("u_lowpass", state.lowpass_filter);
         self.update_shader.uniform1f("u_highpass", state.highpass_filter);
@@ -141,17 +143,28 @@ impl GPUParticleEngine {
 
         self.update_shader.uniform1i("u_layer", (self.layer) as i32);
         self.layer = (self.layer + 1) % MAXSTREAMLETSIZE as i32;
-        self.framebuffer.buffer_texture_layer(&self.update_texture(), self.layer);
+        
         self.shader.uniform1i("u_layer", (self.layer) as i32);
         
         self.timer = 0.0;
         self.update = true;
         Context::get_context().viewport(0, 0, TEXTURESIZE as i32, TEXTURESIZE as i32);
         let len = self.vertices.len() as i32 / 2 / (MAXSTREAMLETSIZE) as i32;
-        self.framebuffer.bind();
+        self.get_texture().unwrap().activate(Some(&self.update_shader), 0, "uSampler");
         field_provider.get_texture().activate(Some(&self.update_shader), 1, "uData");
         self.noise.activate(Some(&self.update_shader), 2, "uNoise");
-        render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), &Matrix4::<f32>::identity());
+        self.framebuffer.bind();
+        self.update_texture().bind();
+        self.framebuffer.buffer_texture_layer(&self.update_texture(), self.layer);
+        
+        self.vertices.bind();
+        self.update_shader.use_program();
+        self.update_shader.bind_attribs();
+
+
+        context.draw_arrays(Context::POINTS, 0, len);
+
+        //render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), &Matrix4::<f32>::identity());
         self.framebuffer.unbind();
         // TODO: Resize to window size...
         Context::get_context().viewport(0, 0, state.window_w as i32, state.window_h as i32);
@@ -192,6 +205,7 @@ impl Drawable for GPUParticleEngine {
     }
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
+        self.update_texture().activate(Some(&self.shader), 1, "uOther");
         render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, self.render_states(), view_matrix);
         //let len = self.vertices.len() as i32 / 2 / (MAXSTREAMLETSIZE) as i32;
         //render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), view_matrix);

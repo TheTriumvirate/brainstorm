@@ -18,7 +18,7 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn from_3d_data(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[u8], is_array: bool) -> Self {
+    pub fn from_3d_data(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[f32], is_array: bool) -> Self {
         let _type = if is_array {Context::TEXTURE_2D_ARRAY} else {Context::TEXTURE_3D};
         
         let context = Context::get_context();
@@ -31,18 +31,18 @@ impl Texture {
         context.tex_parameteri(
             _type,
             Context::TEXTURE_MIN_FILTER,
-            Context::LINEAR as i32
+            Context::NEAREST as i32
         );
         context.tex_parameteri(
             _type,
             Context::TEXTURE_MAG_FILTER,
-            Context::LINEAR as i32
+            Context::NEAREST as i32
         );
 
-        context.tex_image3d(
+        context.tex_image3d_f(
             _type,
             0,
-            Context::RGBA as i32,
+            Context::RGBA32F as i32,
             width as i32,
             height as i32,
             depth as i32,

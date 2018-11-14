@@ -33,9 +33,8 @@ impl FrameBuffer {
 
     pub fn buffer_texture_layer(&self, texture: &Texture, layer: i32) {
         let context = Context::get_context();
-        self.bind();
+        texture.bind();
         context.framebuffer_texture_layer(Context::FRAMEBUFFER, Context::COLOR_ATTACHMENT0, &texture.get_native(), 0, layer);
-        self.unbind();
     }
 }
 
