@@ -1,4 +1,4 @@
-use gl_bindings::{Texture, Buffer, BufferType};
+use gl_bindings::{Texture, Buffer, BufferType, shaders::OurShader};
 use graphics::{Drawable, DrawMode, render_target, position};
 use na::Matrix4;
 use std::rc::Rc;
@@ -7,7 +7,8 @@ use std::rc::Rc;
 pub struct Rectangle {
     vertices: Buffer<f32>,
     indices: Buffer<u16>,
-    texture: Option<Rc<Texture>>
+    texture: Option<Rc<Texture>>,
+    shader: Option<Rc<OurShader>>,
 }
 
 impl Rectangle {
@@ -32,17 +33,25 @@ impl Rectangle {
         let len = indices.len();
         indices.upload_data(0, len, true);
 
-        Rectangle { vertices, indices, texture: None }
+        Rectangle { vertices, indices, texture: None, shader: None }
     }
 
     pub fn set_texture(&mut self, texture: Option<Rc<Texture>>) {
         self.texture = texture;
+    }
+
+    pub fn set_shader(&mut self, shader: Option<Rc<OurShader>>) {
+        self.shader = shader;
     }
 }
 
 impl Drawable for Rectangle {
     fn get_texture(&self) -> Option<Rc<Texture>> {
         self.texture.clone()
+    }
+
+    fn get_shader(&self) -> Option<Rc<OurShader>> {
+        self.shader.clone()
     }
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {

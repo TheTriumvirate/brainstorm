@@ -34,7 +34,7 @@ use NativeTexture;
 
 use self::webgl2_bindings::{
     WebGL2RenderingContext, WebGLBuffer, WebGLProgram,
-    WebGLShader, WebGLUniformLocation, WebGLTexture, WebGLFramebuffer
+    WebGLShader, WebGLUniformLocation, WebGLTexture, WebGLFramebuffer, WebGLVertexArrayObject
 };
 
 pub use self::webgl2_bindings::{
@@ -49,6 +49,7 @@ pub type GLBuffer = WebGLBuffer;
 pub type GLUint = u32;
 pub type GLTexture = WebGLTexture;
 pub type GLFrameBuffer = WebGLFramebuffer;
+pub type GLVertexArray = WebGLVertexArrayObject;
 
 lazy_static! {
     static ref CONTEXT: Context = WebGLContext::new();
@@ -118,6 +119,11 @@ impl AbstractContext for WebGLContext {
     const UNSIGNED_INT: u32 = WebGL2RenderingContext::UNSIGNED_INT;
     const FRAMEBUFFER: u32 = WebGL2RenderingContext::FRAMEBUFFER;
     const COLOR_ATTACHMENT0: u32 = WebGL2RenderingContext::COLOR_ATTACHMENT0;
+    const RASTERIZER_DISCARD: u32 = WebGL2RenderingContext::RASTERIZER_DISCARD;
+    const TRANSFORM_FEEDBACK_BUFFER: u32 = WebGL2RenderingContext::TRANSFORM_FEEDBACK_BUFFER;
+    const INTERLEAVED_ATTRIBS: u32 = WebGL2RenderingContext::INTERLEAVED_ATTRIBS;
+    const STATIC_READ: u32 = WebGL2RenderingContext::STATIC_READ;
+    const LINK_STATUS: u32 = WebGL2RenderingContext::LINK_STATUS;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -183,6 +189,17 @@ impl AbstractContext for WebGLContext {
     fn get_program_info_log(&self, program: &Program) -> Option<String> {
         self.context.get_program_info_log(program)
     }
+    
+    fn transform_feedback_varyings(&self, program: &Program, varyings: &str, buffer_mode: GLEnum) {
+        self.context.transform_feedback_varyings(program, &[varyings], buffer_mode);
+    }
+
+    fn get_program_parameter(&self, program: &Program, pname: GLEnum) -> Option<i32> {
+        match self.context.get_program_parameter(program, pname) {
+            Value::Number(n) => n.try_into().ok(),
+            _ => None,
+        }
+    }
 
     fn create_buffer(&self) -> Option<NativeBuffer> {
         self.context.create_buffer()
@@ -192,7 +209,8 @@ impl AbstractContext for WebGLContext {
         self.context.bind_buffer(target, Some(buffer));
     }
 
-    fn buffer_data<T: GlPrimitive>(&self, target: GLEnum, data: &[T], usage: GLEnum) {
+    fn buffer_data<T: GlPrimitive>(&self, target: GLEnum, data: Option<&[T]>, usage: GLEnum) {
+        let data = data.unwrap_or(&[]);
         match T::into(data) {
             GlPrimitiveArray::F32(data) => {
                 let abuf = TypedArray::<f32>::from(data);
@@ -214,6 +232,18 @@ impl AbstractContext for WebGLContext {
 
     fn delete_buffer(&self, buffer: &NativeBuffer) {
         self.context.delete_buffer(Some(buffer));
+    }
+
+    fn create_vertexbuffer(&self) -> Option<GLVertexArray> {
+        self.context.create_vertex_array()
+    }
+
+    fn bind_vertexbuffer(&self, vertex_array: Option<&GLVertexArray>) {
+        self.context.bind_vertex_array(vertex_array);
+    }
+
+    fn delete_vertexbuffer(&self, vertex_array: &GLVertexArray) {
+        self.context.delete_vertex_array(Some(vertex_array));
     }
     
     fn create_framebuffer(&self) -> Option<GLFrameBuffer> {
@@ -434,6 +464,46 @@ impl AbstractContext for WebGLContext {
         }
     }
 
+    fn tex_image3d(
+        &self,
+        target: GLenum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        depth: i32,
+        border: i32,
+        format: GLenum,
+        pixels: Option<&[u8]>,
+    ) {
+        match pixels {
+            Some(pixels) => self.context.tex_image3_d_2(
+                target,
+                level,
+                internalformat,
+                width,
+                height,
+                depth,
+                border,
+                format,
+                Self::UNSIGNED_BYTE,
+                Some(pixels),
+            ),
+            None => self.context.tex_image3_d_2(
+                target,
+                level,
+                internalformat,
+                width,
+                height,
+                depth,
+                border,
+                format,
+                Self::UNSIGNED_BYTE,
+                None::<&TypedArray<u8>>,
+            ),
+        }
+    }
+
     fn tex_image3d_f(
         &self,
         target: GLenum,
@@ -498,6 +568,10 @@ impl AbstractContext for WebGLContext {
     fn draw_elements(&self, mode: GLEnum, count: i32, type_: GLEnum, offset: GLintptr) {
         self.context.draw_elements(mode, count, type_, offset);
     }
+    
+    fn flush(&self) {
+        self.context.flush();
+    }
 
     fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {
         self.context.viewport(x, y, width, height);
@@ -518,5 +592,21 @@ impl AbstractContext for WebGLContext {
     
     fn depth_mask(&self, flag: bool) {
         self.context.depth_mask(flag);
+    }
+    
+    fn bind_buffer_base(&self, target: GLEnum, index: u32, buffer: Option<&GLBuffer>) {
+        self.context.bind_buffer_base(target, index, buffer);
+    }
+
+    fn get_buffer_sub_data(&self, target: GLEnum, index: u32, data: &mut [f32]) {
+        unimplemented!();
+    }
+
+    fn begin_transform_feedback(&self, type_: GLEnum) {
+        self.context.begin_transform_feedback(type_);
+    }
+
+    fn end_transform_feedback(&self) {
+        self.context.end_transform_feedback();
     }
 }

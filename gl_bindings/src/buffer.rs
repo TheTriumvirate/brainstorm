@@ -72,6 +72,16 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
         self.data.get(index)
     }
 
+    pub fn bind_buffer_base(&self) {
+        let context = Context::get_context();
+        context.bind_buffer_base(Context::TRANSFORM_FEEDBACK_BUFFER, 0, Some(&self.buffer));
+    }
+    
+    pub fn unbind_buffer_base(&self) {
+        let context = Context::get_context();
+        context.bind_buffer_base(Context::TRANSFORM_FEEDBACK_BUFFER, 0, None);
+    }
+
     /// Uploads the data to the GPU.
     pub fn upload_data(&mut self, offset: usize, length: usize, is_static: bool) {
         let alloc_type = if is_static {
@@ -81,7 +91,8 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
         };
 
         let context = Context::get_context();
-        context.buffer_data(self.buffer_type.gl_type(), &self.data[offset..length], alloc_type);
+        let size = length - offset;
+        context.buffer_data(self.buffer_type.gl_type(), Some(&self.data[offset..length]), alloc_type);
     }
 
     /// Binds the buffer to the GPU.

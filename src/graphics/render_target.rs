@@ -3,7 +3,7 @@ use gl_bindings::{shaders::*, AbstractContext, Buffer, Context, GlPrimitive};
 use graphics::{RenderStates, DrawMode};
 use na::Matrix4;
 
-fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
+pub fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
     let context = Context::get_context();
 
     let shader: &OurShader = match states.shader {
@@ -29,7 +29,7 @@ fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
     }
 }
 
-fn unbind_all(states: &RenderStates) {
+pub fn unbind_all(states: &RenderStates) {
 
     if let Some(texture) = &states.texture {
         texture.unbind();

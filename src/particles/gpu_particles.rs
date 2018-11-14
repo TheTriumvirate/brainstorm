@@ -19,6 +19,7 @@ const MAXSTREAMLETSIZE: usize = 4;
 
 pub struct GPUParticleEngine {
     texture: Rc<Texture>,
+    texture2: Rc<Texture>,
     noise: Rc<Texture>,
     vertices: Buffer<f32>,
     indices: Buffer<u32>,
@@ -28,6 +29,7 @@ pub struct GPUParticleEngine {
     layer: i32,
     timer: f32,
     update: bool,
+    swap: bool,
 }
 
 impl GPUParticleEngine {
@@ -42,10 +44,10 @@ impl GPUParticleEngine {
         for q in 0..MAXSTREAMLETSIZE {
             for u in 0..(TEXTURESIZE) {
                 for v in 0..(TEXTURESIZE) {
-                    data.push(0.0);
-                    data.push(0.0);
-                    data.push(0.0);
-                    data.push(1.0);
+                    data.push(0);
+                    data.push(0);
+                    data.push(0);
+                    data.push(255);
                     
                     particle_data.push(u as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
                     particle_data.push(v as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
@@ -101,12 +103,13 @@ impl GPUParticleEngine {
         indices.upload_data(0, len, true);
 
         let texture = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], true));
+        let texture2 = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], true));
 
         let framebuffer = FrameBuffer::new();
-        framebuffer.buffer_texture_layer(&texture, 0);
 
         GPUParticleEngine {
             texture,
+            texture2,
             noise: Rc::new(Texture::from_data(TEXTURESIZE as u32, TEXTURESIZE as u32, TextureFormat::RGBA, &noise_data[..])),
             vertices,
             indices,
@@ -115,7 +118,8 @@ impl GPUParticleEngine {
             framebuffer,
             layer: 0,
             timer: 0.0,
-            update: false
+            update: false,
+            swap: false,
         }
     }
 
@@ -137,7 +141,7 @@ impl GPUParticleEngine {
 
         self.update_shader.uniform1i("u_layer", (self.layer) as i32);
         self.layer = (self.layer + 1) % MAXSTREAMLETSIZE as i32;
-        self.framebuffer.buffer_texture_layer(&self.texture, self.layer);
+        self.framebuffer.buffer_texture_layer(&self.update_texture(), self.layer);
         self.shader.uniform1i("u_layer", (self.layer) as i32);
         
         self.timer = 0.0;
@@ -152,16 +156,30 @@ impl GPUParticleEngine {
         // TODO: Resize to window size...
         Context::get_context().viewport(0, 0, state.window_w as i32, state.window_h as i32);
         self.update = false;
+        self.swap = !self.swap;
     }
 
     pub fn get_layer(&self) -> i32 {
         self.layer
     }
+
+    pub fn update_texture(&self) -> Rc<Texture> {
+        if !self.swap {
+            self.texture.clone()
+        } else {
+            self.texture2.clone()
+        }
+
+    }
 }
 
 impl Drawable for GPUParticleEngine {
     fn get_texture(&self) -> Option<Rc<Texture>> {
-        Some(self.texture.clone())
+        if self.swap {
+            Some(self.texture.clone())
+        } else {
+            Some(self.texture2.clone())
+        }
     }
 
     fn get_shader(&self) -> Option<Rc<OurShader>> {

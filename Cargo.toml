@@ -26,5 +26,5 @@ stdweb = "0.4"
 rand = {version = "0.5", features = ["stdweb"]}
 
 [profile.dev]
-opt-level = 2   
+opt-level = 2
 codegen-units = 5

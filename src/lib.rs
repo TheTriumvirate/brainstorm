@@ -28,7 +28,7 @@ use std::f32;
 use std::io::Read;
 
 use graphics::{Drawable, Circle, Cube, position, Rectangle};
-use gl_bindings::{AbstractContext, Context, shaders::OurShader};
+use gl_bindings::{AbstractContext, Context, shaders::OurShader, VertexBuffer};
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
@@ -57,6 +57,7 @@ pub struct App {
     gpu_particles: GPUParticleEngine,
     march: MarchingCubes,
     streamlines: Streamlines,
+    vbo: VertexBuffer
 }
 
 /// Holds application state.
@@ -140,6 +141,10 @@ impl App {
         let particles = Some(ParticleEngine::new(field_provider));
         
         let streamlines = Streamlines::new();
+        let gpu_particles = GPUParticleEngine::new();
+
+        let vbo = VertexBuffer::new();
+        vbo.bind();
 
         App {
             window,
@@ -153,9 +158,10 @@ impl App {
             circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
             bound: Cube::new((-0.5, -0.5, -0.5), (1.0,1.0,1.0), (1.0,1.0,1.0)),
             gpu_field: gpu_field.unwrap(),
-            gpu_particles: GPUParticleEngine::new(),
+            gpu_particles: gpu_particles,
             march,
             streamlines,
+            vbo,
         }
     }
 
@@ -212,7 +218,6 @@ impl App {
         self.circle1.rebuild_data();
         self.circle2.rebuild_data();
         self.circle3.rebuild_data();
-
         self.bound.draw_transformed(&projection_matrix);
         self.circle1.draw_transformed(&projection_matrix);
         self.circle2.draw_transformed(&projection_matrix);

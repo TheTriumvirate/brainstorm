@@ -42,11 +42,6 @@ impl GLContext {
         unsafe {
             gl::Enable(gl::DEBUG_OUTPUT);
             gl::DebugMessageCallback(callaback, ptr::null());
-            
-            // Global vertex array buffer to keep state... Don't ask...
-            let mut vao = 0;
-            gl::GenVertexArrays(1, &mut vao);
-            gl::BindVertexArray(vao);
 
             gl::BlendFunc(gl::SRC_ALPHA, gl::ONE_MINUS_SRC_ALPHA);
             gl::Enable(gl::BLEND);
@@ -112,6 +107,11 @@ impl AbstractContext for GLContext {
     const UNSIGNED_INT: u32 = gl::UNSIGNED_INT;
     const FRAMEBUFFER: u32 = gl::FRAMEBUFFER;
     const COLOR_ATTACHMENT0: u32 = gl::COLOR_ATTACHMENT0;
+    const RASTERIZER_DISCARD: u32 = gl::RASTERIZER_DISCARD;
+    const TRANSFORM_FEEDBACK_BUFFER: u32 = gl::TRANSFORM_FEEDBACK_BUFFER;
+    const INTERLEAVED_ATTRIBS: u32 = gl::INTERLEAVED_ATTRIBS;
+    const STATIC_READ: u32 = gl::STATIC_READ;
+    const LINK_STATUS: u32 = gl::LINK_STATUS;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -149,6 +149,14 @@ impl AbstractContext for GLContext {
         let mut result = 0;
         unsafe {
             gl::GetShaderiv(*shader, pname, &mut result);
+        }
+        Some(result)
+    }
+
+    fn get_program_parameter(&self, program: &Program, pname: GLEnum) -> Option<i32> {
+        let mut result = 0;
+        unsafe {
+            gl::GetProgramiv(*program, pname, &mut result);
         }
         Some(result)
     }
@@ -207,7 +215,37 @@ impl AbstractContext for GLContext {
     }
     
     fn get_program_info_log(&self, program: &Program) -> Option<String> {
-        None // TODO: implement
+        let info_length = self
+            .get_program_parameter(program, gl::INFO_LOG_LENGTH)
+            .unwrap();
+        if info_length > 0 {
+            let mut written_length = 0;
+            let buffer: String = iter::repeat(' ').take(info_length as usize).collect();
+
+            let buffer_string = CString::new(buffer.as_bytes()).unwrap();
+            unsafe {
+                gl::GetProgramInfoLog(
+                    *program,
+                    info_length,
+                    &mut written_length,
+                    buffer_string.as_ptr() as *mut i8,
+                )
+            };
+            let bytes = buffer_string.as_bytes();
+            let bytes = &bytes[..bytes.len() - 1];
+            String::from_utf8(bytes.to_vec()).ok()
+        } else {
+            None
+        }
+    }
+    
+    fn transform_feedback_varyings(&self, program: &Program, varyings: &str, buffer_mode: GLEnum) {
+        unsafe {
+            let src = CString::new(varyings).unwrap();
+
+            //let data = varyings.iter().map(|&x| CString::new(x).unwrap().as_ptr()).collect::<Vec<*const i8>>();
+            gl::TransformFeedbackVaryings(*program, 1, &src.as_ptr(), buffer_mode)
+        }
     }
 
     fn clear_color(&self, r: f32, g: f32, b: f32, a: f32) {
@@ -236,20 +274,53 @@ impl AbstractContext for GLContext {
         }
     }
 
-    fn buffer_data<T>(&self, target: GLEnum, data: &[T], usage: GLEnum) {
+    fn buffer_data<T>(&self, target: GLEnum, data: Option<&[T]>, usage: GLEnum) {
         unsafe {
-            gl::BufferData(
-                target,
-                (data.len() * mem::size_of::<T>()) as GLsizeiptr,
-                mem::transmute(&data[0]),
-                usage,
-            );  
+            match data {
+                Some(t) => {
+                    gl::BufferData(
+                        target,
+                        (t.len() * mem::size_of::<T>()) as GLsizeiptr,
+                        mem::transmute(&t[0]),
+                        usage,
+                    );  
+                },
+                None => {
+                    gl::BufferData(
+                        target,
+                        0,
+                        ptr::null(),
+                        usage,
+                    );  
+
+                }
+            }
         }
     }
 
     fn delete_buffer(&self, buffer: &NativeBuffer) {
         unsafe {
             gl::DeleteBuffers(1, buffer);
+        }
+    }
+    
+    fn create_vertexbuffer(&self) -> Option<GLVertexArray> {
+        let mut vao = 0;
+        unsafe {
+            gl::GenVertexArrays(1, &mut vao);
+        }
+        Some(vao)
+    }
+
+    fn bind_vertexbuffer(&self, vertex_array: Option<&GLVertexArray>) {
+        unsafe {
+            gl::BindVertexArray(*vertex_array.unwrap_or(&0));
+        }
+    }
+
+    fn delete_vertexbuffer(&self, vertex_array: &GLVertexArray) {
+        unsafe {
+            gl::DeleteVertexArrays(1, vertex_array);
         }
     }
 
@@ -394,6 +465,15 @@ impl AbstractContext for GLContext {
             }
         }
     }
+    
+    fn tex_image3d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, depth: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>) {
+        unsafe {
+            match pixels {
+                Some(data) => gl::TexImage3D(target, level, internalformat, width, height, depth, border, format, Self::UNSIGNED_BYTE, mem::transmute(&data[0])),
+                _ => gl::TexImage3D(target, level, internalformat, width, height, depth, border, format, Self::UNSIGNED_BYTE, ptr::null()),
+            }
+        }
+    }
 
     fn tex_image3d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, depth: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>) {
         unsafe {
@@ -475,6 +555,12 @@ impl AbstractContext for GLContext {
         }
     }
 
+    fn flush(&self) {
+        unsafe {
+            gl::Flush();
+        }
+    }
+
     fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {
         unsafe {
             gl::Viewport(x, y, width, height);
@@ -500,6 +586,34 @@ impl AbstractContext for GLContext {
     fn depth_mask(&self, flag: bool) {
         unsafe {
             gl::DepthMask(if flag {1} else {0})
+        }
+    }
+
+    fn bind_buffer_base(&self, target: GLEnum, index: u32, buffer: Option<&GLBuffer>) {
+        unsafe {
+            match buffer {
+                Some(b) => gl::BindBufferBase(target, index, *b),
+                None => gl::BindBufferBase(target, index, 0),
+            }
+            
+        }
+    }
+    
+    fn get_buffer_sub_data(&self, target: GLEnum, index: u32, data: &mut [f32]) {
+        unsafe {
+            gl::GetBufferSubData(target, index as isize, (data.len() * mem::size_of::<f32>()) as isize, data.as_ptr() as *mut c_void)
+        }
+    }
+    
+    fn begin_transform_feedback(&self, type_: GLEnum) {
+        unsafe {
+            gl::BeginTransformFeedback(type_);
+        }
+    }
+
+    fn end_transform_feedback(&self) {
+        unsafe {
+            gl::EndTransformFeedback();
         }
     }
 }
