@@ -18,7 +18,51 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn from_3d_data(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[f32], is_array: bool) -> Self {
+    pub fn from_3d_data(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[u8], is_array: bool) -> Self {
+        let _type = if is_array {Context::TEXTURE_2D_ARRAY} else {Context::TEXTURE_3D};
+        
+        let context = Context::get_context();
+
+        let texture = context.create_texture().unwrap();
+        context.bind_texture(_type, &texture);
+        
+        let formatv : u32 = format.into();
+
+        context.tex_parameteri(
+            _type,
+            Context::TEXTURE_MIN_FILTER,
+            Context::LINEAR as i32
+        );
+        context.tex_parameteri(
+            _type,
+            Context::TEXTURE_MAG_FILTER,
+            Context::LINEAR as i32
+        );
+
+        context.tex_image3d(
+            _type,
+            0,
+            Context::RGBA8 as i32,
+            width as i32,
+            height as i32,
+            depth as i32,
+            0,
+            formatv,
+            Some(data)
+        );
+
+        let texture = Texture {
+            texture,
+            _format: format,
+            _type,
+        };
+
+        //context.generate_mipmap(Context::TEXTURE_3D);
+
+        texture
+    }
+    
+    pub fn from_3d_data_f(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[f32], is_array: bool) -> Self {
         let _type = if is_array {Context::TEXTURE_2D_ARRAY} else {Context::TEXTURE_3D};
         
         let context = Context::get_context();

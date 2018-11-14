@@ -102,8 +102,8 @@ impl GPUParticleEngine {
         let len = indices.len();
         indices.upload_data(0, len, true);
 
-        let texture = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], false));
-        let texture2 = Rc::new(Texture::from_3d_data(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], false));
+        let texture = Rc::new(Texture::from_3d_data_f(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], false));
+        let texture2 = Rc::new(Texture::from_3d_data_f(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], false));
 
         let framebuffer = FrameBuffer::new();
 

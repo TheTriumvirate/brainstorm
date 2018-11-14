@@ -25,20 +25,25 @@ impl GPUFieldProvider {
         
         let mut max : f32 = 0.0;
         let mut min : f32 = 0.0;
+        let mut test : f32 = 0.0;
+        let mut test2 : f32 = 100000.0;
         for plane in x.vectors.iter() {
             for row in plane {
                 for elem in row {
                     let (dx, dy, dz, da) = elem;
-                    let (dx, dy, dz) = (dx * da, dy * da, dz *da);
-                    max = max.max(dx);
-                    max = max.max(dy);
-                    max = max.max(dz);
-                    min = min.min(dx);
-                    min = min.min(dy);
-                    min = min.min(dz);
+                    max = max.max(*dy);
+                    max = max.max(*dx);
+                    max = max.max(*dz);
+                    min = min.min(*dx);
+                    min = min.min(*dy);
+                    min = min.min(*dz);
+                    test = test.max(*da);
+                    test2 = test.min(*da);
                 }
             }
         }
+
+        println!("{} {} {}", max, test, test2);
         
         // TODO: RGB only
         let mut data = Vec::new();
@@ -46,16 +51,15 @@ impl GPUFieldProvider {
             for row in plane {
                 for elem in row {
                     let (dx, dy, dz, da) = elem;
-                    let (dx, dy, dz) = (dx * da, dy * da, dz *da);
                     
                     let dx = (dx - min) / (max - min);
                     let dy = (dy - min) / (max - min);
                     let dz = (dz - min) / (max - min);
 
-                    data.push(dx);
-                    data.push(dy);
-                    data.push(dz);
-                    data.push(1.0);
+                    data.push((dx * 255.0).round() as u8);
+                    data.push((dy * 255.0).round() as u8);
+                    data.push((dz * 255.0).round() as u8);
+                    data.push((da * 255.0).round() as u8);
                 }
             }
         }
