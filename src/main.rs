@@ -3,7 +3,6 @@ extern crate gl_bindings;
 extern crate window;
 
 #[cfg(not(target_arch = "wasm32"))]
-#[macro_use]
 extern crate structopt;
 
 use window::AbstractWindow;

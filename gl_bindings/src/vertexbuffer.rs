@@ -1,7 +1,6 @@
 use AbstractContext;
 use Context;
 use NativeVertexBuffer;
-use Texture;
 
 
 /// Holds a GL buffer and lets you upload it to the GPU.

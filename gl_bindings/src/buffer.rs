@@ -91,7 +91,6 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
         };
 
         let context = Context::get_context();
-        let size = length - offset;
         context.buffer_data(self.buffer_type.gl_type(), Some(&self.data[offset..length]), alloc_type);
     }
 

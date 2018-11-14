@@ -47,6 +47,10 @@ impl GLContext {
             gl::Enable(gl::BLEND);
             gl::Enable(gl::PROGRAM_POINT_SIZE);
             gl::LineWidth(2.0);
+
+            let mut vao = 0;
+            gl::GenVertexArrays(1, &mut vao);
+            gl::BindVertexArray(vao);
         }
         GLContext {}
     }

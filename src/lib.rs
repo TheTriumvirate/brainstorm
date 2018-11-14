@@ -24,22 +24,19 @@ pub mod gui;
 pub mod particles;
 
 use std::path::PathBuf;
-use std::{f32, str};
+use std::f32;
 use std::io::Read;
-use std::rc::Rc;
 
-use graphics::{Drawable, Circle, Cube, position, Rectangle};
-use gl_bindings::{AbstractContext, Context, shaders::OurShader, shaders::ShaderAttribute, VertexBuffer};
+use graphics::{Drawable, Circle, Cube};
+use gl_bindings::{AbstractContext, Context};
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
 use window::{AbstractWindow, Window, Event};
 
-use resources::shaders::{TEST_FRAGMENT_SHADER, TEST_VERTEX_SHADER};
-
 use particles::gpu_fieldprovider::GPUFieldProvider;
 use particles::gpu_particles::GPUParticleEngine;
-use particles::{MarchingCubes, Streamlines};
+use particles::MarchingCubes;
 
 pub const WINDOW_WIDTH : u32 = 1000;
 pub const WINDOW_HEIGHT : u32 = 1000;
@@ -59,9 +56,6 @@ pub struct App {
     gpu_field: GPUFieldProvider,
     gpu_particles: GPUParticleEngine,
     march: MarchingCubes,
-    streamlines: Streamlines,
-    vbo: VertexBuffer,
-    test: Rectangle,
 }
 
 /// Holds application state.
@@ -144,30 +138,7 @@ impl App {
         let march = MarchingCubes::marching_cubes(&field_provider);
         let particles = Some(ParticleEngine::new(field_provider));
         
-        let streamlines = Streamlines::new();
         let gpu_particles = GPUParticleEngine::new();
-
-        let vbo = VertexBuffer::new();
-        vbo.bind();
-
-        let mut test = Rectangle::new(position::Coordinates {
-            x1: 0.0,
-            x2: 1.0,
-            y1: 0.0,
-            y2: 1.0,
-        }, (0.0, 0.0, 0.0));
-
-        let test_shader = OurShader::new(
-            str::from_utf8(TEST_VERTEX_SHADER).expect("Failed to read vertex shader"), 
-            str::from_utf8(TEST_FRAGMENT_SHADER).expect("Failed to read fragment shader"), 
-            &[
-                ShaderAttribute{name: "a_position".to_string(), size: 3},
-                ShaderAttribute{name: "a_color".to_string(), size: 3},
-                ShaderAttribute{name: "a_texture".to_string(), size: 2},
-            ]
-        );
-
-        test.set_shader(Some(Rc::new(test_shader)));
 
         App {
             window,
@@ -183,9 +154,6 @@ impl App {
             gpu_field: gpu_field.unwrap(),
             gpu_particles: gpu_particles,
             march,
-            streamlines,
-            vbo,
-            test,
         }
     }
 
@@ -216,10 +184,6 @@ impl App {
         
         let (cx, cy, cz) = self.camera.get_position();
         self.march.set_light_dir((cx, cy, cz));
-
-        let radius = self.state.seeding_size * 0.6 + 0.01;
-        let speed_multiplier = 0.016 * self.state.speed_multiplier;
-        //self.streamlines.draw_streamlines(speed_multiplier, self.state.lifetime as i32, radius, &self.field_provider, self.camera.get_target());
 
         // Clear screen
         context.clear_color(0.0, 0.0, 0.0, 1.0);

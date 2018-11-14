@@ -40,7 +40,7 @@ impl GPUParticleEngine {
         let mut rng = SmallRng::from_entropy();
         let mut index_data = Vec::new();
         let mut index = 0;
-        const offset : u32 = (TEXTURESIZE * TEXTURESIZE) as u32;
+        const OFFSET : u32 = (TEXTURESIZE * TEXTURESIZE) as u32;
         for q in 0..MAXSTREAMLETSIZE {
             for u in 0..(TEXTURESIZE) {
                 for v in 0..(TEXTURESIZE) {
@@ -58,7 +58,7 @@ impl GPUParticleEngine {
                         noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
                         noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
                     } else {
-                        index_data.push(index-offset);
+                        index_data.push(index-OFFSET);
                         index_data.push(index);
                     }
                     index += 1;
