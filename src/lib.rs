@@ -124,8 +124,12 @@ impl App {
         #[cfg(target_arch = "wasm32")]
         {
             stdweb::initialize();
-            field_provider = Some(FieldProvider::new(resources::fields::TEST_DATA));
-            gpu_field = Some(GPUFieldProvider::new(resources::fields::TEST_DATA))
+            field_provider = Some(
+                FieldProvider::new(resources::fields::TEST_DATA).expect("Failed to parse data.")
+            );
+            gpu_field = Some(
+                GPUFieldProvider::new(resources::fields::TEST_DATA).expect("Failed to parse data.")
+            )
         }
         // For desktop we load a file if it exists.
         #[cfg(not(target_arch = "wasm32"))]
@@ -299,7 +303,7 @@ impl App {
         let b64 = content.split_at(pos).1;
         let data = base64::decode(b64).map_err(|_| "Failed to decode base64 content")?;
         let field_provider = FieldProvider::new(&data).map_err(|_| "Failed to parse data")?;
-        let gpu_field_provider = GPUFieldProvider::new(&content).map_err(|_| "Failed to parse file.")?;
+        let gpu_field_provider = GPUFieldProvider::new(&content.as_bytes()).map_err(|_| "Failed to parse file.")?;
         Ok((field_provider, gpu_field_provider))
     }
 }
