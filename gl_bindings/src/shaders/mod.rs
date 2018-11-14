@@ -178,7 +178,7 @@ impl OurShader {
         context.attach_shader(&program, &fs);
         context.link_program(&program);
 
-        let compiles = context.get_program_parameter(&fs, Context::LINK_STATUS);
+        let compiles = context.get_program_parameter(&program, Context::LINK_STATUS);
         if compiles == Some(0) {
             if let Some(log) = context.get_program_info_log(&program) {
                 //js!(console.log(@{log.clone()}));

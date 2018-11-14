@@ -24,15 +24,18 @@ pub mod gui;
 pub mod particles;
 
 use std::path::PathBuf;
-use std::f32;
+use std::{f32, str};
 use std::io::Read;
+use std::rc::Rc;
 
 use graphics::{Drawable, Circle, Cube, position, Rectangle};
-use gl_bindings::{AbstractContext, Context, shaders::OurShader, VertexBuffer};
+use gl_bindings::{AbstractContext, Context, shaders::OurShader, shaders::ShaderAttribute, VertexBuffer};
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
 use window::{AbstractWindow, Window, Event};
+
+use resources::shaders::{TEST_FRAGMENT_SHADER, TEST_VERTEX_SHADER};
 
 use particles::gpu_fieldprovider::GPUFieldProvider;
 use particles::gpu_particles::GPUParticleEngine;
@@ -57,7 +60,8 @@ pub struct App {
     gpu_particles: GPUParticleEngine,
     march: MarchingCubes,
     streamlines: Streamlines,
-    vbo: VertexBuffer
+    vbo: VertexBuffer,
+    test: Rectangle,
 }
 
 /// Holds application state.
@@ -146,6 +150,25 @@ impl App {
         let vbo = VertexBuffer::new();
         vbo.bind();
 
+        let mut test = Rectangle::new(position::Coordinates {
+            x1: 0.0,
+            x2: 1.0,
+            y1: 0.0,
+            y2: 1.0,
+        }, (0.0, 0.0, 0.0));
+
+        let test_shader = OurShader::new(
+            str::from_utf8(TEST_VERTEX_SHADER).expect("Failed to read vertex shader"), 
+            str::from_utf8(TEST_FRAGMENT_SHADER).expect("Failed to read fragment shader"), 
+            &[
+                ShaderAttribute{name: "a_position".to_string(), size: 3},
+                ShaderAttribute{name: "a_color".to_string(), size: 3},
+                ShaderAttribute{name: "a_texture".to_string(), size: 2},
+            ]
+        );
+
+        test.set_shader(Some(Rc::new(test_shader)));
+
         App {
             window,
             particles: particles.unwrap(),
@@ -162,6 +185,7 @@ impl App {
             march,
             streamlines,
             vbo,
+            test,
         }
     }
 
