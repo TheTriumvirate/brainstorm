@@ -29,8 +29,8 @@ use std::f32;
 use std::io::Read;
 use std::path::PathBuf;
 
-use gl_bindings::{AbstractContext, Context};
 use graphics::Drawable;
+use gl_bindings::{AbstractContext, Context};
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
@@ -38,6 +38,9 @@ use window::{AbstractWindow, Window, Event};
 
 const INITIAL_WINDOW_WIDTH: u32 = 1000;
 const INITIAL_WINDOW_HEIGHT: u32 = 800;
+use particles::gpu_fieldprovider::GPUFieldProvider;
+use particles::gpu_particles::GPUParticleEngine;
+use particles::MarchingCubes;
 
 /// Holds application resources.
 pub struct App {
@@ -48,6 +51,9 @@ pub struct App {
     state: State,
     particles: ParticleEngine,
     mid_reload: bool,
+    gpu_field: GPUFieldProvider,
+    gpu_particles: GPUParticleEngine,
+    march: MarchingCubes,
 }
 
 /// Holds application state.
@@ -63,10 +69,13 @@ pub struct State {
     mesh_transparency: f32,
     particle_size: f32,
     particle_respawn_per_tick: u32,
-    show_streamlines: bool,
     file_path: Option<PathBuf>,
     reload_file: bool,
     camera_delta_movement: (f32, f32, f32),
+    texture_idx: f32,
+    window_w: f32,
+    window_h: f32,
+    use_gpu_particles: bool,
 }
 
 impl State {
@@ -84,10 +93,13 @@ impl State {
             mesh_transparency: 0.1,
             particle_size: 8.0,
             particle_respawn_per_tick: 1000,
-            show_streamlines: true,
             file_path: None,
             reload_file: false,
             camera_delta_movement: (0.0, 0.0, 0.0),
+            texture_idx: 0.0,
+            window_w: 0.0,
+            window_h: 0.0,
+            use_gpu_particles: false,
         }
     }
 }
@@ -103,16 +115,17 @@ impl App {
     /// Expects a file path for non-web compile targets.
     pub fn new(path: Option<PathBuf>) -> App {
         #[allow(unused_assignments)]
-        let mut particles = None;
+        let mut field_provider = None;
+        #[allow(unused_assignments)]
+        let mut gpu_field = None;
         let window = Window::new("Brainstorm!", INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT);
 
         // For web we embed the data in the executable.
         #[cfg(target_arch = "wasm32")]
         {
             stdweb::initialize();
-            let field_provider = FieldProvider::new(resources::fields::TEST_DATA)
-                .expect("Failed to parse built-in field data.");
-            particles = Some(ParticleEngine::new(field_provider));
+            field_provider = Some(FieldProvider::new(resources::fields::TEST_DATA));
+            gpu_field = Some(GPUFieldProvider::new(resources::fields::TEST_DATA))
         }
         // For desktop we load a file if it exists.
         #[cfg(not(target_arch = "wasm32"))]
@@ -125,13 +138,20 @@ impl App {
             } else {
                 Vec::from(resources::fields::DEFAULT_SPIRAL)
             };
-            let field_provider = FieldProvider::new(&content).expect("Failed to parse data.");
-            particles = Some(ParticleEngine::new(field_provider));
+            field_provider = Some(FieldProvider::new(&content).expect("Failed to parse data."));
+            gpu_field = Some(GPUFieldProvider::new(&content).expect("Failed to parse data."));
         }
-        let mut state = State::new();
-        state.file_path = path;
+        
+        let field_provider = field_provider.unwrap();
+        let march = MarchingCubes::marching_cubes(&field_provider);
+        let particles = Some(ParticleEngine::new(field_provider));
+        
+        let gpu_particles = GPUParticleEngine::new();
 
+        let mut state = State::new();
+        state.file_path = path;        
         let gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);
+
         App {
             window,
             state,
@@ -140,6 +160,9 @@ impl App {
             time: 0.0,
             gui,
             mid_reload: false,
+            gpu_field: gpu_field.unwrap(),
+            gpu_particles: gpu_particles,
+            march,
         }
     }
 
@@ -149,11 +172,16 @@ impl App {
 
         // Handle events
         for event in &self.window.get_events() {
-            if let Event::Resized(w, h) = event {
-                self.window.set_size(*w as u32, *h as u32);
-            }
-            let consumed =
-                self.gui.handle_event(&event, &mut self.state, self.window.get_size());
+            match event {
+                Event::Resized(w, h) => {
+                    self.state.window_w = *w;
+                    self.state.window_h = *h;
+                    self.window.set_size(*w as u32, *h as u32)
+                },
+                _ => {}
+            };
+            let consumed = self.gui
+                .handle_event(&event, &mut self.state, self.window.get_size());
 
             if !consumed {
                 self.camera.handle_events(&event);
@@ -184,9 +212,12 @@ impl App {
             self.state.reload_file = false;
             if self.mid_reload {
                 match self.reload_file() {
-                    Ok(particle_engine) => {
+                    Ok((field_provider, gpu_field_provider)) => {
                         self.gui.status.set_status("File loaded!".to_owned());
-                        self.particles = particle_engine;
+                        self.march = MarchingCubes::marching_cubes(&field_provider);
+                        self.particles = ParticleEngine::new(field_provider);
+                        self.gpu_field = gpu_field_provider;
+                        self.gpu_particles = GPUParticleEngine::new()
                     }
                     Err(e) => self.gui.status.set_status(e.to_owned()),
                 }
@@ -202,7 +233,9 @@ impl App {
 
         // Update camera and particle system
         self.camera.update();
-        self.particles.update(&self.state, &mut self.camera);
+        
+        let (cx, cy, cz) = self.camera.get_position();
+        self.march.set_light_dir((cx, cy, cz));
 
         // Clear screen
         context.clear_color(0.0, 0.0, 0.0, 1.0);
@@ -212,36 +245,61 @@ impl App {
         // Draw everything
         Context::get_context().enable(Context::DEPTH_TEST);
         let projection_matrix = self.camera.get_projection_matrix();
-        self.particles.draw(&projection_matrix, &self.state);
         Context::get_context().disable(Context::DEPTH_TEST);
 
         self.gui.seeding_sphere.resize(self.state.seeding_size);
         self.gui.draw_3d_elements(&projection_matrix);
+
+        if self.state.use_gpu_particles {
+            Context::get_context().disable(Context::DEPTH_TEST);
+            self.gpu_particles.update(&self.gpu_field, &self.state, &self.camera);
+            Context::get_context().enable(Context::DEPTH_TEST);
+            self.gpu_particles.draw_transformed(&projection_matrix);
+        } else {
+            self.particles.update(&self.state, &mut self.camera);
+            self.particles.draw(&projection_matrix, &self.state);
+        }
+        
+        if self.state.mesh_transparency < 1.0 {
+            Context::get_context().depth_mask(false);
+        }
+
+        self.march.set_transparency(self.state.mesh_transparency);
+        self.march.draw_transformed(&projection_matrix);
+        
+        if self.state.mesh_transparency < 1.0 {
+            Context::get_context().depth_mask(true);
+        }
+
+        Context::get_context().disable(Context::DEPTH_TEST);
+        
         self.gui.draw();
 
         self.window.swap_buffers();
         self.time += 0.01;
-
         self.state.is_running
+
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    fn reload_file(&self) -> Result<ParticleEngine, &'static str> {
+    fn reload_file(&self) -> Result<(FieldProvider, GPUFieldProvider), &'static str> {
         let path = self.state.file_path.as_ref().ok_or("No file path saved.")?;
         let mut file = std::fs::File::open(path).map_err(|_| "Failed to open file.")?;
         let mut content = Vec::new();
         file.read_to_end(&mut content).map_err(|_| "Failed to read file.")?;
         let field_provider = FieldProvider::new(&content).map_err(|_| "Failed to parse file.")?;
-        Ok(ParticleEngine::new(field_provider))
+        let gpu_field_provider = GPUFieldProvider::new(&content).map_err(|_| "Failed to parse file.")?;
+        Ok((field_provider, gpu_field_provider))
     }
 
     #[cfg(target_arch = "wasm32")]
-    fn reload_file(&self) -> Result<ParticleEngine, &'static str> {
+    fn reload_file(&self) -> Result<(FieldProvider, GPUFieldProvider), &'static str> {
         let content = js!(return getData();).into_string().ok_or("Failed to get data from JS")?;
         let pos = content.find(",").map(|i| i + 1).unwrap_or(0);
         let b64 = content.split_at(pos).1;
         let data = base64::decode(b64).map_err(|_| "Failed to decode base64 content")?;
         let field_provider = FieldProvider::new(&data).map_err(|_| "Failed to parse data")?;
-        Ok(ParticleEngine::new(field_provider))
+        let gpu_field_provider = GPUFieldProvider::new(&content).map_err(|_| "Failed to parse file.")?;
+        Ok((field_provider, gpu_field_provider))
     }
 }

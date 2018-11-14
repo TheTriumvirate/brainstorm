@@ -179,27 +179,6 @@ pub fn particle_spawn_rate(screensize: (f32, f32), font: Rc<RefCell<Font<'static
     ))   
 }
 
-/// A button toggling streamline visibility.
-pub fn toggle_streamlines(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
-    Box::new(Button::new(
-        position::Absolute {
-            height: 40,
-            width: 120,
-            anchor: position::WindowCorner::BotLeft,
-            margin_vertical: 120,
-            margin_horizontal: 40,
-        },
-        (0.44, 0.5, 0.56),
-        screensize,
-        true,
-        Box::new(|ref mut context, toggle_state| {
-            context.show_streamlines = !toggle_state;
-        }),
-        "  Streamlines".to_owned(),
-        font.clone(),
-    ))
-}
-
 /// A button letting the user load a new file.
 pub fn load_file(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
     Box::new(Button::new(
@@ -252,8 +231,8 @@ pub fn toggle_ui(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Bu
 pub fn status_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> StatusLabel {
     StatusLabel::new(
         position::Absolute {
-            height: 0,
-            width: 0,
+            height: 10,
+            width: 10,
             anchor: position::WindowCorner::BotLeft,
             margin_vertical: 10,
             margin_horizontal: 10,
@@ -401,6 +380,48 @@ pub fn credits_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -
         },
         screensize,
         "By Robin Grundvåg, Vegard Itland and Stian Soltvedt".to_owned(),
+        font.clone(),
+    ))
+}
+
+/// Texture idx slider.
+pub fn texture_idx(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+    Box::new(Slider::new(
+        position::Absolute {
+            height: 40,
+            width: 225,
+            anchor: position::WindowCorner::BotRight,
+            margin_vertical: 360,
+            margin_horizontal:285,
+        },
+        800,
+        0.0,
+        screensize,
+        Box::new(|ref mut context, value| {
+            context.texture_idx = value;
+        }),
+        "Texture idx".to_owned(),
+        font.clone(),
+    ))
+}
+
+/// CPU/GPU particles toggle.
+pub fn cpu_gpu_particles_toggle(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+    Box::new(Button::new(
+        position::Absolute {
+            height: 40,
+            width: 120,
+            anchor: position::WindowCorner::BotLeft,
+            margin_vertical: 120,
+            margin_horizontal: 40,
+        },
+        (0.44, 0.5, 0.56),
+        screensize,
+        true,
+        Box::new(|ref mut context, toggle_state| {
+            context.use_gpu_particles = toggle_state
+        }),
+        "Toggle Particles".to_owned(),
         font.clone(),
     ))
 }

@@ -1,12 +1,12 @@
-#version 100
+#version 300 es
 
 precision mediump float;
-attribute vec3 a_position;
-attribute vec3 a_color;
-attribute vec2 a_texture;
+in vec3 a_position;
+in vec3 a_color;
+in vec2 a_texture;
 
-varying vec3 v_color;
-varying vec2 v_texture;
+out vec3 v_color;
+out vec2 v_texture;
 
 uniform mat4 MVP;
 

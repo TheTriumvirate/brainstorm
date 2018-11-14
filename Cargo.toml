@@ -28,5 +28,5 @@ rand = {version = "0.5", features = ["stdweb"]}
 base64 = "0.10.0"
 
 [profile.dev]
-opt-level = 2   
+opt-level = 2
 codegen-units = 5
