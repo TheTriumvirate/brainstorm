@@ -2,10 +2,12 @@
 
 mod button;
 mod label;
+mod model_bound;
 mod slider;
 mod status_label;
 mod ui_element;
 mod ui_definitions;
+mod unit_sphere;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -18,13 +20,17 @@ use na::Matrix4;
 use self::{
     button::Button,
     label::Label,
+    model_bound::ModelBound,
     slider::Slider,
     status_label::StatusLabel,
-    ui_element::UiElement
+    ui_element::UiElement,
+    unit_sphere::UnitSphere,
 };
 
 /// Represents the GUI for the application.
 pub struct Gui {
+    pub seeding_sphere: UnitSphere,
+    pub model_bound: ModelBound,
     pub status: StatusLabel,
     pub ui_visible_button: Button,
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
@@ -32,7 +38,7 @@ pub struct Gui {
 
 impl Gui {
     /// Creates the GUI for the application.
-    pub fn new(screensize: (f32, f32)) -> Self {
+    pub fn new(screensize: (f32, f32), state: &State) -> Self {
         let font = Rc::from(RefCell::from(Font::from_bytes(fonts::DEFAULT)));
 
         let ui_elements: Vec<Box<ui_element::UiElement>> = vec![
@@ -57,7 +63,9 @@ impl Gui {
         
         let ui_visible_button = ui_definitions::toggle_ui(screensize, font.clone());
         let status = ui_definitions::status_label(screensize, font.clone());
-        Gui { status, ui_elements, ui_visible_button }
+        let seeding_sphere = UnitSphere::new((0.0, 0.0, 0.0), state.seeding_size);
+        let model_bound = ModelBound::new();
+        Gui { model_bound, seeding_sphere, status, ui_elements, ui_visible_button }
     }
 
     /// Handles events from the window, mutating application state as needed.
@@ -79,6 +87,28 @@ impl Gui {
             }
             | Event::Quit => {
                 state.is_running = false;
+                false
+            }
+            Event::KeyboardInput {
+                pressed: true,
+                key,
+                ..
+            } => {
+                match key {
+                    Key::W | Key::S | Key::A | Key::D | Key::Q | Key::E => {
+                        let ch = 1.0;
+                        state.camera_delta_movement = match key {
+                            Key::W => (0.0, 0.0, ch),
+                            Key::S => (0.0, 0.0, -ch),
+                            Key::A => (ch, 0.0, 0.0),
+                            Key::D => (-ch, 0.0, 0.0),
+                            Key::Q => (0.0, ch, 0.0),
+                            Key::E => (0.0, -ch, 0.0),
+                            _ => (0.0, 0.0, 0.0),
+                        }
+                    }
+                    _ => {}
+                }
                 false
             }
             Event::CursorMoved { x, y } => {
@@ -119,6 +149,13 @@ impl Gui {
                 handled
             }
             _ => false,
+        }
+    }
+
+    pub fn draw_3d_elements(&self, view_matrix: &Matrix4<f32>) {
+        if self.ui_visible_button.toggle_state() {
+            self.model_bound.draw_transformed(view_matrix);
+            self.seeding_sphere.draw_transformed(view_matrix);
         }
     }
 }

@@ -30,7 +30,7 @@ use std::io::Read;
 use std::path::PathBuf;
 
 use gl_bindings::{AbstractContext, Context};
-use graphics::{Drawable, Circle, Cube};
+use graphics::Drawable;
 use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
@@ -47,10 +47,6 @@ pub struct App {
     gui: Gui,
     state: State,
     particles: ParticleEngine,
-    circle1: Circle,
-    circle2: Circle,
-    circle3: Circle,
-    bound: Cube,
     mid_reload: bool,
 }
 
@@ -134,17 +130,15 @@ impl App {
         }
         let mut state = State::new();
         state.file_path = path;
+
+        let gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);
         App {
             window,
             state,
             particles: particles.unwrap(),
             camera: camera::ArcBall::new(),
             time: 0.0,
-            gui: Gui::new((1000.0, 1000.0)),
-            circle1: Circle::new(0.0,0.0,0.0,0.5, 0.0, (1.0, 0.0, 0.0), false),
-            circle2: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 1.0, 0.0), false),
-            circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
-            bound: Cube::new((-0.5, -0.5, -0.5), (1.0,1.0,1.0), (1.0,1.0,1.0)),
+            gui,
             mid_reload: false,
         }
     }
@@ -171,6 +165,7 @@ impl App {
             let (dx, dy, dz) = self.state.camera_delta_movement;
             self.camera.move_camera(dx, dy, dz);
             self.state.camera_delta_movement = (0.0, 0.0, 0.0);
+            self.gui.seeding_sphere.retarget(self.camera.get_position());
         }
 
         // Replace particle data if requested.
@@ -217,27 +212,11 @@ impl App {
         // Draw everything
         Context::get_context().enable(Context::DEPTH_TEST);
         let projection_matrix = self.camera.get_projection_matrix();
-
-        self.circle1.set_color(1.0, 0.0, 0.0);
-        self.circle2.set_color(0.0, 1.0, 0.0);
-        self.circle3.set_color(0.0, 0.0, 1.0);
-        self.circle1.set_radius(self.state.seeding_size * 0.6 + 0.01);
-        self.circle2.set_radius(self.state.seeding_size * 0.6 + 0.01);
-        self.circle3.set_radius(self.state.seeding_size * 0.6 + 0.01);
-        self.circle1.set_center(self.camera.get_target());
-        self.circle2.set_center(self.camera.get_target());
-        self.circle3.set_center(self.camera.get_target());
-        self.circle1.rebuild_data();
-        self.circle2.rebuild_data();
-        self.circle3.rebuild_data();
-
-        self.bound.draw_transformed(&projection_matrix);
-        self.circle1.draw_transformed(&projection_matrix);
-        self.circle2.draw_transformed(&projection_matrix);
-        self.circle3.draw_transformed(&projection_matrix);
-
         self.particles.draw(&projection_matrix, &self.state);
         Context::get_context().disable(Context::DEPTH_TEST);
+
+        self.gui.seeding_sphere.resize(self.state.seeding_size);
+        self.gui.draw_3d_elements(&projection_matrix);
         self.gui.draw();
 
         self.window.swap_buffers();

@@ -1,7 +1,7 @@
 use camera::Camera;
 use na::{Isometry3, Matrix4, Perspective3, Point3, Vector2, Vector3};
 use std::f32;
-use window::{Event, Key, MouseButton};
+use window::{Event, MouseButton};
 
 /// A camera that orbits around a point in space.
 pub struct ArcBall {
@@ -105,27 +105,6 @@ impl Camera for ArcBall {
             Event::Resized(w, h) => {
                 self.aspect = w / h;
                 self.recalculate_matrices();
-            }
-            Event::KeyboardInput {
-                pressed,
-                key,
-                ..
-            } => {
-                let mut direction: (f32, f32, f32) = (0.0, 0.0, 0.0);
-                let ch = 1.0;
-                if *pressed {
-                    match key {
-                        Key::W => direction = (0.0, 0.0, ch),
-                        Key::S => direction = (0.0, 0.0, -ch),
-                        Key::A => direction = (ch, 0.0, 0.0),
-                        Key::D => direction = (-ch, 0.0, 0.0),
-                        Key::Q => direction = (0.0, ch, 0.0),
-                        Key::E => direction = (0.0, -ch, 0.0),
-                        _ => {}
-                    }
-                }
-                let (dx, dy, dz) = direction;
-                self.move_camera(dx, dy, dz);
             }
             _ => (),
         }
