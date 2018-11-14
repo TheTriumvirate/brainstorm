@@ -56,9 +56,9 @@ impl GPUFieldProvider {
                     let dy = (dy - min) / (max - min);
                     let dz = (dz - min) / (max - min);
 
-                    data.push((dx * 255.0).round() as u8);
-                    data.push((dy * 255.0).round() as u8);
                     data.push((dz * 255.0).round() as u8);
+                    data.push((dy * 255.0).round() as u8);
+                    data.push((dx * 255.0).round() as u8);
                     data.push((da * 255.0).round() as u8);
                 }
             }

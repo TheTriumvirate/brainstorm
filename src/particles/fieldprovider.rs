@@ -60,7 +60,7 @@ impl FieldProvider {
     }
 
     pub fn get(&self, x: usize, y: usize, z: usize) -> (f32, f32, f32, f32) {
-        self.data[z + y * self.width + x * self.width * self.height]
+        self.data[x + y * self.width + z * self.width * self.height]
     }
 
     pub fn new(raw_data: &[u8]) -> Result<Self, Box<bincode::ErrorKind>> {
@@ -118,7 +118,8 @@ impl FieldProvider {
         let t2 = y - y.floor();
         let t3 = z - z.floor();
 
-        lerp3d(v1, v2, v3, v4, v5, v6, v7, v8, t1, t2, t3)
+        let (rx, ry, rz, ra) = lerp3d(v1, v2, v3, v4, v5, v6, v7, v8, t1, t2, t3);
+        (rz, ry, rx, ra)
     }
 
     pub fn data(&self) -> &[(f32, f32, f32, f32)] {
