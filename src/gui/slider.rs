@@ -99,6 +99,10 @@ impl Slider {
         }
     }
 
+    pub fn set_steps(&mut self, steps: u32) {
+        self.steps = steps as f32;
+    }
+
     /// Moves the visible slider to match the `x` value.
     fn update_slider_pos(&mut self, x: f64) {
         use graphics::position::WindowCorner;

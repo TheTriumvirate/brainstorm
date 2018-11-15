@@ -141,19 +141,28 @@ impl ParticleEngine {
                 data.lifetime = 500.0;
                 if respawned > state.particle_respawn_per_tick {continue;}
                 data.lifetime = 0.0;
-                let mut dx = self.rng.gen_range::<f32>(-1.0, 1.0);
-                let mut dy = self.rng.gen_range::<f32>(-1.0, 1.0);
-                let mut dz = self.rng.gen_range::<f32>(-1.0, 1.0);
-                let dist = self.rng.gen_range::<f32>(0.0, radius*radius).sqrt();
-                let dt = (dx * dx + dy * dy + dz * dz).sqrt();
-                dx = dx / dt;
-                dy = dy / dt;
-                dz = dz / dt;
-                data.position = (
-                    dx * dist + tx,
-                    dy * dist + ty,
-                    dz * dist + tz,
-                );
+                for _ in 0..100 { // retry 100 times
+                    let mut dx = self.rng.gen_range::<f32>(-1.0, 1.0);
+                    let mut dy = self.rng.gen_range::<f32>(-1.0, 1.0);
+                    let mut dz = self.rng.gen_range::<f32>(-1.0, 1.0);
+                    let dist = self.rng.gen_range::<f32>(0.0, radius*radius).sqrt();
+                    let dt = (dx * dx + dy * dy + dz * dz).sqrt();
+                    dx = dx / dt;
+                    dy = dy / dt;
+                    dz = dz / dt;
+                    data.position = (
+                        dx * dist + tx,
+                        dy * dist + ty,
+                        dz * dist + tz,
+                    );
+                    // check that position passes highpass filter
+                    let (dx,dy,dz,_fa) = self.field_provider.delta(data.position);
+                    let dist = (dx*dx+dy*dy+dz*dz).sqrt();
+                    
+                    if dist <= self.max_dist*state.lowpass_filter && dist >= self.max_dist * state.highpass_filter {
+                        break;
+                    }
+                }
                 respawned += 1;
             }
 
@@ -240,5 +249,13 @@ impl ParticleEngine {
         }
 
         context.depth_mask(true);
+    }
+
+    pub fn get_highly_directional_positions(&self) -> Vec<(f32,f32,f32)> {
+        let fw = self.field_provider.width as f32;
+        let fh = self.field_provider.height as f32;
+        let fd = self.field_provider.depth as f32;
+        let direct = self.field_provider.directional();
+        direct.into_iter().map(|(x,y,z)| (x/fw-0.5, y/fh-0.5, z/fd-0.5)).collect()
     }
 }

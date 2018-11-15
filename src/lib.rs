@@ -71,6 +71,8 @@ pub struct State {
     file_path: Option<PathBuf>,
     reload_file: bool,
     camera_delta_movement: (f32, f32, f32),
+    seeding_point: f32,
+    relocate_camera: bool,
 }
 
 impl State {
@@ -92,6 +94,8 @@ impl State {
             file_path: None,
             reload_file: false,
             camera_delta_movement: (0.0, 0.0, 0.0),
+            seeding_point: 0.0,
+            relocate_camera: false,
         }
     }
 }
@@ -134,13 +138,16 @@ impl App {
         }
         let mut state = State::new();
         state.file_path = path;
+        let particles = particles.unwrap();
+        let mut gui = Gui::new((1000.0, 1000.0));
+        gui.seeding_loc_slider.set_steps(particles.get_highly_directional_positions().len() as u32);
         App {
             window,
             state,
-            particles: particles.unwrap(),
+            particles,
             camera: camera::ArcBall::new(),
             time: 0.0,
-            gui: Gui::new((1000.0, 1000.0)),
+            gui,
             circle1: Circle::new(0.0,0.0,0.0,0.5, 0.0, (1.0, 0.0, 0.0), false),
             circle2: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 1.0, 0.0), false),
             circle3: Circle::new(0.0,0.0,0.0,0.5, 0.0, (0.0, 0.0, 1.0), false),
@@ -152,6 +159,20 @@ impl App {
     /// Runs the application for one frame.
     pub fn run(&mut self) -> bool {
         let context = Context::get_context();
+        
+        // handle camera relocation when seeding point selected
+        if self.state.relocate_camera {
+            // reposition camera to one of the seeding points (or center)
+            let directional = self.particles.get_highly_directional_positions();
+            let idx: usize = (self.state.seeding_point*(directional.len() as f32)).round() as usize;
+            if idx == 0 {
+                self.camera.set_target_position((0.0,0.0,0.0)); // reset to middle
+            }
+            else {
+                self.camera.set_target_position(*directional.get(idx-1).unwrap());
+            }
+            self.state.relocate_camera = false; // we done bois
+        }
 
         // Handle events
         for event in &self.window.get_events() {
@@ -192,6 +213,7 @@ impl App {
                     Ok(particle_engine) => {
                         self.gui.status.set_status("File loaded!".to_owned());
                         self.particles = particle_engine;
+                        self.gui.seeding_loc_slider.set_steps(self.particles.get_highly_directional_positions().len() as u32);
                     }
                     Err(e) => self.gui.status.set_status(e.to_owned()),
                 }
