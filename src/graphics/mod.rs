@@ -24,6 +24,7 @@ pub enum DrawMode {
     TRIANGLES,
     LINES,
     LINESTRIP,
+    POINTS,
 }
 
 /// Represents something that can be drawn.

@@ -5,6 +5,9 @@ use graphics::{Drawable, Font, position, position::WindowCorner, Rectangle};
 use gui::{Label, UiElement};
 use State;
 
+/// Vertical offset factor for the label.
+const LABEL_V_FAC: f32 = 1.5;
+
 /// A simple slider giving a value from 0.0 to 1.0.
 pub struct Slider {
     pos_abs: position::Absolute,
@@ -63,8 +66,8 @@ impl Slider {
                 anchor: pos_abs.anchor,
                 margin_vertical: match pos_abs.anchor {
                     WindowCorner::BotLeft | WindowCorner::BotRight
-                        => pos_abs.margin_vertical + pos_abs.height,
-                    _ => pos_abs.margin_vertical - pos_abs.height,
+                        => pos_abs.margin_vertical + (pos_abs.height as f32 * LABEL_V_FAC) as u32,
+                    _ => pos_abs.margin_vertical - (pos_abs.height as f32 * LABEL_V_FAC) as u32,
                 },
                 margin_horizontal: match pos_abs.anchor {
                     WindowCorner::BotRight | WindowCorner::TopRight

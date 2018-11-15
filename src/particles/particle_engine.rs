@@ -11,10 +11,6 @@ use State;
 use camera::{Camera, ArcBall};
 
 use resources::shaders::{PARTICLES_VERTEX_SHADER, PARTICLES_FRAGMENT_SHADER};
-use graphics::Drawable;
-
-use particles::MarchingCubes;
-use particles::Streamlines;
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -37,9 +33,7 @@ pub struct ParticleEngine {
     alive_count: usize,
     max_dist: f32,
     max_camera_dist: f32,
-    min_camera_dist: f32,
-    march: MarchingCubes,
-    streamlines: Streamlines,
+    min_camera_dist: f32
 }
 
 impl ParticleEngine {
@@ -54,9 +48,9 @@ impl ParticleEngine {
         for i in 0..PARTICLE_COUNT {
             particles.push(ParticleData {
                 position: (
-                    rng.gen_range::<f32>(-0.5, 0.5),
-                    rng.gen_range::<f32>(-0.5, 0.5),
-                    rng.gen_range::<f32>(-0.5, 0.5),
+                    rng.gen_range(-0.5, 0.5),
+                    rng.gen_range(-0.5, 0.5),
+                    rng.gen_range(-0.5, 0.5),
                 ),
                 lifetime: (i as f32 / PARTICLE_COUNT as f32) * 100.0,
             });
@@ -87,9 +81,6 @@ impl ParticleEngine {
             let dist = ((dx*fa).powf(2.0) + (dy*fa).powf(2.0) + (dz*fa).powf(2.0)).sqrt();
             max_dist = max_dist.max(dist);
         }
-        
-        let march = MarchingCubes::marching_cubes(&field_provider);
-        let streamlines = Streamlines::new();
 
         ParticleEngine {
             particles,
@@ -102,8 +93,6 @@ impl ParticleEngine {
             max_dist,
             max_camera_dist: 0.0,
             min_camera_dist: 0.0,
-            march,
-            streamlines,
         }
     }
 
@@ -114,22 +103,12 @@ impl ParticleEngine {
         let (cx, cy, cz) = camera.get_position();
         let (tx, ty, tz) = camera.get_target();
 
-        self.march.set_light_dir((cx, cy, cz));
 
         self.max_camera_dist = 0.0;
         self.min_camera_dist = f32::MAX;
         let radius = state.seeding_size * 0.6 + 0.01;
 
         let speed_multiplier = 0.016 * state.speed_multiplier;
-        if state.show_streamlines {
-            self.streamlines.draw_streamlines(
-                speed_multiplier,
-                state.lifetime as i32,
-                radius,
-                &self.field_provider,
-                camera.get_target()
-            );
-        }
         
         let mut respawned = 0;
         
@@ -141,28 +120,19 @@ impl ParticleEngine {
                 data.lifetime = 500.0;
                 if respawned > state.particle_respawn_per_tick {continue;}
                 data.lifetime = 0.0;
-                for _ in 0..100 { // retry 100 times
-                    let mut dx = self.rng.gen_range::<f32>(-1.0, 1.0);
-                    let mut dy = self.rng.gen_range::<f32>(-1.0, 1.0);
-                    let mut dz = self.rng.gen_range::<f32>(-1.0, 1.0);
-                    let dist = self.rng.gen_range::<f32>(0.0, radius*radius).sqrt();
-                    let dt = (dx * dx + dy * dy + dz * dz).sqrt();
-                    dx = dx / dt;
-                    dy = dy / dt;
-                    dz = dz / dt;
-                    data.position = (
-                        dx * dist + tx,
-                        dy * dist + ty,
-                        dz * dist + tz,
-                    );
-                    // check that position passes highpass filter
-                    let (dx,dy,dz,_fa) = self.field_provider.delta(data.position);
-                    let dist = (dx*dx+dy*dy+dz*dz).sqrt();
-                    
-                    if dist <= self.max_dist*state.lowpass_filter && dist >= self.max_dist * state.highpass_filter {
-                        break;
-                    }
-                }
+                let mut dx: f32 = self.rng.gen_range(-1.0, 1.0);
+                let mut dy: f32 = self.rng.gen_range(-1.0, 1.0);
+                let mut dz: f32 = self.rng.gen_range(-1.0, 1.0);
+                let dist = self.rng.gen_range(0.0, radius*radius).sqrt();
+                let dt = (dx * dx + dy * dy + dz * dz).sqrt();
+                dx = dx / dt;
+                dy = dy / dt;
+                dz = dz / dt;
+                data.position = (
+                    dx * dist + tx,
+                    dy * dist + ty,
+                    dz * dist + tz,
+                );
                 respawned += 1;
             }
 
@@ -234,21 +204,7 @@ impl ParticleEngine {
             context.uniform_matrix_4fv(&self.mvp_uniform, 1, false, &projection_matrix);
             context.draw_arrays(Context::POINTS, 0, self.alive_count as i32);
             self.shader.unbind_attribs();
-
         }
-        if state.mesh_transparency < 1.0 {
-            context.depth_mask(false);
-        }
-
-        self.march.set_transparency(state.mesh_transparency);
-        self.march.draw_transformed(projection_matrix);
-        
-        if state.show_streamlines {
-            context.depth_mask(false);
-            self.streamlines.draw_transformed(projection_matrix);
-        }
-
-        context.depth_mask(true);
     }
 
     pub fn get_highly_directional_positions(&self) -> Vec<(f32,f32,f32)> {

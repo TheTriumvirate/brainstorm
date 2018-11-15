@@ -3,7 +3,7 @@ use gl_bindings::{shaders::*, AbstractContext, Buffer, Context, GlPrimitive};
 use graphics::{RenderStates, DrawMode};
 use na::Matrix4;
 
-fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
+pub fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
     let context = Context::get_context();
 
     let shader: &OurShader = match states.shader {
@@ -25,12 +25,11 @@ fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
     context.uniform_matrix_4fv(&mvp_uniform, 1, false, &mvp); // FIXME: use shader function isntead!
 
     if let Some(texture) = &states.texture {
-        texture.bind();
-        texture.activate(Some(shader));
+        texture.activate(Some(shader), 0, "uSampler");
     }
 }
 
-fn unbind_all(states: &RenderStates) {
+pub fn unbind_all(states: &RenderStates) {
 
     if let Some(texture) = &states.texture {
         texture.unbind();
@@ -58,6 +57,7 @@ pub fn draw_indices<T>(mode: DrawMode, vertex_data: &Buffer<f32>, index_data: &B
         DrawMode::TRIANGLES => Context::TRIANGLES,
         DrawMode::LINES => Context::LINES,
         DrawMode::LINESTRIP => Context::LINE_STRIP,
+        DrawMode::POINTS => Context::POINTS,
     };
 
     context.draw_elements(
@@ -80,6 +80,7 @@ pub fn draw_vertex_array(mode: DrawMode, first: i32, count: i32, vertex_data: &B
         DrawMode::TRIANGLES => Context::TRIANGLES,
         DrawMode::LINES => Context::LINES,
         DrawMode::LINESTRIP => Context::LINE_STRIP,
+        DrawMode::POINTS => Context::POINTS,
     };
     context.draw_arrays(mode, first, count);
 

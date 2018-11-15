@@ -14,9 +14,126 @@ pub enum TextureFormat {
 pub struct Texture {
     texture: NativeTexture,
     _format: TextureFormat,
+    _type: u32,
 }
 
 impl Texture {
+    pub fn from_3d_data(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[u8], is_array: bool) -> Self {
+        let _type = if is_array {Context::TEXTURE_2D_ARRAY} else {Context::TEXTURE_3D};
+        
+        let context = Context::get_context();
+
+        let texture = context.create_texture().unwrap();
+        context.bind_texture(_type, &texture);
+        
+        let formatv : u32 = format.into();
+
+        context.tex_parameteri(
+            _type,
+            Context::TEXTURE_MIN_FILTER,
+            Context::LINEAR as i32
+        );
+        context.tex_parameteri(
+            _type,
+            Context::TEXTURE_MAG_FILTER,
+            Context::LINEAR as i32
+        );
+
+        context.tex_image3d(
+            _type,
+            0,
+            Context::RGBA8 as i32,
+            width as i32,
+            height as i32,
+            depth as i32,
+            0,
+            formatv,
+            Some(data)
+        );
+
+        let texture = Texture {
+            texture,
+            _format: format,
+            _type,
+        };
+
+        //context.generate_mipmap(Context::TEXTURE_3D);
+
+        texture
+    }
+    
+    pub fn from_3d_data_f(width: u32, height: u32, depth: u32, format: TextureFormat, data: &[f32], is_array: bool) -> Self {
+        let _type = if is_array {Context::TEXTURE_2D_ARRAY} else {Context::TEXTURE_3D};
+        
+        let context = Context::get_context();
+
+        let texture = context.create_texture().unwrap();
+        context.bind_texture(_type, &texture);
+        
+        let formatv : u32 = format.into();
+
+        context.tex_parameteri(
+            _type,
+            Context::TEXTURE_MIN_FILTER,
+            Context::NEAREST as i32
+        );
+        context.tex_parameteri(
+            _type,
+            Context::TEXTURE_MAG_FILTER,
+            Context::NEAREST as i32
+        );
+
+        context.tex_image3d_f(
+            _type,
+            0,
+            Context::RGBA32F as i32,
+            width as i32,
+            height as i32,
+            depth as i32,
+            0,
+            formatv,
+            Some(data)
+        );
+
+        let texture = Texture {
+            texture,
+            _format: format,
+            _type,
+        };
+
+        //context.generate_mipmap(Context::TEXTURE_3D);
+
+        texture
+    }
+
+    pub fn from_data(width: u32, height: u32, format: TextureFormat, data: &[f32]) -> Self {
+        let context = Context::get_context();
+
+        let texture = context.create_texture().unwrap();
+        context.bind_texture(Context::TEXTURE_2D, &texture);
+        
+        let formatv : u32 = format.into();
+
+        context.tex_image2d_f(
+            Context::TEXTURE_2D,
+            0,
+            Context::RGBA32F as i32,
+            width as i32,
+            height as i32,
+            0,
+            formatv,
+            Some(data)
+        );
+
+        let texture = Texture {
+            texture,
+            _format: format,
+            _type: Context::TEXTURE_2D,
+        };
+        texture.init(Context::TEXTURE_2D);
+        texture
+    }
+
     // Assumes png format
     pub fn new(width: u32, height: u32, format: TextureFormat, data: Option<&[u8]>) -> Self {
         let context = Context::get_context();
@@ -60,68 +177,75 @@ impl Texture {
             }
         }
 
-        //context.tex_image2d(Context::TEXTURE_2D, 0, Context::RGBA as i32, width as i32, height as i32, 0, Context::RGBA, &data);
-        //context.generate_mipmap(Context::TEXTURE_2D);
-        
+        let texture = Texture {
+            texture,
+            _format: format,
+            _type: Context::TEXTURE_2D,
+        };
+        texture.init(Context::TEXTURE_2D);
+        texture
+    }
+
+    fn init(&self, _type: u32) {
+        let context = Context::get_context();
         context.tex_parameteri(
-            Context::TEXTURE_2D,
+            _type,
             Context::TEXTURE_WRAP_S,
             Context::CLAMP_TO_EDGE as i32
         );
 
         context.tex_parameteri(
-            Context::TEXTURE_2D,
+            _type,
             Context::TEXTURE_WRAP_T,
             Context::CLAMP_TO_EDGE as i32
         );
 
         /* Linear filtering usually looks best for text. */
         context.tex_parameteri(
-            Context::TEXTURE_2D,
+            _type,
             Context::TEXTURE_MIN_FILTER,
-            Context::LINEAR as i32
+            Context::NEAREST as i32
         );
         context.tex_parameteri(
-            Context::TEXTURE_2D,
+            _type,
             Context::TEXTURE_MAG_FILTER,
-            Context::LINEAR as i32
+            Context::NEAREST as i32
         );
 
         context.pixel_storei(Context::UNPACK_ALIGNMENT, 1);
-
-        Texture {
-            texture,
-            _format: format,
-        }
     }
 
     pub fn bind(&self) {
         let context = Context::get_context();
-        context.bind_texture(Context::TEXTURE_2D, &self.texture);
+        context.bind_texture(self._type, &self.texture);
     }
 
-    pub fn activate(&self, shader: Option<&OurShader>) {
+    pub fn activate(&self, shader: Option<&OurShader>, idx: i32, name: &str) {
         let context = Context::get_context();
-        context.active_texture(Context::TEXTURE0);
+        context.active_texture(Context::TEXTURE0 + idx as u32);
         
         if let Some(shader) = shader {
             self.bind();
-            shader.uniform1i("uSampler", 0);
+            shader.uniform1i(name, idx);
         }
     }
 
     pub fn unbind(&self) {
         let context = Context::get_context();
-        context.unbind_texture(Context::TEXTURE_2D);   
+        context.unbind_texture(self._type);   
     }
 
     pub fn update_sub_rect(&self, x: i32, y: i32, w: i32, h: i32, data: &[u8]) {
         self.bind();
-        self.activate(None);
+        self.activate(None, 0, "uSampler");
         let context = Context::get_context();
         //let format = self.format.into();
         context.tex_sub_image2d(Context::TEXTURE_2D, 0, x, y, w, h, Context::LUMINANCE, Some(&data));
         self.unbind();
+    }
+
+    pub fn get_native(&self) -> &NativeTexture {
+        &self.texture
     }
 }
 
