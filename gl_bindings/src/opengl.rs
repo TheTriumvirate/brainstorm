@@ -420,6 +420,12 @@ impl AbstractContext for GLContext {
         }
     }
     
+    fn uniform2f(&self, location: &UniformLocation, x: f32, y: f32) {
+        unsafe {
+            gl::Uniform2f(*location as i32, x, y);
+        }
+    }
+
     fn uniform3f(&self, location: &UniformLocation, x: f32, y: f32, z: f32) {
         unsafe {
             gl::Uniform3f(*location as i32, x, y, z);

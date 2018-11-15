@@ -137,6 +137,7 @@ pub trait AbstractContext {
     fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>);
     fn uniform1i(&self, location: &UniformLocation, x: i32);
     fn uniform1f(&self, location: &UniformLocation, x: f32);
+    fn uniform2f(&self, location: &UniformLocation, x: f32, y: f32);
     fn uniform3f(&self, location: &UniformLocation, x: f32, y: f32, z: f32);
 
     fn create_texture(&self) -> Option<Texture>;

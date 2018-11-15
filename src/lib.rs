@@ -145,6 +145,7 @@ impl App {
             field_provider = Some(FieldProvider::new(&content).expect("Failed to parse data."));
             gpu_field = Some(GPUFieldProvider::new(&content).expect("Failed to parse data."));
         }
+
         
         let field_provider = field_provider.unwrap();
         let march = MarchingCubes::marching_cubes(&field_provider);
@@ -154,7 +155,10 @@ impl App {
 
         let mut state = State::new();
         state.file_path = path;        
-        let gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);
+        let mut gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);
+
+        let gpu_field = gpu_field.unwrap();
+        gui.map.set_texture(Some(gpu_field.get_texture()));
 
         App {
             window,
@@ -164,7 +168,7 @@ impl App {
             time: 0.0,
             gui,
             mid_reload: false,
-            gpu_field: gpu_field.unwrap(),
+            gpu_field,
             gpu_particles: gpu_particles,
             march,
         }
@@ -221,7 +225,8 @@ impl App {
                         self.march = MarchingCubes::marching_cubes(&field_provider);
                         self.particles = ParticleEngine::new(field_provider);
                         self.gpu_field = gpu_field_provider;
-                        self.gpu_particles = GPUParticleEngine::new()
+                        self.gpu_particles = GPUParticleEngine::new();
+                        self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
                     }
                     Err(e) => self.gui.status.set_status(e.to_owned()),
                 }
@@ -231,6 +236,8 @@ impl App {
                 self.mid_reload = true;
             }
         }
+
+        self.gui.map.set_progress(self.state.texture_idx);
 
         // Update status label timer
         self.gui.status.update_status();

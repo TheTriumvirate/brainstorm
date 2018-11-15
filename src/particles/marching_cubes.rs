@@ -51,14 +51,14 @@ impl MarchingCubes {
         for x in (0..field.width).step_by(S) {
             for y in (0..field.height).step_by(S) {
                 for z in (0..field.depth).step_by(S) {
-                    let v1m = field.get_vec((x  , y  , z  )).3;
-                    let v2m = field.get_vec((x+S, y  , z  )).3;
-                    let v3m = field.get_vec((x+S, y  , z+S)).3;
-                    let v4m = field.get_vec((x  , y  , z+S)).3;
-                    let v5m = field.get_vec((x  , y+S, z  )).3;
-                    let v6m = field.get_vec((x+S, y+S, z  )).3;
-                    let v7m = field.get_vec((x+S, y+S, z+S)).3;
-                    let v8m = field.get_vec((x  , y+S, z+S)).3;
+                    let v1m = field.get_len((x  , y  , z  ));
+                    let v2m = field.get_len((x+S, y  , z  ));
+                    let v3m = field.get_len((x+S, y  , z+S));
+                    let v4m = field.get_len((x  , y  , z+S));
+                    let v5m = field.get_len((x  , y+S, z  ));
+                    let v6m = field.get_len((x+S, y+S, z  ));
+                    let v7m = field.get_len((x+S, y+S, z+S));
+                    let v8m = field.get_len((x  , y+S, z+S));
 
                     let mut cidx : usize = 0;
                     if v1m > EPSILON {cidx |=   1;}

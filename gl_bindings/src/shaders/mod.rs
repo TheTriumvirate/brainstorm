@@ -261,6 +261,12 @@ impl OurShader {
         Context::get_context().uniform1f(&location, value);
     }
 
+    pub fn uniform2f(&self, name: &str, x: f32, y: f32) {
+        self.use_program();
+        let location = Context::get_context().get_uniform_location(&self.program, name);
+        Context::get_context().uniform2f(&location, x, y);
+    }
+
     pub fn uniform3f(&self, name: &str, x: f32, y: f32, z: f32) {
         self.use_program();
         let location = Context::get_context().get_uniform_location(&self.program, name);

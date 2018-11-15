@@ -10,7 +10,7 @@
 
 ## Robin
 
-- [ ] Gpu particles (close to finished)
+- [x] Gpu particles (close to finished)
 - [ ] Better way of controlling seeding sphere [Not assigned]
     - Click on anatomical map slice
     - Multiple seeding points?

@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::{cell::RefCell, rc::Rc};
 
 use graphics::{position, Font};
-use super::{Button, Label, Slider, StatusLabel, UiElement};
+use super::{Button, Label, Slider, StatusLabel, UiElement, Map};
 
 const DELTA_MOVEMENT: f32 = 5.0;
 
@@ -424,4 +424,29 @@ pub fn cpu_gpu_particles_toggle(screensize: (f32, f32), font: Rc<RefCell<Font<'s
         "Toggle Particles".to_owned(),
         font.clone(),
     ))
+}
+
+pub fn map(screensize: (f32, f32)) -> Map {
+    Map::new(position::Absolute {
+        height: 200,
+        width: 200,
+        anchor: position::WindowCorner::TopRight,
+        margin_vertical: 5,
+        margin_horizontal: 5,
+    },
+    position::Absolute {
+        height: 200,
+        width: 200,
+        anchor: position::WindowCorner::TopRight,
+        margin_vertical: 5,
+        margin_horizontal: 205,
+    },
+    position::Absolute {
+        height: 200,
+        width: 200,
+        anchor: position::WindowCorner::TopRight,
+        margin_vertical: 5,
+        margin_horizontal: 405,
+    }
+    , screensize)
 }

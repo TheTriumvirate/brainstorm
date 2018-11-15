@@ -19,3 +19,4 @@ gl_bindings = {version = "*", path = "../gl_bindings"}
 [profile.dev]
 opt-level = 2   
 codegen-units = 5
+incremental = false

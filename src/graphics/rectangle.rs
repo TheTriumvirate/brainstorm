@@ -9,6 +9,7 @@ pub struct Rectangle {
     indices: Buffer<u16>,
     texture: Option<Rc<Texture>>,
     shader: Option<Rc<OurShader>>,
+    color: (f32, f32, f32)
 }
 
 impl Rectangle {
@@ -33,7 +34,7 @@ impl Rectangle {
         let len = indices.len();
         indices.upload_data(0, len, true);
 
-        Rectangle { vertices, indices, texture: None, shader: None }
+        Rectangle { vertices, indices, texture: None, shader: None, color }
     }
 
     pub fn set_texture(&mut self, texture: Option<Rc<Texture>>) {
@@ -42,6 +43,20 @@ impl Rectangle {
 
     pub fn set_shader(&mut self, shader: Option<Rc<OurShader>>) {
         self.shader = shader;
+    }
+
+    pub fn set_position(&mut self, pos: position::Coordinates) {
+        self.vertices.set_data(&[
+            pos.x1, pos.y1, 0.0, self.color.0, self.color.1, self.color.2, 0.0, 0.0, 
+            pos.x2, pos.y1, 0.0, self.color.0, self.color.1, self.color.2, 1.0, 0.0, 
+            pos.x2, pos.y2, 0.0, self.color.0, self.color.1, self.color.2, 1.0, 1.0, 
+            pos.x1, pos.y2, 0.0, self.color.0, self.color.1, self.color.2, 0.0, 1.0,
+        ]);
+
+        self.vertices.bind();
+        let len = self.vertices.len();
+        self.vertices.upload_data(0, len, true);
+
     }
 }
 

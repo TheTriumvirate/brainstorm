@@ -122,6 +122,11 @@ impl FieldProvider {
         (rz, ry, rx, ra)
     }
 
+    pub fn get_len(&self, v : (usize, usize, usize)) -> f32 {
+        let dt = self.get_vec(v);
+        dt.3
+    }
+
     pub fn data(&self) -> &[(f32, f32, f32, f32)] {
         &self.data
     }

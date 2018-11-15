@@ -8,6 +8,7 @@ mod status_label;
 mod ui_element;
 mod ui_definitions;
 mod unit_sphere;
+mod map;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -25,6 +26,7 @@ use self::{
     status_label::StatusLabel,
     ui_element::UiElement,
     unit_sphere::UnitSphere,
+    map::Map,
 };
 
 /// Represents the GUI for the application.
@@ -34,11 +36,13 @@ pub struct Gui {
     pub status: StatusLabel,
     pub ui_visible_button: Button,
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
+    pub map: Map,
 }
 
 impl Gui {
     /// Creates the GUI for the application.
     pub fn new(screensize: (f32, f32), state: &State) -> Self {
+        let map = ui_definitions::map(screensize);
         let font = Rc::from(RefCell::from(Font::from_bytes(fonts::DEFAULT)));
 
         let ui_elements: Vec<Box<ui_element::UiElement>> = vec![
@@ -66,7 +70,7 @@ impl Gui {
         let status = ui_definitions::status_label(screensize, font.clone());
         let seeding_sphere = UnitSphere::new((0.0, 0.0, 0.0), state.seeding_size);
         let model_bound = ModelBound::new();
-        Gui { model_bound, seeding_sphere, status, ui_elements, ui_visible_button }
+        Gui { model_bound, seeding_sphere, status, ui_elements, ui_visible_button, map }
     }
 
     /// Handles events from the window, mutating application state as needed.
@@ -76,6 +80,7 @@ impl Gui {
             Event::Resized(x, y) => {
                 self.ui_visible_button.resize((*x, *y));
                 self.status.resize((*x, *y));
+                self.map.resize((*x, *y));
                 for element in &mut self.ui_elements {
                     element.resize((*x, *y));
                 }
@@ -116,6 +121,11 @@ impl Gui {
                 state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
                 state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
 
+                self.map.mouse_moved(state.mouse_x, state.mouse_y, state);
+                if self.map.clicked() {
+                    // TODO: Set camera position
+                }
+
                 self.ui_visible_button.mouse_moved(state.mouse_x, state.mouse_y, state);
                 for element in &mut self.ui_elements {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
@@ -129,6 +139,10 @@ impl Gui {
             } => {
                 let mut handled = false;
                 if *pressed {
+                    if self.map.is_within(state.mouse_x, state.mouse_y) {
+                        self.map.click(state.mouse_x, state.mouse_y, state);
+                        handled = true;
+                    }
                     if self.ui_visible_button.is_within(state.mouse_x, state.mouse_y) {
                         self.ui_visible_button.click(state.mouse_x, state.mouse_y, state);
                         handled = true;
@@ -142,6 +156,7 @@ impl Gui {
                         }
                     }
                 } else {
+                    self.map.click_release(state.mouse_x, state.mouse_y, state);
                     self.ui_visible_button.click_release(state.mouse_x, state.mouse_y, state);
                     for element in &mut self.ui_elements {
                         element.click_release(state.mouse_x, state.mouse_y, state);
@@ -158,6 +173,7 @@ impl Gui {
             self.model_bound.draw_transformed(view_matrix);
             self.seeding_sphere.draw_transformed(view_matrix);
         }
+        self.map.draw_transformed(view_matrix);
     }
 }
 
