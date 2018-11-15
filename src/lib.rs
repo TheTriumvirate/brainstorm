@@ -71,12 +71,11 @@ pub struct State {
     particle_respawn_per_tick: u32,
     file_path: Option<PathBuf>,
     reload_file: bool,
-    camera_delta_movement: (f32, f32, f32),
-    seeding_point: f32,
-    relocate_camera: bool,
+    camera_target: (f32, f32, f32),
     window_w: f32,
     window_h: f32,
     use_gpu_particles: bool,
+    directional_data: Vec<(f32, f32, f32)>,
 }
 
 impl State {
@@ -96,12 +95,11 @@ impl State {
             particle_respawn_per_tick: 1000,
             file_path: None,
             reload_file: false,
-            camera_delta_movement: (0.0, 0.0, 0.0),
-            seeding_point: 0.0,
-            relocate_camera: false,
+            camera_target: (0.0, 0.0, 0.0),
             window_w: 0.0,
             window_h: 0.0,
             use_gpu_particles: false,
+            directional_data: Vec::new(),
         }
     }
 }
@@ -151,18 +149,18 @@ impl App {
         
         let field_provider = field_provider.unwrap();
         let march = MarchingCubes::marching_cubes(&field_provider);
-        let particles = Some(ParticleEngine::new(field_provider));
-        
-        let gpu_particles = GPUParticleEngine::new();
+        let particles = ParticleEngine::new(field_provider);
+        let gpu_particles = GPUParticleEngine::new();        
 
         let mut state = State::new();
-        let particles = particles.unwrap();
-        state.file_path = path;        
+        state.file_path = path;
+        state.directional_data = particles.calculate_highly_directional_positions();
+        
         let mut gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);
+        gui.seeding_loc_slider.set_steps(state.directional_data.len() as u32);
 
         let gpu_field = gpu_field.unwrap();
         gui.map.set_texture(Some(gpu_field.get_texture()));
-        gui.seeding_loc_slider.set_steps(particles.get_highly_directional_positions().len() as u32);
 
         App {
             window,
@@ -181,20 +179,6 @@ impl App {
     /// Runs the application for one frame.
     pub fn run(&mut self) -> bool {
         let context = Context::get_context();
-        
-        // handle camera relocation when seeding point selected
-        if self.state.relocate_camera {
-            // reposition camera to one of the seeding points (or center)
-            let directional = self.particles.get_highly_directional_positions();
-            let idx = (self.state.seeding_point*(directional.len() as f32)).round() as usize;
-            if idx == 0 || idx - 1 >= directional.len() {
-                self.camera.set_target_position((0.0,0.0,0.0)); // reset to middle
-            } else {
-                self.camera.set_target_position(directional[idx - 1]);
-            }
-            self.gui.seeding_sphere.retarget(self.camera.get_target());
-            self.state.relocate_camera = false; // Prevent repetition ;)
-        }
 
         // Handle events
         for event in &self.window.get_events() {
@@ -214,15 +198,14 @@ impl App {
             }
         }
 
-        // Update camera position if needed.
-        if self.state.camera_delta_movement != (0.0, 0.0, 0.0) {
-            let (dx, dy, dz) = self.state.camera_delta_movement;
-            self.camera.move_camera(dx, dy, dz);
-            self.state.camera_delta_movement = (0.0, 0.0, 0.0);
-            self.gui.seeding_sphere.retarget(self.camera.get_target());
-        }
+        // Update camera position.
+        {
+            self.camera.set_target_position(self.state.camera_target);
+            self.gui.seeding_sphere.retarget(self.state.camera_target);
+        }        
 
         // Replace particle data if requested.
+        // Special preparation for web due to it's asynchronous nature.
         #[cfg(target_arch = "wasm32")] {
             self.state.reload_file = match js!(return isUpdated();) {
                 stdweb::Value::Bool(b) => b,
@@ -242,7 +225,8 @@ impl App {
                         self.gui.status.set_status("File loaded!".to_owned());
                         self.march = MarchingCubes::marching_cubes(&field_provider);
                         self.particles = ParticleEngine::new(field_provider);
-                        self.gui.seeding_loc_slider.set_steps(self.particles.get_highly_directional_positions().len() as u32);
+                        self.state.directional_data = self.particles.calculate_highly_directional_positions();
+                        self.gui.seeding_loc_slider.set_steps(self.state.directional_data.len() as u32);
                         self.gpu_field = gpu_field_provider;
                         self.gpu_particles = GPUParticleEngine::new();
                         self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
@@ -259,9 +243,7 @@ impl App {
         // Update status label timer
         self.gui.status.update_status();
 
-        // Update camera and particle system
-        self.camera.update();
-        
+        // Update particle system
         let (cx, cy, cz) = self.camera.get_position();
         self.march.set_light_dir((cx, cy, cz));
 

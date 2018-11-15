@@ -64,17 +64,6 @@ impl ArcBall {
 }
 
 impl Camera for ArcBall {
-    /// Updates the idle animation for the camera.
-    fn update(&mut self) {
-        
-        /*if self.idle > 60.0 {
-            //self.yaw += 0.002;
-            self.recalculate_matrices();
-        }*/
-
-        self.idle += 1.0;
-    }
-
     /// Handles input to rotate the camera.
     /// TODO: Handle outside of camera and pass rotation in.
     fn handle_events(&mut self, event: &Event) {

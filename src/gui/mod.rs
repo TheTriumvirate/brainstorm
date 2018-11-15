@@ -104,16 +104,22 @@ impl Gui {
             } => {
                 match key {
                     Key::W | Key::S | Key::A | Key::D | Key::Q | Key::E => {
-                        let ch = 1.0;
-                        state.camera_delta_movement = match key {
-                            Key::W => (0.0, 0.0, ch),
-                            Key::S => (0.0, 0.0, -ch),
-                            Key::A => (ch, 0.0, 0.0),
-                            Key::D => (-ch, 0.0, 0.0),
-                            Key::Q => (0.0, ch, 0.0),
-                            Key::E => (0.0, -ch, 0.0),
-                            _ => (0.0, 0.0, 0.0),
-                        }
+                        let ch = 0.05;
+                        state.camera_target.0 += match key {
+                            Key::A => ch,
+                            Key::D => -ch,
+                            _ => 0.0,
+                        };
+                        state.camera_target.1 += match key {
+                            Key::Q => ch,
+                            Key::E => -ch,
+                            _ => 0.0
+                        };
+                        state.camera_target.2 += match key {
+                            Key::W => ch,
+                            Key::S => -ch,
+                            _ => 0.0
+                        };
                     }
                     _ => {}
                 }

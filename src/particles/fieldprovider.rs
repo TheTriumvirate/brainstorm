@@ -134,8 +134,8 @@ impl FieldProvider {
         &self.data
     }
 
-    pub fn directional(&self) -> Vec<(f32,f32,f32)> {
-        self.directional.to_vec()
+    pub fn directional(&self) -> &[(f32,f32,f32)] {
+        &self.directional
     }
 
     pub fn fa(&self, (x,y,z): (f32,f32,f32)) -> f32 {

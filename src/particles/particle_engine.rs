@@ -207,7 +207,7 @@ impl ParticleEngine {
         }
     }
 
-    pub fn get_highly_directional_positions(&self) -> Vec<(f32,f32,f32)> {
+    pub fn calculate_highly_directional_positions(&self) -> Vec<(f32,f32,f32)> {
         let fw = self.field_provider.width as f32;
         let fh = self.field_provider.height as f32;
         let fd = self.field_provider.depth as f32;

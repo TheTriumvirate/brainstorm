@@ -9,7 +9,7 @@ use std::{cell::RefCell, rc::Rc};
 use graphics::{position, Font};
 use super::{Button, Label, Slider, StatusLabel, UiElement, Map};
 
-const DELTA_MOVEMENT: f32 = 5.0;
+const DELTA_MOVEMENT: f32 = 0.05;
 
 /// A slider acting as a low-pass filter.
 pub fn lowpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
@@ -193,8 +193,14 @@ pub fn directional_areas(screensize: (f32,f32), font: Rc<RefCell<Font<'static>>>
         0.0,
         screensize,
         Box::new(|ref mut context, value| {
-            context.seeding_point = value;
-            context.relocate_camera = true;
+            let directional = &context.directional_data;
+            let idx = (value * (directional.len() as f32)).round() as usize;
+            if idx == 0 || idx - 1 >= directional.len() {
+                context.camera_target = (0.0, 0.0, 0.0); // reset to middle
+            } else {
+                context.camera_target = directional[idx - 1];
+            }
+            
         }),
         "Seeding point".to_owned(),
         font.clone(),
@@ -278,7 +284,7 @@ pub fn move_camera_x_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
         screensize,
         false,
         Box::new(|ref mut context, _toggle_state| {
-            context.camera_delta_movement.2 += DELTA_MOVEMENT;
+            context.camera_target.2 += DELTA_MOVEMENT;
         }),
         "   W".to_owned(),
         font.clone(),
@@ -299,7 +305,7 @@ pub fn move_camera_x_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
         screensize,
         false,
         Box::new(|ref mut context, _toggle_state| {
-            context.camera_delta_movement.2 -= DELTA_MOVEMENT;
+            context.camera_target.2 -= DELTA_MOVEMENT;
         }),
         "   S".to_owned(),
         font.clone(),
@@ -320,7 +326,7 @@ pub fn move_camera_y_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
         screensize,
         false,
         Box::new(|ref mut context, _toggle_state| {
-            context.camera_delta_movement.1 += DELTA_MOVEMENT;
+            context.camera_target.1 += DELTA_MOVEMENT;
         }),
         "   Q".to_owned(),
         font.clone(),
@@ -341,7 +347,7 @@ pub fn move_camera_y_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
         screensize,
         false,
         Box::new(|ref mut context, _toggle_state| {
-            context.camera_delta_movement.1 -= DELTA_MOVEMENT;
+            context.camera_target.1 -= DELTA_MOVEMENT;
         }),
         "   E".to_owned(),
         font.clone(),
@@ -362,7 +368,7 @@ pub fn move_camera_z_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
         screensize,
         false,
         Box::new(|ref mut context, _toggle_state| {
-            context.camera_delta_movement.0 += DELTA_MOVEMENT;
+            context.camera_target.0 += DELTA_MOVEMENT;
         }),
         "   A".to_owned(),
         font.clone(),
@@ -383,7 +389,7 @@ pub fn move_camera_z_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
         screensize,
         false,
         Box::new(|ref mut context, _toggle_state| {
-            context.camera_delta_movement.0 -= DELTA_MOVEMENT;
+            context.camera_target.0 -= DELTA_MOVEMENT;
         }),
         "   D".to_owned(),
         font.clone(),
