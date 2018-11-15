@@ -72,6 +72,8 @@ pub struct State {
     file_path: Option<PathBuf>,
     reload_file: bool,
     camera_delta_movement: (f32, f32, f32),
+    seeding_point: f32,
+    relocate_camera: bool,
     texture_idx: f32,
     window_w: f32,
     window_h: f32,
@@ -96,6 +98,8 @@ impl State {
             file_path: None,
             reload_file: false,
             camera_delta_movement: (0.0, 0.0, 0.0),
+            seeding_point: 0.0,
+            relocate_camera: false,
             texture_idx: 0.0,
             window_w: 0.0,
             window_h: 0.0,
@@ -154,16 +158,18 @@ impl App {
         let gpu_particles = GPUParticleEngine::new();
 
         let mut state = State::new();
+        let particles = particles.unwrap();
         state.file_path = path;        
         let mut gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);
 
         let gpu_field = gpu_field.unwrap();
         gui.map.set_texture(Some(gpu_field.get_texture()));
+        gui.seeding_loc_slider.set_steps(particles.get_highly_directional_positions().len() as u32);
 
         App {
             window,
             state,
-            particles: particles.unwrap(),
+            particles,
             camera: camera::ArcBall::new(),
             time: 0.0,
             gui,
@@ -177,6 +183,20 @@ impl App {
     /// Runs the application for one frame.
     pub fn run(&mut self) -> bool {
         let context = Context::get_context();
+        
+        // handle camera relocation when seeding point selected
+        if self.state.relocate_camera {
+            // reposition camera to one of the seeding points (or center)
+            let directional = self.particles.get_highly_directional_positions();
+            let idx = (self.state.seeding_point*(directional.len() as f32)).round() as usize;
+            if idx == 0 || idx - 1 >= directional.len() {
+                self.camera.set_target_position((0.0,0.0,0.0)); // reset to middle
+            } else {
+                self.camera.set_target_position(directional[idx - 1]);
+            }
+            self.gui.seeding_sphere.retarget(self.camera.get_target());
+            self.state.relocate_camera = false; // Prevent repetition ;)
+        }
 
         // Handle events
         for event in &self.window.get_events() {
@@ -224,6 +244,7 @@ impl App {
                         self.gui.status.set_status("File loaded!".to_owned());
                         self.march = MarchingCubes::marching_cubes(&field_provider);
                         self.particles = ParticleEngine::new(field_provider);
+                        self.gui.seeding_loc_slider.set_steps(self.particles.get_highly_directional_positions().len() as u32);
                         self.gpu_field = gpu_field_provider;
                         self.gpu_particles = GPUParticleEngine::new();
                         self.gui.map.set_texture(Some(self.gpu_field.get_texture()));

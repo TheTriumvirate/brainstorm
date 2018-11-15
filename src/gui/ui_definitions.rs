@@ -179,6 +179,28 @@ pub fn particle_spawn_rate(screensize: (f32, f32), font: Rc<RefCell<Font<'static
     ))   
 }
 
+/// A slider controlling which of the strongly directional areas the spawn point should jump to
+pub fn directional_areas(screensize: (f32,f32), font: Rc<RefCell<Font<'static>>>) -> Slider {
+    Slider::new(
+        position::Absolute {
+            height: 40,
+            width: 225,
+            anchor: position::WindowCorner::BotRight,
+            margin_vertical: 360,
+            margin_horizontal: 40,
+        },
+        1,
+        0.0,
+        screensize,
+        Box::new(|ref mut context, value| {
+            context.seeding_point = value;
+            context.relocate_camera = true;
+        }),
+        "Seeding point".to_owned(),
+        font.clone(),
+    )
+}
+
 /// A button letting the user load a new file.
 pub fn load_file(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
     Box::new(Button::new(

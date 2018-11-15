@@ -35,6 +35,7 @@ pub struct Gui {
     pub model_bound: ModelBound,
     pub status: StatusLabel,
     pub ui_visible_button: Button,
+    pub seeding_loc_slider: Slider,
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
     pub map: Map,
 }
@@ -66,11 +67,12 @@ impl Gui {
             ui_definitions::move_camera_z_b(screensize, font.clone()),
         ];
         
+        let seeding_loc_slider = ui_definitions::directional_areas(screensize, font.clone());
         let ui_visible_button = ui_definitions::toggle_ui(screensize, font.clone());
         let status = ui_definitions::status_label(screensize, font.clone());
         let seeding_sphere = UnitSphere::new((0.0, 0.0, 0.0), state.seeding_size);
         let model_bound = ModelBound::new();
-        Gui { model_bound, seeding_sphere, status, ui_elements, ui_visible_button, map }
+        Gui { model_bound, seeding_sphere, status, ui_elements, ui_visible_button, seeding_loc_slider, map  }
     }
 
     /// Handles events from the window, mutating application state as needed.
@@ -79,6 +81,7 @@ impl Gui {
         match event {
             Event::Resized(x, y) => {
                 self.ui_visible_button.resize((*x, *y));
+                self.seeding_loc_slider.resize((*x, *y));
                 self.status.resize((*x, *y));
                 self.map.resize((*x, *y));
                 for element in &mut self.ui_elements {
@@ -127,6 +130,7 @@ impl Gui {
                 }
 
                 self.ui_visible_button.mouse_moved(state.mouse_x, state.mouse_y, state);
+                self.seeding_loc_slider.mouse_moved(state.mouse_x, state.mouse_y, state);
                 for element in &mut self.ui_elements {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
                 }
@@ -148,6 +152,10 @@ impl Gui {
                         handled = true;
                     }
                     if self.ui_visible_button.toggle_state() {
+                        if self.seeding_loc_slider.is_within(state.mouse_x, state.mouse_y) {
+                            self.seeding_loc_slider.click(state.mouse_x, state.mouse_y, state);
+                            handled = true;
+                        }
                         for element in &mut self.ui_elements {
                             if element.is_within(state.mouse_x, state.mouse_y) {
                                 element.click(state.mouse_x, state.mouse_y, state);
@@ -158,6 +166,7 @@ impl Gui {
                 } else {
                     self.map.click_release(state.mouse_x, state.mouse_y, state);
                     self.ui_visible_button.click_release(state.mouse_x, state.mouse_y, state);
+                    self.seeding_loc_slider.click_release(state.mouse_x, state.mouse_y, state);
                     for element in &mut self.ui_elements {
                         element.click_release(state.mouse_x, state.mouse_y, state);
                     }
@@ -182,6 +191,7 @@ impl Drawable for Gui {
         self.ui_visible_button.draw_transformed(view_matrix);
         self.status.draw_transformed(view_matrix);
         if self.ui_visible_button.toggle_state() {
+            self.seeding_loc_slider.draw_transformed(view_matrix);
             for element in &self.ui_elements {
                 element.draw_transformed(view_matrix);
             }

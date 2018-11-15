@@ -8,6 +8,7 @@ struct VectorField {
     height: usize,
     depth: usize,
     vectors: Vec<Vec<Vec<Vector4>>>,
+    directional: Vec<(f32,f32,f32)>,
 }
 
 fn lerpf(a: f32, b: f32, t: f32) -> f32 {
@@ -49,6 +50,7 @@ pub struct FieldProvider {
     pub height: usize,
     pub depth: usize,
     data: Vec<(f32, f32, f32, f32)>,
+    directional: Vec<(f32,f32,f32)>,
 }
 
 impl FieldProvider {
@@ -78,6 +80,7 @@ impl FieldProvider {
             height: x.height,
             depth: x.depth,
             data,
+            directional: x.directional,
         })
     }
 
@@ -119,7 +122,7 @@ impl FieldProvider {
         let t3 = z - z.floor();
 
         let (rx, ry, rz, ra) = lerp3d(v1, v2, v3, v4, v5, v6, v7, v8, t1, t2, t3);
-        (rz, ry, rx, ra)
+        (rx, ry, rz, ra)
     }
 
     pub fn get_len(&self, v : (usize, usize, usize)) -> f32 {
@@ -129,5 +132,16 @@ impl FieldProvider {
 
     pub fn data(&self) -> &[(f32, f32, f32, f32)] {
         &self.data
+    }
+
+    pub fn directional(&self) -> Vec<(f32,f32,f32)> {
+        self.directional.to_vec()
+    }
+
+    pub fn fa(&self, (x,y,z): (f32,f32,f32)) -> f32 {
+        let x = x * (self.width as f32) + (self.width as f32) / 2.0;
+        let y = y * (self.height as f32) + (self.height as f32) / 2.0;
+        let z = z * (self.depth as f32) + (self.depth as f32) / 2.0;
+        return self.get_vec((x.round() as usize,y.round() as usize,z.round() as usize)).3
     }
 }

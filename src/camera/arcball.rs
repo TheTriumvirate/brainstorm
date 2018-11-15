@@ -124,6 +124,14 @@ impl Camera for ArcBall {
         (eye.x, eye.y, eye.z)
     }
 
+    /// Set the target position of the camera.
+    fn set_target_position(&mut self, (x,y,z): (f32,f32,f32)) {
+        self.target.x = x;
+        self.target.y = y;
+        self.target.z = z;
+        self.recalculate_matrices();
+    }
+
     /// Move the camera by the specified amount.
     fn move_camera(&mut self, dx: f32, dy: f32, dz: f32) {
         let t = self.target;
