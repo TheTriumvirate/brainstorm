@@ -48,9 +48,9 @@ impl ParticleEngine {
         for i in 0..PARTICLE_COUNT {
             particles.push(ParticleData {
                 position: (
-                    rng.gen_range::<f32>(-0.5, 0.5),
-                    rng.gen_range::<f32>(-0.5, 0.5),
-                    rng.gen_range::<f32>(-0.5, 0.5),
+                    rng.gen_range(-0.5, 0.5),
+                    rng.gen_range(-0.5, 0.5),
+                    rng.gen_range(-0.5, 0.5),
                 ),
                 lifetime: (i as f32 / PARTICLE_COUNT as f32) * 100.0,
             });
@@ -120,10 +120,10 @@ impl ParticleEngine {
                 data.lifetime = 500.0;
                 if respawned > state.particle_respawn_per_tick {continue;}
                 data.lifetime = 0.0;
-                let mut dx = self.rng.gen_range::<f32>(-1.0, 1.0);
-                let mut dy = self.rng.gen_range::<f32>(-1.0, 1.0);
-                let mut dz = self.rng.gen_range::<f32>(-1.0, 1.0);
-                let dist = self.rng.gen_range::<f32>(0.0, radius*radius).sqrt();
+                let mut dx: f32 = self.rng.gen_range(-1.0, 1.0);
+                let mut dy: f32 = self.rng.gen_range(-1.0, 1.0);
+                let mut dz: f32 = self.rng.gen_range(-1.0, 1.0);
+                let dist = self.rng.gen_range(0.0, radius*radius).sqrt();
                 let dt = (dx * dx + dy * dy + dz * dz).sqrt();
                 dx = dx / dt;
                 dy = dy / dt;

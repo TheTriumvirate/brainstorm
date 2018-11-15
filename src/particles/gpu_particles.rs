@@ -53,10 +53,10 @@ impl GPUParticleEngine {
                     particle_data.push(v as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
 
                     if q == 0 {
-                        noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
-                        noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
-                        noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
-                        noise_data.push(rng.gen_range::<f32>(0.0, 1.0));
+                        noise_data.push(rng.gen_range(0.0, 1.0));
+                        noise_data.push(rng.gen_range(0.0, 1.0));
+                        noise_data.push(rng.gen_range(0.0, 1.0));
+                        noise_data.push(rng.gen_range(0.0, 1.0));
                     } else {
                         index_data.push(index-OFFSET);
                         index_data.push(index);
