@@ -25,8 +25,8 @@ pub struct Slider {
 }
 
 impl Slider {
-    /// Creates a new slider. Note that initial_value should be
-    /// between 0.0 and 1.0.
+    /// Creates a new slider. Note that initial_value must be between 0.0 and 1.0, and steps must
+    /// be larger than 0.
     pub fn new(
         pos_abs: position::Absolute,
         steps: u32,
@@ -37,6 +37,7 @@ impl Slider {
         font: Rc<RefCell<Font<'static>>>
     ) -> Self {
         assert!(initial_value >= 0.0 && initial_value <= 1.0);
+        assert!(steps > 0);
         let track_pos = position::Absolute {
             height: pos_abs.height / 5,
             width: pos_abs.width,
@@ -102,7 +103,10 @@ impl Slider {
         }
     }
 
+    /// Sets the number of steps in the slider.
+    /// Must be larger than 0.
     pub fn set_steps(&mut self, steps: u32) {
+        assert!(steps > 0);
         self.steps = steps as f32;
     }
 

@@ -42,7 +42,6 @@ impl Gui {
     pub fn new(screensize: (f32, f32), state: &State) -> Self {
         let font = Rc::from(RefCell::from(Font::from_bytes(fonts::DEFAULT)));
 
-        ui_definitions::directional_areas(screensize, font.clone());
         let ui_elements: Vec<Box<ui_element::UiElement>> = vec![
             ui_definitions::lowpass_filter(screensize, font.clone()),
             ui_definitions::highpass_filter(screensize, font.clone()),

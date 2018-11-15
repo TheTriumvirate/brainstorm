@@ -184,14 +184,14 @@ impl App {
         if self.state.relocate_camera {
             // reposition camera to one of the seeding points (or center)
             let directional = self.particles.get_highly_directional_positions();
-            let idx: usize = (self.state.seeding_point*(directional.len() as f32)).round() as usize;
-            if idx == 0 {
+            let idx = (self.state.seeding_point*(directional.len() as f32)).round() as usize;
+            if idx == 0 || idx - 1 >= directional.len() {
                 self.camera.set_target_position((0.0,0.0,0.0)); // reset to middle
+            } else {
+                self.camera.set_target_position(directional[idx - 1]);
             }
-            else {
-                self.camera.set_target_position(*directional.get(idx-1).unwrap());
-            }
-            self.state.relocate_camera = false; // we done bois
+            self.gui.seeding_sphere.retarget(self.camera.get_target());
+            self.state.relocate_camera = false; // Prevent repetition ;)
         }
 
         // Handle events

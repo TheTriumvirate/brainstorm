@@ -129,6 +129,7 @@ impl Camera for ArcBall {
         self.target.x = x;
         self.target.y = y;
         self.target.z = z;
+        self.recalculate_matrices();
     }
 
     /// Move the camera by the specified amount.
