@@ -113,7 +113,7 @@ impl Default for State {
 impl App {
     /// Starts the application.
     /// Expects a file path for non-web compile targets.
-    pub fn new(path: Option<PathBuf>) -> App {
+    pub fn new(path: Option<PathBuf>, start_with_gpu: bool) -> App {
         #[allow(unused_assignments)]
         let mut field_provider = None;
         #[allow(unused_assignments)]
@@ -154,6 +154,7 @@ impl App {
 
         let mut state = State::new();
         state.file_path = path;
+        state.use_gpu_particles = start_with_gpu;
         state.directional_data = particles.calculate_highly_directional_positions();
         
         let mut gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);

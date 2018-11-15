@@ -1,3 +1,3 @@
 @echo off
 
-cargo run -- resources\src\fields\brain.bincode
+cargo run -- resources\src\fields\brain.bincode --gpu
