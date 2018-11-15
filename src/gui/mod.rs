@@ -57,7 +57,6 @@ impl Gui {
             ui_definitions::particle_spawn_rate(screensize, font.clone()),
             ui_definitions::load_file(screensize, font.clone()),
             ui_definitions::credits_label(screensize, font.clone()),
-            ui_definitions::texture_idx(screensize, font.clone()),
             ui_definitions::cpu_gpu_particles_toggle(screensize, font.clone()),
             ui_definitions::move_camera_x_f(screensize, font.clone()),
             ui_definitions::move_camera_x_b(screensize, font.clone()),

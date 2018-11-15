@@ -406,27 +406,6 @@ pub fn credits_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -
     ))
 }
 
-/// Texture idx slider.
-pub fn texture_idx(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
-    Box::new(Slider::new(
-        position::Absolute {
-            height: 40,
-            width: 225,
-            anchor: position::WindowCorner::BotRight,
-            margin_vertical: 360,
-            margin_horizontal:285,
-        },
-        800,
-        0.0,
-        screensize,
-        Box::new(|ref mut context, value| {
-            context.texture_idx = value;
-        }),
-        "Texture idx".to_owned(),
-        font.clone(),
-    ))
-}
-
 /// CPU/GPU particles toggle.
 pub fn cpu_gpu_particles_toggle(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
     Box::new(Button::new(

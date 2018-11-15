@@ -74,7 +74,6 @@ pub struct State {
     camera_delta_movement: (f32, f32, f32),
     seeding_point: f32,
     relocate_camera: bool,
-    texture_idx: f32,
     window_w: f32,
     window_h: f32,
     use_gpu_particles: bool,
@@ -100,7 +99,6 @@ impl State {
             camera_delta_movement: (0.0, 0.0, 0.0),
             seeding_point: 0.0,
             relocate_camera: false,
-            texture_idx: 0.0,
             window_w: 0.0,
             window_h: 0.0,
             use_gpu_particles: false,
@@ -257,8 +255,6 @@ impl App {
                 self.mid_reload = true;
             }
         }
-
-        self.gui.map.set_progress(self.state.texture_idx);
 
         // Update status label timer
         self.gui.status.update_status();

@@ -13,7 +13,6 @@ pub struct Map {
     sectionxz: MapSection,
     sectionzy: MapSection,
     shader: Rc<OurShader>,
-    progress: f32,
     circle: Circle,
     target: (f32, f32, f32),
     clicked: bool,
@@ -47,7 +46,6 @@ impl Map {
             sectionxz,
             sectionzy,
             shader,
-            progress: 0.0,
             circle: Circle::new(0.0, 0.0, 0.0, 0.1, 0.0, (1.0, 0.0, 0.0), false),
             target: (0.0, 0.0, 0.0),
             clicked: false,
@@ -59,10 +57,6 @@ impl Map {
         self.sectionxy.set_texture(texture.clone());
         self.sectionxz.set_texture(texture.clone());
         self.sectionzy.set_texture(texture.clone());
-    }
-
-    pub fn set_progress(&mut self, progress: f32) {
-        self.progress = progress;
     }
 
     pub fn clicked(&self) -> bool {
