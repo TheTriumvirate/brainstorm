@@ -158,7 +158,7 @@ impl App {
         state.directional_data = particles.calculate_highly_directional_positions();
         
         let mut gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);
-        gui.seeding_loc_slider.set_steps(state.directional_data.len() as u32);
+        gui.seeding_loc_slider.set_steps(state.directional_data.len().max(1) as u32);
 
         let gpu_field = gpu_field.unwrap();
         gui.map.set_texture(Some(gpu_field.get_texture()));
@@ -227,7 +227,7 @@ impl App {
                         self.march = MarchingCubes::marching_cubes(&field_provider);
                         self.particles = ParticleEngine::new(field_provider);
                         self.state.directional_data = self.particles.calculate_highly_directional_positions();
-                        self.gui.seeding_loc_slider.set_steps(self.state.directional_data.len() as u32);
+                        self.gui.seeding_loc_slider.set_steps(self.state.directional_data.len().max(1) as u32);
                         self.gpu_field = gpu_field_provider;
                         self.gpu_particles = GPUParticleEngine::new();
                         self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
