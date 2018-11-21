@@ -16,6 +16,9 @@ pub struct Text<'a> {
     indices: Buffer<u16>,
     x: f32,
     y: f32,
+    z: f32,
+    width: f32,
+    height: f32,
     screen_size: (f32, f32),
 }
 
@@ -36,12 +39,12 @@ impl<'a> Drawable for Text<'a> {
 }
 
 impl<'a> Text<'a> {
-    pub fn new(text: String, font: Rc<RefCell<Font<'a>>>, x: f32, y: f32, screen_size: (f32, f32)) -> Self {
+    pub fn new(text: String, font: Rc<RefCell<Font<'a>>>, x: f32, y: f32, z: f32, screen_size: (f32, f32)) -> Self {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
         let font = font.clone();
-        font.borrow_mut().update_texture(&text, x, y, &mut vertices, &mut indices, screen_size);
+        let (width, height) = font.borrow_mut().update_texture(&text, x, y, z, &mut vertices, &mut indices, screen_size);
         Text {
             text,
             font,
@@ -49,31 +52,49 @@ impl<'a> Text<'a> {
             indices,
             x,
             y,
+            z,
+            width,
+            height,
             screen_size,
         }
     }
 
     // TODO: DIRTY
-    pub fn set_position(&mut self, x: f32, y: f32, screen_size: (f32, f32)) {
-        self.font.borrow_mut().update_texture(
+    pub fn set_position(&mut self, x: f32, y: f32, z: f32, screen_size: (f32, f32)) {
+        let (width, height) = self.font.borrow_mut().update_texture(
             &self.text,
             x,
             y,
+            z,
             &mut self.vertices,
             &mut self.indices,
             screen_size,
         );
+
+        self.width = width;
+        self.height = height;
     }
 
     pub fn set_text(&mut self, text: String) {
         self.text = text;
-        self.font.borrow_mut().update_texture(
+        let (width, height) = self.font.borrow_mut().update_texture(
             &self.text,
             self.x,
             self.y,
+            self.z,
             &mut self.vertices,
             &mut self.indices,
             self.screen_size,
         );
+        self.width = width;
+        self.height = height;
+    }
+
+    pub fn get_position(&self) -> (f32, f32, f32) {
+        (self.x, self.y, self.z)
+    }
+
+    pub fn get_center(&self) -> (f32, f32, f32) {
+        (self.x + self.width, self.y + self.height, self.z)
     }
 }

@@ -333,6 +333,10 @@ impl AbstractContext for WebGLContext {
     fn uniform1f(&self, location: &UniformLocation, x: f32) {
         self.context.uniform1f(Some(location), x);
     }
+
+    fn uniform2f(&self, location: &UniformLocation, x: f32, y: f32) {
+        self.context.uniform2f(Some(location), x, y);
+    }
     
     fn uniform3f(&self, location: &UniformLocation, x: f32, y: f32, z: f32) {
         self.context.uniform3f(Some(location), x, y, z);

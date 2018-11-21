@@ -27,7 +27,7 @@ impl<'a> Font<'a> {
             &[
                 ShaderAttribute {
                     name: "a_position".to_string(),
-                    size: 2
+                    size: 3
                 },
                 ShaderAttribute {
                     name: "a_color".to_string(),
@@ -60,10 +60,11 @@ impl<'a> Font<'a> {
         text: &str,
         x: f32,
         y: f32,
+        z: f32,
         vertices: &mut Buffer<f32>,
         indices: &mut Buffer<u16>,
         screen_size: (f32, f32),
-    ) {
+    ) -> (f32, f32) {
         let glyphs = self.layout_paragraph(Scale::uniform(24.0), 512, text);
 
         for glyph in &glyphs {
@@ -92,6 +93,11 @@ impl<'a> Font<'a> {
         let advance_height = v_metrics.ascent - v_metrics.descent + v_metrics.line_gap;
         let origin = point(x, y) + vector(1.0, -1.0 + advance_height / screen_size.1 / 2.0);
 
+        let mut width : f32 = -10000.0;
+        let mut height : f32 = -10000.0;
+        let mut minx : f32 = 10000.0;
+        let mut miny : f32 = 10000.0;
+
         for g in glyphs {
             if let Ok(Some((uv_rect, screen_rect))) = self.cache.rect_for(0, &g) {
                 // TODO: font-ids
@@ -107,9 +113,14 @@ impl<'a> Font<'a> {
                             1.0 - screen_rect.max.y as f32 / screen_size.1 - 0.5,
                         )) * 2.0,
                 };
+                width = width.max(screen_rect.max.x as f32);
+                height = height.max(screen_rect.max.y as f32);
+                minx = minx.min(screen_rect.min.x as f32);
+                miny = miny.min(screen_rect.min.y as f32);
                 vertices.push(&[
                     gl_rect.min.x,
                     gl_rect.min.y,
+                    z,
                     1.0,
                     1.0,
                     1.0,
@@ -117,6 +128,7 @@ impl<'a> Font<'a> {
                     uv_rect.min.y,
                     gl_rect.max.x,
                     gl_rect.min.y,
+                    z,
                     1.0,
                     1.0,
                     1.0,
@@ -124,6 +136,7 @@ impl<'a> Font<'a> {
                     uv_rect.min.y,
                     gl_rect.max.x,
                     gl_rect.max.y,
+                    z,
                     1.0,
                     1.0,
                     1.0,
@@ -131,12 +144,14 @@ impl<'a> Font<'a> {
                     uv_rect.max.y,
                     gl_rect.min.x,
                     gl_rect.max.y,
+                    z,
                     1.0,
                     1.0,
                     1.0,
                     uv_rect.min.x,
                     uv_rect.max.y,
                 ]);
+
 
                 indices.push(&[idx, idx + 1, idx + 2, idx, idx + 2, idx + 3]);
 
@@ -150,6 +165,7 @@ impl<'a> Font<'a> {
         indices.bind();
         let len = indices.len();
         indices.upload_data(0, len, true);
+        ((width - minx) / screen_size.0, (height - miny) / screen_size.1)
     }
 
     fn layout_paragraph(&self, scale: Scale, width: u32, text: &str) -> Vec<PositionedGlyph<'a>> {

@@ -9,6 +9,7 @@ mod ui_element;
 mod ui_definitions;
 mod unit_sphere;
 mod map;
+mod world_points;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -27,6 +28,7 @@ use self::{
     ui_element::UiElement,
     unit_sphere::UnitSphere,
     map::Map,
+    world_points::WorldPoints,
 };
 
 /// Represents the GUI for the application.
@@ -38,6 +40,7 @@ pub struct Gui {
     pub seeding_loc_slider: Slider,
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
     pub map: Map,
+    pub world_points: WorldPoints,
 }
 
 impl Gui {
@@ -71,7 +74,8 @@ impl Gui {
         let status = ui_definitions::status_label(screensize, font.clone());
         let seeding_sphere = UnitSphere::new((0.0, 0.0, 0.0), state.seeding_size);
         let model_bound = ModelBound::new();
-        Gui { model_bound, seeding_sphere, status, ui_elements, ui_visible_button, seeding_loc_slider, map  }
+        let world_points = ui_definitions::world_points(screensize, font.clone());
+        Gui { model_bound, seeding_sphere, status, ui_elements, ui_visible_button, seeding_loc_slider, map, world_points  }
     }
 
     /// Handles events from the window, mutating application state as needed.
@@ -132,6 +136,7 @@ impl Gui {
                 self.map.mouse_moved(state.mouse_x, state.mouse_y, state);
                 if self.map.clicked() {
                     // TODO: Set camera position
+                    state.camera_target = self.map.get_target();
                 }
 
                 self.ui_visible_button.mouse_moved(state.mouse_x, state.mouse_y, state);
@@ -187,7 +192,7 @@ impl Gui {
             self.model_bound.draw_transformed(view_matrix);
             self.seeding_sphere.draw_transformed(view_matrix);
         }
-        self.map.draw_transformed(view_matrix);
+        self.world_points.draw_transformed(view_matrix);
     }
 }
 
@@ -195,6 +200,7 @@ impl Drawable for Gui {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         self.ui_visible_button.draw_transformed(view_matrix);
         self.status.draw_transformed(view_matrix);
+        self.map.draw_transformed(view_matrix);
         if self.ui_visible_button.toggle_state() {
             self.seeding_loc_slider.draw_transformed(view_matrix);
             for element in &self.ui_elements {

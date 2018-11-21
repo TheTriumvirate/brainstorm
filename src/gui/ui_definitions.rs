@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::{cell::RefCell, rc::Rc};
 
 use graphics::{position, Font};
-use super::{Button, Label, Slider, StatusLabel, UiElement, Map};
+use super::{Button, Label, Slider, StatusLabel, UiElement, Map, WorldPoints};
 
 const DELTA_MOVEMENT: f32 = 0.05;
 
@@ -456,4 +456,11 @@ pub fn map(screensize: (f32, f32)) -> Map {
         margin_horizontal: 405,
     }
     , screensize)
+}
+
+pub fn world_points(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> WorldPoints {
+    WorldPoints::new(
+        screensize,
+        font.clone(),
+    )
 }

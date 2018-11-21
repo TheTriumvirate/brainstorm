@@ -163,6 +163,8 @@ impl App {
         let gpu_field = gpu_field.unwrap();
         gui.map.set_texture(Some(gpu_field.get_texture()));
 
+        gui.world_points.set_points(particles.calculate_highly_directional_positions());
+
         App {
             window,
             state,
@@ -196,6 +198,7 @@ impl App {
 
             if !consumed {
                 self.camera.handle_events(&event);
+                self.gui.world_points.set_camera_pos(self.camera.get_position());
             }
         }
 
@@ -259,7 +262,6 @@ impl App {
         Context::get_context().disable(Context::DEPTH_TEST);
 
         self.gui.seeding_sphere.resize(self.state.seeding_size);
-        self.gui.draw_3d_elements(&projection_matrix);
 
         if self.state.use_gpu_particles {
             Context::get_context().disable(Context::DEPTH_TEST);
@@ -281,6 +283,7 @@ impl App {
         if self.state.mesh_transparency < 1.0 {
             Context::get_context().depth_mask(true);
         }
+        self.gui.draw_3d_elements(&projection_matrix);
 
         Context::get_context().disable(Context::DEPTH_TEST);
         

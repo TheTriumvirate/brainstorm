@@ -6,6 +6,7 @@ use gui::UiElement;
 use na::Matrix4;
 use gl_bindings::{Texture, shaders::OurShader, shaders::ShaderAttribute};
 use resources::shaders::{MAP_VERTEX_SHADER, MAP_FRAGMENT_SHADER};
+use gl_bindings::{Context, AbstractContext};
 
 /// A simple button that can be pressed.
 pub struct Map {
@@ -61,6 +62,10 @@ impl Map {
 
     pub fn clicked(&self) -> bool {
         self.clicked
+    }
+
+    pub fn get_target(&self) -> (f32, f32, f32) {
+        self.target
     }
 }
 
@@ -129,7 +134,8 @@ impl UiElement for Map {
 }
 
 impl Drawable for Map {
-    fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
+    fn draw_transformed(&self, _view_matrix: &Matrix4<f32>) {
+        Context::get_context().disable(Context::DEPTH_TEST);
         self.shader.uniform3f("u_up", 0.0, 0.0, 1.0);
         self.shader.uniform1f("u_progress", self.target.2 + 0.5);
         self.shader.uniform2f("u_test", self.target.0 + 0.5, self.target.1 + 0.5);
@@ -142,7 +148,6 @@ impl Drawable for Map {
         self.shader.uniform1f("u_progress", self.target.0 + 0.5);
         self.shader.uniform2f("u_test", self.target.2 + 0.5, self.target.1 + 0.5);
         self.sectionzy.draw();
-        self.circle.draw_transformed(view_matrix);
     }
 }
 
