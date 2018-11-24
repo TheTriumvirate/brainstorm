@@ -23,6 +23,7 @@ pub mod camera;
 pub mod graphics;
 pub mod gui;
 pub mod particles;
+pub mod file_loading; 
 
 use std::f32;
 #[cfg(not(target_arch = "wasm32"))]
@@ -145,7 +146,6 @@ impl App {
             field_provider = Some(FieldProvider::new(&content).expect("Failed to parse data."));
             gpu_field = Some(GPUFieldProvider::new(&content).expect("Failed to parse data."));
         }
-
         
         let field_provider = field_provider.unwrap();
         let march = MarchingCubes::marching_cubes(&field_provider);
@@ -224,7 +224,7 @@ impl App {
         if self.state.reload_file || self.mid_reload {
             self.state.reload_file = false;
             if self.mid_reload {
-                match self.reload_file() {
+                match file_loading::reload_file(&self.state) {
                     Ok((field_provider, gpu_field_provider)) => {
                         self.gui.status.set_status("File loaded!".to_owned());
                         self.march = MarchingCubes::marching_cubes(&field_provider);
@@ -235,7 +235,7 @@ impl App {
                         self.gpu_particles = GPUParticleEngine::new();
                         self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
                     }
-                    Err(e) => self.gui.status.set_status(e.to_owned()),
+                    Err(e) => self.gui.status.set_status(e),
                 }
                 self.mid_reload = false;
             } else {
@@ -293,27 +293,5 @@ impl App {
         self.time += 0.01;
         self.state.is_running
 
-    }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    fn reload_file(&self) -> Result<(FieldProvider, GPUFieldProvider), &'static str> {
-        let path = self.state.file_path.as_ref().ok_or("No file path saved.")?;
-        let mut file = std::fs::File::open(path).map_err(|_| "Failed to open file.")?;
-        let mut content = Vec::new();
-        file.read_to_end(&mut content).map_err(|_| "Failed to read file.")?;
-        let field_provider = FieldProvider::new(&content).map_err(|_| "Failed to parse file.")?;
-        let gpu_field_provider = GPUFieldProvider::new(&content).map_err(|_| "Failed to parse file.")?;
-        Ok((field_provider, gpu_field_provider))
-    }
-
-    #[cfg(target_arch = "wasm32")]
-    fn reload_file(&self) -> Result<(FieldProvider, GPUFieldProvider), &'static str> {
-        let content = js!(return getData();).into_string().ok_or("Failed to get data from JS")?;
-        let pos = content.find(",").map(|i| i + 1).unwrap_or(0);
-        let b64 = content.split_at(pos).1;
-        let data = base64::decode(b64).map_err(|_| "Failed to decode base64 content")?;
-        let field_provider = FieldProvider::new(&data).map_err(|_| "Failed to parse data")?;
-        let gpu_field_provider = GPUFieldProvider::new(&content.as_bytes()).map_err(|_| "Failed to parse file.")?;
-        Ok((field_provider, gpu_field_provider))
     }
 }
