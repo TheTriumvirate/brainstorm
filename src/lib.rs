@@ -36,6 +36,7 @@ use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
 use gui::{Gui};
 use window::{AbstractWindow, Window, Event};
+use file_loading::FileResult;
 
 const INITIAL_WINDOW_WIDTH: u32 = 1000;
 const INITIAL_WINDOW_HEIGHT: u32 = 800;
@@ -77,6 +78,7 @@ pub struct State {
     window_h: f32,
     use_gpu_particles: bool,
     directional_data: Vec<(f32, f32, f32)>,
+    options_file: Option<reparser::Options>,
 }
 
 impl State {
@@ -101,6 +103,7 @@ impl State {
             window_h: 0.0,
             use_gpu_particles: false,
             directional_data: Vec::new(),
+            options_file: None,
         }
     }
 }
@@ -224,15 +227,24 @@ impl App {
             self.state.reload_file = false;
             if self.mid_reload {
                 match file_loading::reload_file(&self.state) {
-                    Ok((field_provider, gpu_field_provider)) => {
-                        self.gui.status.set_status("File loaded!".to_owned());
-                        self.march = MarchingCubes::marching_cubes(&field_provider);
-                        self.particles = ParticleEngine::new(field_provider);
-                        self.state.directional_data = self.particles.calculate_highly_directional_positions();
-                        self.gui.seeding_loc_slider.set_steps(self.state.directional_data.len().max(1) as u32);
-                        self.gpu_field = gpu_field_provider;
-                        self.gpu_particles = GPUParticleEngine::new();
-                        self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
+                    Ok(res) => match res {
+                        FileResult::OptionsFile(opt) => {
+                            self.state.options_file = Some(opt);
+                            self.gui.status.set_status(
+                                "Options file loaded - load raw file next.".to_owned()
+                            );
+                        }
+                        FileResult::VectorField((field_provider, gpu_field_provider)) => {
+                            self.gui.status.set_status("File loaded!".to_owned());
+                            self.state.options_file = None;
+                            self.march = MarchingCubes::marching_cubes(&field_provider);
+                            self.particles = ParticleEngine::new(field_provider);
+                            self.state.directional_data = self.particles.calculate_highly_directional_positions();
+                            self.gui.seeding_loc_slider.set_steps(self.state.directional_data.len().max(1) as u32);
+                            self.gpu_field = gpu_field_provider;
+                            self.gpu_particles = GPUParticleEngine::new();
+                            self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
+                        }
                     }
                     Err(e) => self.gui.status.set_status(e),
                 }
