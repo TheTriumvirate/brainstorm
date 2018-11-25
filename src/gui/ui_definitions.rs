@@ -262,7 +262,7 @@ pub fn status_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
             height: 10,
             width: 10,
             anchor: position::WindowCorner::BotLeft,
-            margin_vertical: 10,
+            margin_vertical: 30,
             margin_horizontal: 10,
         },
         screensize,
@@ -428,7 +428,7 @@ pub fn cpu_gpu_particles_toggle(screensize: (f32, f32), font: Rc<RefCell<Font<'s
         Box::new(|ref mut context, toggle_state| {
             context.use_gpu_particles = toggle_state
         }),
-        "Toggle Particles".to_owned(),
+        "     Use GPU".to_owned(),
         font.clone(),
     ))
 }
