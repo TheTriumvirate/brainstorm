@@ -1,15 +1,5 @@
 use std::f32;
-
-type Vector4 = (f32, f32, f32, f32);
-
-#[derive(Serialize, Deserialize)]
-struct VectorField {
-    width: usize,
-    height: usize,
-    depth: usize,
-    vectors: Vec<Vec<Vec<Vector4>>>,
-    directional: Vec<(f32,f32,f32)>,
-}
+use super::{Vector4, VectorField};
 
 fn lerpf(a: f32, b: f32, t: f32) -> f32 {
     a * (1.0 - t) + b * t
@@ -65,9 +55,8 @@ impl FieldProvider {
         self.data[x + y * self.width + z * self.width * self.height]
     }
 
-    pub fn new(raw_data: &[u8]) -> Result<Self, Box<bincode::ErrorKind>> {
-        let mut data = Vec::new();
-        let x: VectorField = bincode::deserialize(raw_data)?;
+    pub fn new(x: VectorField) -> Self {
+        let mut data: Vec<(f32, f32, f32, f32)> = Vec::new();
         for plane in x.vectors {
             for row in plane {
                 for elem in row {
@@ -75,13 +64,13 @@ impl FieldProvider {
                 }
             }
         }
-        Ok(FieldProvider {
+        FieldProvider {
             width: x.width,
             height: x.height,
             depth: x.depth,
             data,
             directional: x.directional,
-        })
+        }
     }
 
     pub fn delta(&self, (x, y, z): (f32, f32, f32)) -> (f32, f32, f32, f32) {

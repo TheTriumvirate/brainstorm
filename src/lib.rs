@@ -125,12 +125,10 @@ impl App {
         #[cfg(target_arch = "wasm32")]
         {
             stdweb::initialize();
-            field_provider = Some(
-                FieldProvider::new(resources::fields::TEST_DATA).expect("Failed to parse data.")
-            );
-            gpu_field = Some(
-                GPUFieldProvider::new(resources::fields::TEST_DATA).expect("Failed to parse data.")
-            )
+            let vector_field = bincode::deserialize(&resources::fields::TEST_DATA)
+                .expect("Failed to parse data.");
+            gpu_field = Some(GPUFieldProvider::new(&vector_field));
+            field_provider = Some(FieldProvider::new(vector_field));
         }
         // For desktop we load a file if it exists.
         #[cfg(not(target_arch = "wasm32"))]
@@ -143,11 +141,13 @@ impl App {
             } else {
                 Vec::from(resources::fields::DEFAULT_SPIRAL)
             };
-            field_provider = Some(FieldProvider::new(&content).expect("Failed to parse data."));
-            gpu_field = Some(GPUFieldProvider::new(&content).expect("Failed to parse data."));
+            let vector_field = bincode::deserialize(&content).expect("Failed to parse data.");
+            gpu_field = Some(GPUFieldProvider::new(&vector_field));
+            field_provider = Some(FieldProvider::new(vector_field));
         }
         
         let field_provider = field_provider.unwrap();
+        let gpu_field = gpu_field.unwrap();
         let march = MarchingCubes::marching_cubes(&field_provider);
         let particles = ParticleEngine::new(field_provider);
         let gpu_particles = GPUParticleEngine::new();        
@@ -160,7 +160,6 @@ impl App {
         let mut gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);
         gui.seeding_loc_slider.set_steps(state.directional_data.len().max(1) as u32);
 
-        let gpu_field = gpu_field.unwrap();
         gui.map.set_texture(Some(gpu_field.get_texture()));
 
         gui.world_points.set_points(particles.calculate_highly_directional_positions());

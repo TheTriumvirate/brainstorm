@@ -1,18 +1,6 @@
-use bincode::deserialize;
-use std::f32;
-
 use gl_bindings::{Texture, TextureFormat};
-use std::rc::Rc;
-
-type Vector4 = (f32, f32, f32, f32);
-
-#[derive(Serialize, Deserialize)]
-struct VectorField {
-    width: usize,
-    height: usize,
-    depth: usize,
-    vectors: Vec<Vec<Vec<Vector4>>>,
-}
+use std::{f32, rc::Rc};
+use super::VectorField;
 
 pub struct GPUFieldProvider {
     texture: Rc<Texture>,
@@ -20,9 +8,7 @@ pub struct GPUFieldProvider {
 }
 
 impl GPUFieldProvider {
-    pub fn new(raw_data: &[u8]) -> Result<Self, &'static str> {
-        let x: VectorField = deserialize(raw_data).map_err(|_| "Failed to deserialize data.")?;
-        
+    pub fn new(x: &VectorField) -> Self {
         let mut max : f32 = 0.0;
         let mut min : f32 = 0.0;
         for plane in x.vectors.iter() {
@@ -40,7 +26,7 @@ impl GPUFieldProvider {
         }
 
         let mut data = Vec::new();
-        for plane in x.vectors {
+        for plane in &x.vectors {
             for row in plane {
                 for elem in row {
                     let (dx, dy, dz, da) = elem;
@@ -56,10 +42,10 @@ impl GPUFieldProvider {
                 }
             }
         }
-        Ok(GPUFieldProvider {
+        GPUFieldProvider {
             texture: Rc::new(Texture::from_3d_data(x.width as u32, x.height as u32, x.depth as u32, TextureFormat::RGBA, &data[..], false)),
             size: x.depth,
-        })
+        }
     }
 
     pub fn len(&self) -> usize {

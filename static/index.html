@@ -35,15 +35,18 @@
     // Asynchronous file loading.
     let updated = false;
     let data = null;
+    let path = null;
 
     function getData() {
-        //console.log(data);
         return data;
+    }
+    
+    function getPath() {
+        return path.name;
     }
     
     function isUpdated() {
         if (updated) {
-            //console.log("Data imported!");
             updated = false;
             return true;
         }
@@ -57,10 +60,10 @@
     
     function handleFiles(files) {
         if (files !== undefined && files.length === 1) {
-            let file = files.item(0);
+            path = files.item(0);
             let reader = new FileReader();
             reader.onload = onLoad;
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(path);
         }
     }
     
