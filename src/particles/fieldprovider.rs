@@ -1,12 +1,17 @@
-use std::f32;
 use super::{Vector4, VectorField};
+use std::f32;
 
 fn lerpf(a: f32, b: f32, t: f32) -> f32 {
     a * (1.0 - t) + b * t
 }
 
 fn lerp((ax, ay, az, afa): Vector4, (bx, by, bz, bfa): Vector4, t: f32) -> Vector4 {
-    (lerpf(ax, bx, t), lerpf(ay, by, t), lerpf(az, bz, t), lerpf(afa, bfa, t))
+    (
+        lerpf(ax, bx, t),
+        lerpf(ay, by, t),
+        lerpf(az, bz, t),
+        lerpf(afa, bfa, t),
+    )
 }
 
 fn lerp2d(lxly: Vector4, lxuy: Vector4, uxly: Vector4, uxuy: Vector4, t1: f32, t2: f32) -> Vector4 {
@@ -40,15 +45,15 @@ pub struct FieldProvider {
     pub height: usize,
     pub depth: usize,
     data: Vec<(f32, f32, f32, f32)>,
-    directional: Vec<(f32,f32,f32)>,
+    directional: Vec<(f32, f32, f32)>,
 }
 
 impl FieldProvider {
-    pub fn get_vec(&self, (fx,fy,fz): (usize, usize, usize)) -> (f32, f32, f32, f32) {
+    pub fn get_vec(&self, (fx, fy, fz): (usize, usize, usize)) -> (f32, f32, f32, f32) {
         if fx >= self.width || fy >= self.height || fz >= self.depth {
-            return (0.0,0.0,0.0,0.0);
+            return (0.0, 0.0, 0.0, 0.0);
         }
-        self.get(fx,fy,fz)
+        self.get(fx, fy, fz)
     }
 
     pub fn get(&self, x: usize, y: usize, z: usize) -> (f32, f32, f32, f32) {
@@ -114,7 +119,7 @@ impl FieldProvider {
         (rx, ry, rz, ra)
     }
 
-    pub fn get_len(&self, v : (usize, usize, usize)) -> f32 {
+    pub fn get_len(&self, v: (usize, usize, usize)) -> f32 {
         let dt = self.get_vec(v);
         dt.3
     }
@@ -123,14 +128,16 @@ impl FieldProvider {
         &self.data
     }
 
-    pub fn directional(&self) -> &[(f32,f32,f32)] {
+    pub fn directional(&self) -> &[(f32, f32, f32)] {
         &self.directional
     }
 
-    pub fn fa(&self, (x,y,z): (f32,f32,f32)) -> f32 {
+    pub fn fa(&self, (x, y, z): (f32, f32, f32)) -> f32 {
         let x = x * (self.width as f32) + (self.width as f32) / 2.0;
         let y = y * (self.height as f32) + (self.height as f32) / 2.0;
         let z = z * (self.depth as f32) + (self.depth as f32) / 2.0;
-        return self.get_vec((x.round() as usize,y.round() as usize,z.round() as usize)).3
+        return self
+            .get_vec((x.round() as usize, y.round() as usize, z.round() as usize))
+            .3;
     }
 }

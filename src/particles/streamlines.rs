@@ -2,17 +2,17 @@ use particles::fieldprovider::FieldProvider;
 
 use gl_bindings::{shaders, Buffer, BufferType};
 
-use resources::shaders::{STREAMLINES_VERTEX_SHADER, STREAMLINES_FRAGMENT_SHADER};
+use resources::shaders::{STREAMLINES_FRAGMENT_SHADER, STREAMLINES_VERTEX_SHADER};
 
 use graphics::{render_target, DrawMode, Drawable};
-use std::str;
 use na::Matrix4;
 use std::rc::Rc;
+use std::str;
 
 pub struct Streamlines {
     vertices: Buffer<f32>,
     shader: Rc<shaders::OurShader>,
-    transparency: f32
+    transparency: f32,
 }
 
 impl Drawable for Streamlines {
@@ -23,7 +23,14 @@ impl Drawable for Streamlines {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         let len = self.vertices.len() as i32 / 3;
         self.shader.uniform1f("u_transparency", self.transparency);
-        render_target::draw_vertex_array(DrawMode::LINES, 0, len, &self.vertices, self.render_states(), view_matrix)
+        render_target::draw_vertex_array(
+            DrawMode::LINES,
+            0,
+            len,
+            &self.vertices,
+            self.render_states(),
+            view_matrix,
+        )
     }
 }
 
@@ -40,22 +47,29 @@ impl Streamlines {
             name: "position".to_string(),
             size: 3,
         });
-        
+
         let shader = shaders::OurShader::new(vertex_shader, fragment_shader, &attributes);
         shader.use_program();
 
         Streamlines {
             vertices: Buffer::<f32>::new(BufferType::Array),
             shader: Rc::new(shader),
-            transparency: 0.0
+            transparency: 0.0,
         }
     }
 
-    pub fn draw_streamlines(&mut self, step_size: f32, step_count: i32, bounds: f32, field: &FieldProvider, start: (f32, f32, f32)) {
+    pub fn draw_streamlines(
+        &mut self,
+        step_size: f32,
+        step_count: i32,
+        bounds: f32,
+        field: &FieldProvider,
+        start: (f32, f32, f32),
+    ) {
         self.vertices.clear();
-        const S : f32 = 0.1;
+        const S: f32 = 0.1;
         //let S = bounds / 6.0;
-        self.transparency = (S *12.0).min(1.0).max(0.05);  
+        self.transparency = (S * 12.0).min(1.0).max(0.05);
 
         {
             let step_count = step_count.max(1);
@@ -69,8 +83,19 @@ impl Streamlines {
                 while j < bounds * 2.0 - oy * 2.0 {
                     let mut k = 0.0;
                     while k < bounds * 2.0 - oz * 2.0 {
-                        if (i - bounds - ox).powf(2.0) + (j - bounds - oy).powf(2.0) + (k - bounds - oz).powf(2.0) <= bounds * bounds {
-                            self.vertices.push(&Streamlines::create_line(field, step_size, step_count, (x+i - ox, y+j - oy, z+k - oz))[..]);
+                        if (i - bounds - ox).powf(2.0)
+                            + (j - bounds - oy).powf(2.0)
+                            + (k - bounds - oz).powf(2.0)
+                            <= bounds * bounds
+                        {
+                            self.vertices.push(
+                                &Streamlines::create_line(
+                                    field,
+                                    step_size,
+                                    step_count,
+                                    (x + i - ox, y + j - oy, z + k - oz),
+                                )[..],
+                            );
                         }
                         k += S;
                     }
@@ -87,7 +112,12 @@ impl Streamlines {
         }
     }
 
-    fn create_line(field: &FieldProvider, step_size: f32, step_count: i32, start: (f32, f32, f32)) -> Vec<f32> {
+    fn create_line(
+        field: &FieldProvider,
+        step_size: f32,
+        step_count: i32,
+        start: (f32, f32, f32),
+    ) -> Vec<f32> {
         let mut data = Vec::new();
 
         let (mut x, mut y, mut z) = start;
@@ -97,18 +127,24 @@ impl Streamlines {
         let mut k = -1;
         for _i in 1..step_count {
             let (dx, dy, dz, fa) = field.delta((x, y, z));
-            let (dx, dy, dz) = (dx * fa * step_size, dy * fa * step_size, dz * fa * step_size);
+            let (dx, dy, dz) = (
+                dx * fa * step_size,
+                dy * fa * step_size,
+                dz * fa * step_size,
+            );
 
-            k += 1; 
+            k += 1;
             if dx.is_nan() || dy.is_nan() || dz.is_nan() {
                 return data;
             }
-            
+
             x = x + dx;
             y = y + dy;
             z = z + dz;
 
-            if k % 10 != 0 { continue}
+            if k % 10 != 0 {
+                continue;
+            }
 
             data.push(px);
             data.push(py);

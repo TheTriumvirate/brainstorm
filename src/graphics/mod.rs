@@ -2,17 +2,17 @@
 //! in particular for drawing primitives.
 
 mod circle;
+mod cube;
 pub mod position;
 mod rectangle;
 pub mod render_target;
 mod text;
-mod cube;
 
 pub use self::circle::Circle;
+pub use self::cube::Cube;
 pub use self::rectangle::Rectangle;
 pub use self::text::font::Font;
 pub use self::text::Text;
-pub use self::cube::Cube;
 
 use gl_bindings::{shaders::OurShader, Texture};
 
@@ -37,7 +37,9 @@ pub trait Drawable {
         None
     }
 
-    fn get_transform(&self) -> Option<&Matrix4<f32>> {None}
+    fn get_transform(&self) -> Option<&Matrix4<f32>> {
+        None
+    }
 
     fn render_states(&self) -> RenderStates {
         RenderStates {
@@ -49,7 +51,9 @@ pub trait Drawable {
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>);
 
-    fn draw(&self) {self.draw_transformed(&Matrix4::identity());}
+    fn draw(&self) {
+        self.draw_transformed(&Matrix4::identity());
+    }
 }
 
 pub struct RenderStates<'a> {

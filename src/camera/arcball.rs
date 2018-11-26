@@ -114,7 +114,7 @@ impl Camera for ArcBall {
     }
 
     /// Set the target position of the camera.
-    fn set_target_position(&mut self, (x,y,z): (f32,f32,f32)) {
+    fn set_target_position(&mut self, (x, y, z): (f32, f32, f32)) {
         self.target.x = x;
         self.target.y = y;
         self.target.z = z;

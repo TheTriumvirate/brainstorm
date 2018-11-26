@@ -2,32 +2,26 @@
 
 mod button;
 mod label;
+mod map;
 mod model_bound;
 mod slider;
 mod status_label;
-mod ui_element;
 mod ui_definitions;
+mod ui_element;
 mod unit_sphere;
-mod map;
 mod world_points;
 
 use std::{cell::RefCell, rc::Rc};
 
 use graphics::{Drawable, Font};
-use resources::fonts;
-use window::{ModifierKeys, MouseButton, Event, Key};
-use State;
 use na::Matrix4;
+use resources::fonts;
+use window::{Event, Key, ModifierKeys, MouseButton};
+use State;
 
 use self::{
-    button::Button,
-    label::Label,
-    model_bound::ModelBound,
-    slider::Slider,
-    status_label::StatusLabel,
-    ui_element::UiElement,
-    unit_sphere::UnitSphere,
-    map::Map,
+    button::Button, label::Label, map::Map, model_bound::ModelBound, slider::Slider,
+    status_label::StatusLabel, ui_element::UiElement, unit_sphere::UnitSphere,
     world_points::WorldPoints,
 };
 
@@ -68,14 +62,23 @@ impl Gui {
             ui_definitions::move_camera_z_f(screensize, font.clone()),
             ui_definitions::move_camera_z_b(screensize, font.clone()),
         ];
-        
+
         let seeding_loc_slider = ui_definitions::directional_areas(screensize, font.clone());
         let ui_visible_button = ui_definitions::toggle_ui(screensize, font.clone());
         let status = ui_definitions::status_label(screensize, font.clone());
         let seeding_sphere = UnitSphere::new((0.0, 0.0, 0.0), state.seeding_size);
         let model_bound = ModelBound::new();
         let world_points = ui_definitions::world_points(screensize, font.clone());
-        Gui { model_bound, seeding_sphere, status, ui_elements, ui_visible_button, seeding_loc_slider, map, world_points  }
+        Gui {
+            model_bound,
+            seeding_sphere,
+            status,
+            ui_elements,
+            ui_visible_button,
+            seeding_loc_slider,
+            map,
+            world_points,
+        }
     }
 
     /// Handles events from the window, mutating application state as needed.
@@ -102,9 +105,7 @@ impl Gui {
                 false
             }
             Event::KeyboardInput {
-                pressed: true,
-                key,
-                ..
+                pressed: true, key, ..
             } => {
                 match key {
                     Key::W | Key::S | Key::A | Key::D | Key::Q | Key::E => {
@@ -117,12 +118,12 @@ impl Gui {
                         state.camera_target.1 += match key {
                             Key::Q => ch,
                             Key::E => -ch,
-                            _ => 0.0
+                            _ => 0.0,
                         };
                         state.camera_target.2 += match key {
                             Key::W => ch,
                             Key::S => -ch,
-                            _ => 0.0
+                            _ => 0.0,
                         };
                     }
                     _ => {}
@@ -139,8 +140,10 @@ impl Gui {
                     state.camera_target = self.map.get_target();
                 }
 
-                self.ui_visible_button.mouse_moved(state.mouse_x, state.mouse_y, state);
-                self.seeding_loc_slider.mouse_moved(state.mouse_x, state.mouse_y, state);
+                self.ui_visible_button
+                    .mouse_moved(state.mouse_x, state.mouse_y, state);
+                self.seeding_loc_slider
+                    .mouse_moved(state.mouse_x, state.mouse_y, state);
                 for element in &mut self.ui_elements {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
                 }
@@ -157,13 +160,21 @@ impl Gui {
                         self.map.click(state.mouse_x, state.mouse_y, state);
                         handled = true;
                     }
-                    if self.ui_visible_button.is_within(state.mouse_x, state.mouse_y) {
-                        self.ui_visible_button.click(state.mouse_x, state.mouse_y, state);
+                    if self
+                        .ui_visible_button
+                        .is_within(state.mouse_x, state.mouse_y)
+                    {
+                        self.ui_visible_button
+                            .click(state.mouse_x, state.mouse_y, state);
                         handled = true;
                     }
                     if self.ui_visible_button.toggle_state() {
-                        if self.seeding_loc_slider.is_within(state.mouse_x, state.mouse_y) {
-                            self.seeding_loc_slider.click(state.mouse_x, state.mouse_y, state);
+                        if self
+                            .seeding_loc_slider
+                            .is_within(state.mouse_x, state.mouse_y)
+                        {
+                            self.seeding_loc_slider
+                                .click(state.mouse_x, state.mouse_y, state);
                             handled = true;
                         }
                         for element in &mut self.ui_elements {
@@ -175,8 +186,10 @@ impl Gui {
                     }
                 } else {
                     self.map.click_release(state.mouse_x, state.mouse_y, state);
-                    self.ui_visible_button.click_release(state.mouse_x, state.mouse_y, state);
-                    self.seeding_loc_slider.click_release(state.mouse_x, state.mouse_y, state);
+                    self.ui_visible_button
+                        .click_release(state.mouse_x, state.mouse_y, state);
+                    self.seeding_loc_slider
+                        .click_release(state.mouse_x, state.mouse_y, state);
                     for element in &mut self.ui_elements {
                         element.click_release(state.mouse_x, state.mouse_y, state);
                     }

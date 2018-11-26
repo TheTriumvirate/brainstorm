@@ -3,7 +3,8 @@
 #[cfg(target_arch = "wasm32")]
 extern crate base64;
 #[cfg(target_arch = "wasm32")]
-#[macro_use] extern crate stdweb;
+#[macro_use]
+extern crate stdweb;
 #[cfg(not(target_arch = "wasm32"))]
 extern crate nfd;
 
@@ -12,7 +13,8 @@ extern crate nalgebra as na;
 extern crate rand;
 extern crate rusttype;
 extern crate serde;
-#[macro_use] extern crate serde_derive;
+#[macro_use]
+extern crate serde_derive;
 extern crate unicode_normalization;
 
 extern crate gl_bindings;
@@ -20,23 +22,23 @@ extern crate resources;
 extern crate window;
 
 pub mod camera;
+pub mod file_loading;
 pub mod graphics;
 pub mod gui;
 pub mod particles;
-pub mod file_loading; 
 
 use std::f32;
 #[cfg(not(target_arch = "wasm32"))]
 use std::io::Read;
 use std::path::PathBuf;
 
-use graphics::Drawable;
-use gl_bindings::{AbstractContext, Context};
-use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use camera::Camera;
-use gui::{Gui};
-use window::{AbstractWindow, Window, Event};
 use file_loading::FileResult;
+use gl_bindings::{AbstractContext, Context};
+use graphics::Drawable;
+use gui::Gui;
+use particles::{fieldprovider::FieldProvider, ParticleEngine};
+use window::{AbstractWindow, Event, Window};
 
 const INITIAL_WINDOW_WIDTH: u32 = 1000;
 const INITIAL_WINDOW_HEIGHT: u32 = 800;
@@ -128,8 +130,8 @@ impl App {
         #[cfg(target_arch = "wasm32")]
         {
             stdweb::initialize();
-            let vector_field = bincode::deserialize(&resources::fields::TEST_DATA)
-                .expect("Failed to parse data.");
+            let vector_field =
+                bincode::deserialize(&resources::fields::TEST_DATA).expect("Failed to parse data.");
             gpu_field = Some(GPUFieldProvider::new(&vector_field));
             field_provider = Some(FieldProvider::new(vector_field));
         }
@@ -139,7 +141,8 @@ impl App {
             let content: Vec<u8> = if let Some(ref path) = path {
                 let mut file = std::fs::File::open(path).expect("Failed to open file!");
                 let mut content = Vec::new();
-                file.read_to_end(&mut content).expect("Failed to read file!");
+                file.read_to_end(&mut content)
+                    .expect("Failed to read file!");
                 content
             } else {
                 Vec::from(resources::fields::DEFAULT_SPIRAL)
@@ -148,24 +151,29 @@ impl App {
             gpu_field = Some(GPUFieldProvider::new(&vector_field));
             field_provider = Some(FieldProvider::new(vector_field));
         }
-        
+
         let field_provider = field_provider.unwrap();
         let gpu_field = gpu_field.unwrap();
         let march = MarchingCubes::marching_cubes(&field_provider);
         let particles = ParticleEngine::new(field_provider);
-        let gpu_particles = GPUParticleEngine::new();        
+        let gpu_particles = GPUParticleEngine::new();
 
         let mut state = State::new();
         state.file_path = path;
         state.use_gpu_particles = start_with_gpu;
         state.directional_data = particles.calculate_highly_directional_positions();
-        
-        let mut gui = Gui::new((INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32), &state);
-        gui.seeding_loc_slider.set_steps(state.directional_data.len().max(1) as u32);
+
+        let mut gui = Gui::new(
+            (INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32),
+            &state,
+        );
+        gui.seeding_loc_slider
+            .set_steps(state.directional_data.len().max(1) as u32);
 
         gui.map.set_texture(Some(gpu_field.get_texture()));
 
-        gui.world_points.set_points(particles.calculate_highly_directional_positions());
+        gui.world_points
+            .set_points(particles.calculate_highly_directional_positions());
 
         App {
             window,
@@ -192,15 +200,18 @@ impl App {
                     self.state.window_w = *w;
                     self.state.window_h = *h;
                     self.window.set_size(*w as u32, *h as u32)
-                },
+                }
                 _ => {}
             };
-            let consumed = self.gui
+            let consumed = self
+                .gui
                 .handle_event(&event, &mut self.state, self.window.get_size());
 
             if !consumed {
                 self.camera.handle_events(&event);
-                self.gui.world_points.set_camera_pos(self.camera.get_position());
+                self.gui
+                    .world_points
+                    .set_camera_pos(self.camera.get_position());
             }
         }
 
@@ -208,11 +219,12 @@ impl App {
         {
             self.camera.set_target_position(self.state.camera_target);
             self.gui.seeding_sphere.retarget(self.state.camera_target);
-        }        
+        }
 
         // Replace particle data if requested.
         // Special preparation for web due to it's asynchronous nature.
-        #[cfg(target_arch = "wasm32")] {
+        #[cfg(target_arch = "wasm32")]
+        {
             self.state.reload_file = match js!(return isUpdated();) {
                 stdweb::Value::Bool(b) => b,
                 _ => panic!("Unknown isUpdated return type"),
@@ -230,27 +242,32 @@ impl App {
                     Ok(res) => match res {
                         FileResult::OptionsFile(opt) => {
                             self.state.options_file = Some(opt);
-                            self.gui.status.set_status(
-                                "Options file loaded - load raw file next.".to_owned()
-                            );
+                            self.gui
+                                .status
+                                .set_status("Options file loaded - load raw file next.".to_owned());
                         }
                         FileResult::VectorField((field_provider, gpu_field_provider)) => {
                             self.gui.status.set_status("File loaded!".to_owned());
                             self.state.options_file = None;
                             self.march = MarchingCubes::marching_cubes(&field_provider);
                             self.particles = ParticleEngine::new(field_provider);
-                            self.state.directional_data = self.particles.calculate_highly_directional_positions();
-                            self.gui.seeding_loc_slider.set_steps(self.state.directional_data.len().max(1) as u32);
+                            self.state.directional_data =
+                                self.particles.calculate_highly_directional_positions();
+                            self.gui
+                                .seeding_loc_slider
+                                .set_steps(self.state.directional_data.len().max(1) as u32);
                             self.gpu_field = gpu_field_provider;
                             self.gpu_particles = GPUParticleEngine::new();
                             self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
                         }
-                    }
+                    },
                     Err(e) => self.gui.status.set_status(e),
                 }
                 self.mid_reload = false;
             } else {
-                self.gui.status.set_status_ongoing("Loading file".to_owned());
+                self.gui
+                    .status
+                    .set_status_ongoing("Loading file".to_owned());
                 self.mid_reload = true;
             }
         }
@@ -276,33 +293,33 @@ impl App {
 
         if self.state.use_gpu_particles {
             Context::get_context().disable(Context::DEPTH_TEST);
-            self.gpu_particles.update(&self.gpu_field, &self.state, &self.camera);
+            self.gpu_particles
+                .update(&self.gpu_field, &self.state, &self.camera);
             Context::get_context().enable(Context::DEPTH_TEST);
             self.gpu_particles.draw_transformed(&projection_matrix);
         } else {
             self.particles.update(&self.state, &mut self.camera);
             self.particles.draw(&projection_matrix, &self.state);
         }
-        
+
         if self.state.mesh_transparency < 1.0 {
             Context::get_context().depth_mask(false);
         }
 
         self.march.set_transparency(self.state.mesh_transparency);
         self.march.draw_transformed(&projection_matrix);
-        
+
         if self.state.mesh_transparency < 1.0 {
             Context::get_context().depth_mask(true);
         }
         self.gui.draw_3d_elements(&projection_matrix);
 
         Context::get_context().disable(Context::DEPTH_TEST);
-        
+
         self.gui.draw();
 
         self.window.swap_buffers();
         self.time += 0.01;
         self.state.is_running
-
     }
 }

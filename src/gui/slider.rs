@@ -1,7 +1,7 @@
 use na::Matrix4;
 use std::{cell::RefCell, rc::Rc};
 
-use graphics::{Drawable, Font, position, position::WindowCorner, Rectangle};
+use graphics::{position, position::WindowCorner, Drawable, Font, Rectangle};
 use gui::{Label, UiElement};
 use State;
 
@@ -34,7 +34,7 @@ impl Slider {
         screensize: (f32, f32),
         func: Box<dyn FnMut(&mut State, f32)>,
         text: String,
-        font: Rc<RefCell<Font<'static>>>
+        font: Rc<RefCell<Font<'static>>>,
     ) -> Self {
         assert!(initial_value >= 0.0 && initial_value <= 1.0);
         assert!(steps > 0);
@@ -66,14 +66,16 @@ impl Slider {
                 width: 0,
                 anchor: pos_abs.anchor,
                 margin_vertical: match pos_abs.anchor {
-                    WindowCorner::BotLeft | WindowCorner::BotRight
-                        => pos_abs.margin_vertical + (pos_abs.height as f32 * LABEL_V_FAC) as u32,
+                    WindowCorner::BotLeft | WindowCorner::BotRight => {
+                        pos_abs.margin_vertical + (pos_abs.height as f32 * LABEL_V_FAC) as u32
+                    }
                     _ => pos_abs.margin_vertical - (pos_abs.height as f32 * LABEL_V_FAC) as u32,
                 },
                 margin_horizontal: match pos_abs.anchor {
-                    WindowCorner::BotRight | WindowCorner::TopRight
-                        => pos_abs.margin_horizontal + pos_abs.width,
-                    _ => pos_abs.margin_horizontal
+                    WindowCorner::BotRight | WindowCorner::TopRight => {
+                        pos_abs.margin_horizontal + pos_abs.width
+                    }
+                    _ => pos_abs.margin_horizontal,
                 },
             },
             screensize,

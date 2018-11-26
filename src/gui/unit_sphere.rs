@@ -1,7 +1,7 @@
 use na::Matrix4;
 
 use gl_bindings::{AbstractContext, Context};
-use graphics::{Drawable, Circle};
+use graphics::{Circle, Drawable};
 use gui::UiElement;
 
 /// A 3D

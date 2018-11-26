@@ -8,9 +8,9 @@ use gl_bindings::{shaders, AbstractContext, Buffer, BufferType, Context, Uniform
 use particles::fieldprovider::FieldProvider;
 use State;
 
-use camera::{Camera, ArcBall};
+use camera::{ArcBall, Camera};
 
-use resources::shaders::{PARTICLES_VERTEX_SHADER, PARTICLES_FRAGMENT_SHADER};
+use resources::shaders::{PARTICLES_FRAGMENT_SHADER, PARTICLES_VERTEX_SHADER};
 
 const PARTICLE_COUNT: usize = 100_000;
 
@@ -33,7 +33,7 @@ pub struct ParticleEngine {
     alive_count: usize,
     max_dist: f32,
     max_camera_dist: f32,
-    min_camera_dist: f32
+    min_camera_dist: f32,
 }
 
 impl ParticleEngine {
@@ -77,8 +77,8 @@ impl ParticleEngine {
 
         // Find the max velocity to be used with the high-pass filter later.
         let mut max_dist: f32 = 0.0;
-        for (dx,dy,dz,fa) in field_provider.data() {
-            let dist = ((dx*fa).powf(2.0) + (dy*fa).powf(2.0) + (dz*fa).powf(2.0)).sqrt();
+        for (dx, dy, dz, fa) in field_provider.data() {
+            let dist = ((dx * fa).powf(2.0) + (dy * fa).powf(2.0) + (dz * fa).powf(2.0)).sqrt();
             max_dist = max_dist.max(dist);
         }
 
@@ -103,47 +103,44 @@ impl ParticleEngine {
         let (cx, cy, cz) = camera.get_position();
         let (tx, ty, tz) = camera.get_target();
 
-
         self.max_camera_dist = 0.0;
         self.min_camera_dist = f32::MAX;
         let radius = state.seeding_size * 0.6 + 0.01;
 
         let speed_multiplier = 0.016 * state.speed_multiplier;
-        
+
         let mut respawned = 0;
-        
+
         assert!(PARTICLE_COUNT <= self.particles.len());
         for i in 0..PARTICLE_COUNT {
             let mut data = unsafe { &mut self.particles.get_unchecked_mut(i) };
             // Respawn particle if it's too old.
             if data.lifetime > state.lifetime {
                 data.lifetime = 500.0;
-                if respawned > state.particle_respawn_per_tick {continue;}
+                if respawned > state.particle_respawn_per_tick {
+                    continue;
+                }
                 data.lifetime = 0.0;
                 let mut dx: f32 = self.rng.gen_range(-1.0, 1.0);
                 let mut dy: f32 = self.rng.gen_range(-1.0, 1.0);
                 let mut dz: f32 = self.rng.gen_range(-1.0, 1.0);
-                let dist = self.rng.gen_range(0.0, radius*radius).sqrt();
+                let dist = self.rng.gen_range(0.0, radius * radius).sqrt();
                 let dt = (dx * dx + dy * dy + dz * dz).sqrt();
                 dx = dx / dt;
                 dy = dy / dt;
                 dz = dz / dt;
-                data.position = (
-                    dx * dist + tx,
-                    dy * dist + ty,
-                    dz * dist + tz,
-                );
+                data.position = (dx * dist + tx, dy * dist + ty, dz * dist + tz);
                 respawned += 1;
             }
 
             // Update particle position
-            let (dx,dy,dz,fa) = self.field_provider.delta(data.position);
-            let (dx,dy,dz) = (fa*dx,fa*dy,fa*dz);
+            let (dx, dy, dz, fa) = self.field_provider.delta(data.position);
+            let (dx, dy, dz) = (fa * dx, fa * dy, fa * dz);
             data.position.0 += dx * speed_multiplier;
             data.position.1 += dy * speed_multiplier;
             data.position.2 += dz * speed_multiplier;
 
-            let dist = (dx*dx+dy*dy+dz*dz).sqrt();
+            let dist = (dx * dx + dy * dy + dz * dz).sqrt();
             if dist.is_nan() {
                 data.lifetime = 500.0;
                 continue;
@@ -207,11 +204,14 @@ impl ParticleEngine {
         }
     }
 
-    pub fn calculate_highly_directional_positions(&self) -> Vec<(f32,f32,f32)> {
+    pub fn calculate_highly_directional_positions(&self) -> Vec<(f32, f32, f32)> {
         let fw = self.field_provider.width as f32;
         let fh = self.field_provider.height as f32;
         let fd = self.field_provider.depth as f32;
         let direct = self.field_provider.directional();
-        direct.into_iter().map(|(x,y,z)| (x/fw-0.5, y/fh-0.5, z/fd-0.5)).collect()
+        direct
+            .into_iter()
+            .map(|(x, y, z)| (x / fw - 0.5, y / fh - 0.5, z / fd - 0.5))
+            .collect()
     }
 }

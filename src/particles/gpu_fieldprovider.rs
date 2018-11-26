@@ -1,16 +1,16 @@
+use super::VectorField;
 use gl_bindings::{Texture, TextureFormat};
 use std::{f32, rc::Rc};
-use super::VectorField;
 
 pub struct GPUFieldProvider {
     texture: Rc<Texture>,
-    size: usize
+    size: usize,
 }
 
 impl GPUFieldProvider {
     pub fn new(x: &VectorField) -> Self {
-        let mut max : f32 = 0.0;
-        let mut min : f32 = 0.0;
+        let mut max: f32 = 0.0;
+        let mut min: f32 = 0.0;
         for plane in x.vectors.iter() {
             for row in plane {
                 for elem in row {
@@ -30,7 +30,7 @@ impl GPUFieldProvider {
             for row in plane {
                 for elem in row {
                     let (dx, dy, dz, da) = elem;
-                    
+
                     let dx = (dx - min) / (max - min);
                     let dy = (dy - min) / (max - min);
                     let dz = (dz - min) / (max - min);
@@ -43,7 +43,14 @@ impl GPUFieldProvider {
             }
         }
         GPUFieldProvider {
-            texture: Rc::new(Texture::from_3d_data(x.width as u32, x.height as u32, x.depth as u32, TextureFormat::RGBA, &data[..], false)),
+            texture: Rc::new(Texture::from_3d_data(
+                x.width as u32,
+                x.height as u32,
+                x.depth as u32,
+                TextureFormat::RGBA,
+                &data[..],
+                false,
+            )),
             size: x.depth,
         }
     }

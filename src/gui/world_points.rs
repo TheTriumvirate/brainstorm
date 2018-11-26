@@ -1,9 +1,9 @@
 use std::{cell::RefCell, rc::Rc};
 
-use graphics::{Drawable, Font, Text, Circle};
+use gl_bindings::{AbstractContext, Context};
+use graphics::{Circle, Drawable, Font, Text};
 use gui::UiElement;
-use na::{Matrix4, Isometry3, Vector3, Point3, Translation3};
-use gl_bindings::{Context, AbstractContext};
+use na::{Isometry3, Matrix4, Point3, Translation3, Vector3};
 
 use std::f32;
 
@@ -19,14 +19,10 @@ pub struct WorldPoints {
 
 impl WorldPoints {
     /// Creates a new button.
-    pub fn new(
-        screensize: (f32, f32),
-        font: Rc<RefCell<Font<'static>>>,
-    ) -> Self {
-
+    pub fn new(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Self {
         Self {
             screensize,
-            texts: Vec::new(),// ,
+            texts: Vec::new(), // ,
             dots: Vec::new(),
             font: font.clone(),
             camera_pos: (0.0, 0.0, 0.0),
@@ -40,8 +36,23 @@ impl WorldPoints {
         let mut id = 1;
         for point in points {
             let (x, y, z) = point;
-            self.texts.push(Text::new(format!("point {}", id).to_owned(), self.font.clone(), x, y + 0.03, z, self.screensize));
-            self.dots.push(Circle::new(x, y, z, 0.005, 3.1415 / 2.0, (0.0,1.0,0.0), true));
+            self.texts.push(Text::new(
+                format!("point {}", id).to_owned(),
+                self.font.clone(),
+                x,
+                y + 0.03,
+                z,
+                self.screensize,
+            ));
+            self.dots.push(Circle::new(
+                x,
+                y,
+                z,
+                0.005,
+                3.1415 / 2.0,
+                (0.0, 1.0, 0.0),
+                true,
+            ));
             id += 1;
         }
     }
@@ -63,8 +74,15 @@ impl Drawable for WorldPoints {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         let (ex, ey, ez) = self.camera_pos;
         let eye = Point3::new(ex, ey, ez);
-        const ZOOM_FACTOR : f32 = 3.0;
-        let scale = Matrix4::new_orthographic(-ZOOM_FACTOR,ZOOM_FACTOR,-ZOOM_FACTOR,ZOOM_FACTOR,ZOOM_FACTOR,-ZOOM_FACTOR);
+        const ZOOM_FACTOR: f32 = 3.0;
+        let scale = Matrix4::new_orthographic(
+            -ZOOM_FACTOR,
+            ZOOM_FACTOR,
+            -ZOOM_FACTOR,
+            ZOOM_FACTOR,
+            ZOOM_FACTOR,
+            -ZOOM_FACTOR,
+        );
         Context::get_context().disable(Context::DEPTH_TEST);
         for text in &self.texts {
             let (ex, ey, ez) = text.get_position();
@@ -73,7 +91,11 @@ impl Drawable for WorldPoints {
             let view: Isometry3<f32> = Isometry3::look_at_lh(&target, &eye, &Vector3::y());
             let trans = Translation3::new(-cx, -cy, -cz);
             let trans2 = Translation3::new(ex, ey, ez);
-            let projection = view_matrix * trans2.to_homogeneous() * scale * view.inverse().to_homogeneous() * trans.to_homogeneous();
+            let projection = view_matrix
+                * trans2.to_homogeneous()
+                * scale
+                * view.inverse().to_homogeneous()
+                * trans.to_homogeneous();
             text.draw_transformed(&projection);
         }
 
@@ -83,10 +105,12 @@ impl Drawable for WorldPoints {
             let view: Isometry3<f32> = Isometry3::look_at_lh(&target, &eye, &Vector3::y());
             let trans = Translation3::new(-cx, -cy, -cz);
             let trans2 = Translation3::new(cx, cy, cz);
-            let projection = view_matrix * trans2.to_homogeneous() * view.inverse().to_homogeneous() * trans.to_homogeneous();
+            let projection = view_matrix
+                * trans2.to_homogeneous()
+                * view.inverse().to_homogeneous()
+                * trans.to_homogeneous();
             dot.draw_transformed(&projection);
         }
         Context::get_context().enable(Context::DEPTH_TEST);
-
     }
 }

@@ -1,18 +1,24 @@
-use gl_bindings::{Texture, TextureFormat, Buffer, shaders::OurShader, shaders::ShaderAttribute, BufferType, FrameBuffer, Context, AbstractContext};
-use graphics::{Drawable, render_target, DrawMode};
-use resources::shaders::{GPU_PARTICLES_VERTEX_SHADER, GPU_PARTICLES_FRAGMENT_SHADER, GPU_PARTICLES_UPDATE_VERTEX_SHADER, GPU_PARTICLES_UPDATE_FRAGMENT_SHADER};
+use gl_bindings::{
+    shaders::OurShader, shaders::ShaderAttribute, AbstractContext, Buffer, BufferType, Context,
+    FrameBuffer, Texture, TextureFormat,
+};
+use graphics::{render_target, DrawMode, Drawable};
+use resources::shaders::{
+    GPU_PARTICLES_FRAGMENT_SHADER, GPU_PARTICLES_UPDATE_FRAGMENT_SHADER,
+    GPU_PARTICLES_UPDATE_VERTEX_SHADER, GPU_PARTICLES_VERTEX_SHADER,
+};
 
 use particles::gpu_fieldprovider::GPUFieldProvider;
 
-use std::str;
-use std::rc::Rc;
 use na::Matrix4;
+use std::rc::Rc;
+use std::str;
 
+use camera::ArcBall;
 use State;
-use camera::{ArcBall};
 
-use rand::{FromEntropy, Rng};
 use rand::rngs::SmallRng;
+use rand::{FromEntropy, Rng};
 
 const TEXTURESIZE: usize = 1028;
 const MAXSTREAMLETSIZE: usize = 4;
@@ -40,7 +46,7 @@ impl GPUParticleEngine {
         let mut rng = SmallRng::from_entropy();
         let mut index_data = Vec::new();
         let mut index = 0;
-        const OFFSET : u32 = (TEXTURESIZE * TEXTURESIZE) as u32;
+        const OFFSET: u32 = (TEXTURESIZE * TEXTURESIZE) as u32;
         for q in 0..MAXSTREAMLETSIZE {
             for u in 0..(TEXTURESIZE) {
                 for v in 0..(TEXTURESIZE) {
@@ -48,7 +54,7 @@ impl GPUParticleEngine {
                     data.push(0.0);
                     data.push(0.0);
                     data.push(255.0);
-                    
+
                     particle_data.push(u as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
                     particle_data.push(v as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
 
@@ -58,7 +64,7 @@ impl GPUParticleEngine {
                         noise_data.push(rng.gen_range(0.0, 1.0));
                         noise_data.push(rng.gen_range(0.0, 1.0));
                     } else {
-                        index_data.push(index-OFFSET);
+                        index_data.push(index - OFFSET);
                         index_data.push(index);
                     }
                     index += 1;
@@ -69,23 +75,21 @@ impl GPUParticleEngine {
         let shader: OurShader = OurShader::new(
             str::from_utf8(GPU_PARTICLES_VERTEX_SHADER).expect("Failed to read vertex shader"),
             str::from_utf8(GPU_PARTICLES_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
-            &[
-                ShaderAttribute {
-                    name: "v_texpos".to_string(),
-                    size: 2
-                },
-            ]
+            &[ShaderAttribute {
+                name: "v_texpos".to_string(),
+                size: 2,
+            }],
         );
-        
+
         let update_shader: OurShader = OurShader::new(
-            str::from_utf8(GPU_PARTICLES_UPDATE_VERTEX_SHADER).expect("Failed to read vertex shader"),
-            str::from_utf8(GPU_PARTICLES_UPDATE_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
-            &[
-                ShaderAttribute {
-                    name: "v_texpos".to_string(),
-                    size: 2
-                },
-            ]
+            str::from_utf8(GPU_PARTICLES_UPDATE_VERTEX_SHADER)
+                .expect("Failed to read vertex shader"),
+            str::from_utf8(GPU_PARTICLES_UPDATE_FRAGMENT_SHADER)
+                .expect("Failed to read fragment shader"),
+            &[ShaderAttribute {
+                name: "v_texpos".to_string(),
+                size: 2,
+            }],
         );
 
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
@@ -102,8 +106,22 @@ impl GPUParticleEngine {
         let len = indices.len();
         indices.upload_data(0, len, true);
 
-        let texture = Rc::new(Texture::from_3d_data_f(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], false));
-        let texture2 = Rc::new(Texture::from_3d_data_f(TEXTURESIZE as u32, TEXTURESIZE as u32, MAXSTREAMLETSIZE as u32, TextureFormat::RGBA, &data[..], false));
+        let texture = Rc::new(Texture::from_3d_data_f(
+            TEXTURESIZE as u32,
+            TEXTURESIZE as u32,
+            MAXSTREAMLETSIZE as u32,
+            TextureFormat::RGBA,
+            &data[..],
+            false,
+        ));
+        let texture2 = Rc::new(Texture::from_3d_data_f(
+            TEXTURESIZE as u32,
+            TEXTURESIZE as u32,
+            MAXSTREAMLETSIZE as u32,
+            TextureFormat::RGBA,
+            &data[..],
+            false,
+        ));
 
         let framebuffer = FrameBuffer::new();
 
@@ -113,7 +131,12 @@ impl GPUParticleEngine {
         GPUParticleEngine {
             texture,
             texture2,
-            noise: Rc::new(Texture::from_data(TEXTURESIZE as u32, TEXTURESIZE as u32, TextureFormat::RGBA, &noise_data[..])),
+            noise: Rc::new(Texture::from_data(
+                TEXTURESIZE as u32,
+                TEXTURESIZE as u32,
+                TextureFormat::RGBA,
+                &noise_data[..],
+            )),
             vertices,
             indices,
             shader: Rc::new(shader),
@@ -133,34 +156,43 @@ impl GPUParticleEngine {
         //    return;
         //}
         self.update_shader.uniform1f("u_size", TEXTURESIZE as f32);
-        self.update_shader.uniform1f("u_speed", state.speed_multiplier * 0.016);
-        self.update_shader.uniform1f("u_lowpass", state.lowpass_filter);
-        self.update_shader.uniform1f("u_highpass", state.highpass_filter);
-        self.update_shader.uniform1f("u_seedsize", state.seeding_size * 0.6 + 0.01);
+        self.update_shader
+            .uniform1f("u_speed", state.speed_multiplier * 0.016);
+        self.update_shader
+            .uniform1f("u_lowpass", state.lowpass_filter);
+        self.update_shader
+            .uniform1f("u_highpass", state.highpass_filter);
+        self.update_shader
+            .uniform1f("u_seedsize", state.seeding_size * 0.6 + 0.01);
 
         let (cx, cy, cz) = camera.get_target();
-        self.update_shader.uniform3f("u_seedpos", cx + 0.5, cy + 0.5, cz + 0.5);
+        self.update_shader
+            .uniform3f("u_seedpos", cx + 0.5, cy + 0.5, cz + 0.5);
 
         self.update_shader.uniform1i("u_layer", (self.layer) as i32);
         self.layer = (self.layer + 1) % MAXSTREAMLETSIZE as i32;
-        
+
         self.shader.uniform1i("u_layer", (self.layer) as i32);
-        
+
         self.timer = 0.0;
         self.update = true;
         Context::get_context().viewport(0, 0, TEXTURESIZE as i32, TEXTURESIZE as i32);
         let len = self.vertices.len() as i32 / 2 / (MAXSTREAMLETSIZE) as i32;
-        self.get_texture().unwrap().activate(Some(&self.update_shader), 0, "uSampler");
-        field_provider.get_texture().activate(Some(&self.update_shader), 1, "uData");
+        self.get_texture()
+            .unwrap()
+            .activate(Some(&self.update_shader), 0, "uSampler");
+        field_provider
+            .get_texture()
+            .activate(Some(&self.update_shader), 1, "uData");
         self.noise.activate(Some(&self.update_shader), 2, "uNoise");
         self.framebuffer.bind();
         self.update_texture().bind();
-        self.framebuffer.buffer_texture_layer(&self.update_texture(), self.layer);
-        
+        self.framebuffer
+            .buffer_texture_layer(&self.update_texture(), self.layer);
+
         self.vertices.bind();
         self.update_shader.use_program();
         self.update_shader.bind_attribs();
-
 
         context.draw_arrays(Context::POINTS, 0, len);
 
@@ -182,7 +214,6 @@ impl GPUParticleEngine {
         } else {
             self.texture2.clone()
         }
-
     }
 }
 
@@ -198,15 +229,21 @@ impl Drawable for GPUParticleEngine {
     fn get_shader(&self) -> Option<Rc<OurShader>> {
         if self.update {
             Some(self.update_shader.clone())
-        }
-        else {
+        } else {
             Some(self.shader.clone())
         }
     }
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
-        self.update_texture().activate(Some(&self.shader), 1, "uOther");
-        render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, self.render_states(), view_matrix);
+        self.update_texture()
+            .activate(Some(&self.shader), 1, "uOther");
+        render_target::draw_indices(
+            DrawMode::LINES,
+            &self.vertices,
+            &self.indices,
+            self.render_states(),
+            view_matrix,
+        );
         //let len = self.vertices.len() as i32 / 2 / (MAXSTREAMLETSIZE) as i32;
         //render_target::draw_vertex_array(DrawMode::POINTS, 0, len, &self.vertices, self.render_states(), view_matrix);
     }

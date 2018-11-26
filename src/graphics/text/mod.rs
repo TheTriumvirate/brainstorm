@@ -34,17 +34,38 @@ impl<'a> Drawable for Text<'a> {
     }
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
-        render_target::draw_indices(DrawMode::TRIANGLES, &self.vertices, &self.indices, self.render_states(), view_matrix);
+        render_target::draw_indices(
+            DrawMode::TRIANGLES,
+            &self.vertices,
+            &self.indices,
+            self.render_states(),
+            view_matrix,
+        );
     }
 }
 
 impl<'a> Text<'a> {
-    pub fn new(text: String, font: Rc<RefCell<Font<'a>>>, x: f32, y: f32, z: f32, screen_size: (f32, f32)) -> Self {
+    pub fn new(
+        text: String,
+        font: Rc<RefCell<Font<'a>>>,
+        x: f32,
+        y: f32,
+        z: f32,
+        screen_size: (f32, f32),
+    ) -> Self {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
         let font = font.clone();
-        let (width, height) = font.borrow_mut().update_texture(&text, x, y, z, &mut vertices, &mut indices, screen_size);
+        let (width, height) = font.borrow_mut().update_texture(
+            &text,
+            x,
+            y,
+            z,
+            &mut vertices,
+            &mut indices,
+            screen_size,
+        );
         Text {
             text,
             font,

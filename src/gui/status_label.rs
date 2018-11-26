@@ -38,7 +38,7 @@ impl StatusLabel {
         self.label.set_text(text);
         self.timer.set();
     }
-    
+
     /// Set an ongoing status text with repeating ellipsis.
     pub fn set_status_ongoing(&mut self, text: String) {
         self.ellipsis = true;
@@ -66,7 +66,7 @@ impl StatusLabel {
 
 impl UiElement for StatusLabel {
     fn resize(&mut self, screensize: (f32, f32)) {
-        self.label.resize(screensize);        
+        self.label.resize(screensize);
     }
 }
 
@@ -96,22 +96,24 @@ impl Timer {
     }
 
     /// Resets the timer
+    #[cfg(target_arch = "wasm32")]
     fn set(&mut self) {
-        #[cfg(target_arch = "wasm32")] {
-            self.time = stdweb::web::Date::now();
-        }
-        #[cfg(not(target_arch = "wasm32"))] {
-            self.time = Instant::now();
-        }
+        self.time = stdweb::web::Date::now();
+    }
+    /// Resets the timer
+    #[cfg(not(target_arch = "wasm32"))]
+    fn set(&mut self) {
+        self.time = Instant::now();
     }
 
     /// Returns the number of elapsed seconds.
+    #[cfg(target_arch = "wasm32")]
     fn elapsed_seconds(&self) -> u64 {
-        #[cfg(target_arch = "wasm32")] {
-            return ((stdweb::web::Date::now() - self.time) / 1000.0) as u64;
-        }
-        #[cfg(not(target_arch = "wasm32"))] {
-            return Instant::now().duration_since(self.time).as_secs();
-        }
+        ((stdweb::web::Date::now() - self.time) / 1000.0) as u64
+    }
+    /// Returns the number of elapsed seconds.
+    #[cfg(not(target_arch = "wasm32"))]
+    fn elapsed_seconds(&self) -> u64 {
+        Instant::now().duration_since(self.time).as_secs()
     }
 }

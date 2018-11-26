@@ -1,6 +1,6 @@
 //! Methods for interacting with the render target.
 use gl_bindings::{shaders::*, AbstractContext, Buffer, Context, GlPrimitive};
-use graphics::{RenderStates, DrawMode};
+use graphics::{DrawMode, RenderStates};
 use na::Matrix4;
 
 pub fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
@@ -30,7 +30,6 @@ pub fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
 }
 
 pub fn unbind_all(states: &RenderStates) {
-
     if let Some(texture) = &states.texture {
         texture.unbind();
     }
@@ -40,14 +39,19 @@ pub fn unbind_all(states: &RenderStates) {
         _ => OurShader::default(),
     };
     shader.unbind_attribs();
-
 }
 
 /// Draws vertices/indices to the render target.
 /// Precondition: correct shader is bound.
-pub fn draw_indices<T>(mode: DrawMode, vertex_data: &Buffer<f32>, index_data: &Buffer<T>, states: RenderStates, view_matrix: &Matrix4<f32>) 
-    where T: GlPrimitive{
-
+pub fn draw_indices<T>(
+    mode: DrawMode,
+    vertex_data: &Buffer<f32>,
+    index_data: &Buffer<T>,
+    states: RenderStates,
+    view_matrix: &Matrix4<f32>,
+) where
+    T: GlPrimitive,
+{
     let context = Context::get_context();
     vertex_data.bind();
     index_data.bind();
@@ -60,21 +64,22 @@ pub fn draw_indices<T>(mode: DrawMode, vertex_data: &Buffer<f32>, index_data: &B
         DrawMode::POINTS => Context::POINTS,
     };
 
-    context.draw_elements(
-        mode,
-        index_data.len() as i32,
-        T::primitive(),
-        0,
-    );
+    context.draw_elements(mode, index_data.len() as i32, T::primitive(), 0);
     unbind_all(&states);
 }
 
-pub fn draw_vertex_array(mode: DrawMode, first: i32, count: i32, vertex_data: &Buffer<f32>, states: RenderStates, view_matrix: &Matrix4<f32>) {
+pub fn draw_vertex_array(
+    mode: DrawMode,
+    first: i32,
+    count: i32,
+    vertex_data: &Buffer<f32>,
+    states: RenderStates,
+    view_matrix: &Matrix4<f32>,
+) {
     let context = Context::get_context();
 
     vertex_data.bind();
     bind_all(&states, view_matrix);
-
 
     let mode = match mode {
         DrawMode::TRIANGLES => Context::TRIANGLES,

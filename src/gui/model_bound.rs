@@ -1,7 +1,7 @@
 use na::Matrix4;
 
 use gl_bindings::{AbstractContext, Context};
-use graphics::{Drawable, Cube};
+use graphics::{Cube, Drawable};
 use gui::UiElement;
 
 pub struct ModelBound {
@@ -12,7 +12,7 @@ impl ModelBound {
     /// Creates a new Misc.
     pub fn new() -> Self {
         Self {
-            bound: Cube::new((-0.5, -0.5, -0.5), (1.0,1.0,1.0), (1.0,1.0,1.0)),
+            bound: Cube::new((-0.5, -0.5, -0.5), (1.0, 1.0, 1.0), (1.0, 1.0, 1.0)),
         }
     }
 }

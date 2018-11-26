@@ -22,7 +22,7 @@ pub struct VectorField {
     height: usize,
     depth: usize,
     vectors: Vec<Vec<Vec<Vector4>>>,
-    directional: Vec<(f32,f32,f32)>,
+    directional: Vec<(f32, f32, f32)>,
 }
 
 mod particle_engine;

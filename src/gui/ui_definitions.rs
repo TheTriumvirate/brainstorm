@@ -6,8 +6,8 @@ use nfd;
 use std::path::PathBuf;
 use std::{cell::RefCell, rc::Rc};
 
+use super::{Button, Label, Map, Slider, StatusLabel, UiElement, WorldPoints};
 use graphics::{position, Font};
-use super::{Button, Label, Slider, StatusLabel, UiElement, Map, WorldPoints};
 
 const DELTA_MOVEMENT: f32 = 0.05;
 
@@ -54,7 +54,10 @@ pub fn highpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
 }
 
 /// A slider controlling the particle speeds.
-pub fn speed_multiplier(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn speed_multiplier(
+    screensize: (f32, f32),
+    font: Rc<RefCell<Font<'static>>>,
+) -> Box<UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -117,7 +120,10 @@ pub fn lifetime(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box
 }
 
 /// A slider controlling the transparency of the marching cubes mesh.
-pub fn mesh_transparency(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn mesh_transparency(
+    screensize: (f32, f32),
+    font: Rc<RefCell<Font<'static>>>,
+) -> Box<UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -159,14 +165,17 @@ pub fn particle_size(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -
 }
 
 /// A slider controlling the spawn speed of particles.
-pub fn particle_spawn_rate(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn particle_spawn_rate(
+    screensize: (f32, f32),
+    font: Rc<RefCell<Font<'static>>>,
+) -> Box<UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
             width: 225,
             anchor: position::WindowCorner::BotRight,
             margin_vertical: 280,
-            margin_horizontal:285,
+            margin_horizontal: 285,
         },
         50,
         0.5,
@@ -176,11 +185,11 @@ pub fn particle_spawn_rate(screensize: (f32, f32), font: Rc<RefCell<Font<'static
         }),
         "Particle spawn rate".to_owned(),
         font.clone(),
-    ))   
+    ))
 }
 
 /// A slider controlling which of the strongly directional areas the spawn point should jump to
-pub fn directional_areas(screensize: (f32,f32), font: Rc<RefCell<Font<'static>>>) -> Slider {
+pub fn directional_areas(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Slider {
     Slider::new(
         position::Absolute {
             height: 40,
@@ -200,7 +209,6 @@ pub fn directional_areas(screensize: (f32,f32), font: Rc<RefCell<Font<'static>>>
             } else {
                 context.camera_target = directional[idx - 1];
             }
-            
         }),
         "Seeding point".to_owned(),
         font.clone(),
@@ -413,7 +421,10 @@ pub fn credits_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -
 }
 
 /// CPU/GPU particles toggle.
-pub fn cpu_gpu_particles_toggle(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn cpu_gpu_particles_toggle(
+    screensize: (f32, f32),
+    font: Rc<RefCell<Font<'static>>>,
+) -> Box<UiElement> {
     Box::new(Button::new(
         position::Absolute {
             height: 40,
@@ -425,42 +436,39 @@ pub fn cpu_gpu_particles_toggle(screensize: (f32, f32), font: Rc<RefCell<Font<'s
         (0.44, 0.5, 0.56),
         screensize,
         true,
-        Box::new(|ref mut context, toggle_state| {
-            context.use_gpu_particles = toggle_state
-        }),
+        Box::new(|ref mut context, toggle_state| context.use_gpu_particles = toggle_state),
         "     Use GPU".to_owned(),
         font.clone(),
     ))
 }
 
 pub fn map(screensize: (f32, f32)) -> Map {
-    Map::new(position::Absolute {
-        height: 200,
-        width: 200,
-        anchor: position::WindowCorner::TopRight,
-        margin_vertical: 5,
-        margin_horizontal: 5,
-    },
-    position::Absolute {
-        height: 200,
-        width: 200,
-        anchor: position::WindowCorner::TopRight,
-        margin_vertical: 5,
-        margin_horizontal: 205,
-    },
-    position::Absolute {
-        height: 200,
-        width: 200,
-        anchor: position::WindowCorner::TopRight,
-        margin_vertical: 5,
-        margin_horizontal: 405,
-    }
-    , screensize)
+    Map::new(
+        position::Absolute {
+            height: 200,
+            width: 200,
+            anchor: position::WindowCorner::TopRight,
+            margin_vertical: 5,
+            margin_horizontal: 5,
+        },
+        position::Absolute {
+            height: 200,
+            width: 200,
+            anchor: position::WindowCorner::TopRight,
+            margin_vertical: 5,
+            margin_horizontal: 205,
+        },
+        position::Absolute {
+            height: 200,
+            width: 200,
+            anchor: position::WindowCorner::TopRight,
+            margin_vertical: 5,
+            margin_horizontal: 405,
+        },
+        screensize,
+    )
 }
 
 pub fn world_points(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> WorldPoints {
-    WorldPoints::new(
-        screensize,
-        font.clone(),
-    )
+    WorldPoints::new(screensize, font.clone())
 }
