@@ -35,6 +35,7 @@ pub struct Gui {
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
     pub map: Map,
     pub world_points: WorldPoints,
+    pub world_points_toggle: Button,
 }
 
 impl Gui {
@@ -69,6 +70,8 @@ impl Gui {
         let seeding_sphere = UnitSphere::new((0.0, 0.0, 0.0), state.seeding_size);
         let model_bound = ModelBound::new();
         let world_points = ui_definitions::world_points(screensize, font.clone());
+        let world_points_toggle = ui_definitions::toggle_world_points(screensize, font.clone());
+
         Gui {
             model_bound,
             seeding_sphere,
@@ -78,6 +81,7 @@ impl Gui {
             seeding_loc_slider,
             map,
             world_points,
+            world_points_toggle,
         }
     }
 
@@ -87,6 +91,7 @@ impl Gui {
         match event {
             Event::Resized(x, y) => {
                 self.ui_visible_button.resize((*x, *y));
+                self.world_points_toggle.resize((*x, *y));
                 self.seeding_loc_slider.resize((*x, *y));
                 self.status.resize((*x, *y));
                 self.map.resize((*x, *y));
@@ -140,8 +145,6 @@ impl Gui {
                     state.camera_target = self.map.get_target();
                 }
 
-                self.ui_visible_button
-                    .mouse_moved(state.mouse_x, state.mouse_y, state);
                 self.seeding_loc_slider
                     .mouse_moved(state.mouse_x, state.mouse_y, state);
                 for element in &mut self.ui_elements {
@@ -169,12 +172,12 @@ impl Gui {
                         handled = true;
                     }
                     if self.ui_visible_button.toggle_state() {
-                        if self
-                            .seeding_loc_slider
-                            .is_within(state.mouse_x, state.mouse_y)
-                        {
-                            self.seeding_loc_slider
-                                .click(state.mouse_x, state.mouse_y, state);
+                        if self.world_points_toggle.is_within(state.mouse_x, state.mouse_y) {
+                            self.world_points_toggle.click(state.mouse_x, state.mouse_y, state);
+                            handled = true;
+                        }
+                        if self.seeding_loc_slider.is_within(state.mouse_x, state.mouse_y) {
+                            self.seeding_loc_slider.click(state.mouse_x, state.mouse_y, state);
                             handled = true;
                         }
                         for element in &mut self.ui_elements {
@@ -187,6 +190,8 @@ impl Gui {
                 } else {
                     self.map.click_release(state.mouse_x, state.mouse_y, state);
                     self.ui_visible_button
+                        .click_release(state.mouse_x, state.mouse_y, state);
+                    self.world_points_toggle
                         .click_release(state.mouse_x, state.mouse_y, state);
                     self.seeding_loc_slider
                         .click_release(state.mouse_x, state.mouse_y, state);
@@ -205,7 +210,9 @@ impl Gui {
             self.model_bound.draw_transformed(view_matrix);
             self.seeding_sphere.draw_transformed(view_matrix);
         }
-        self.world_points.draw_transformed(view_matrix);
+        if self.world_points_toggle.toggle_state() {
+            self.world_points.draw_transformed(view_matrix);
+        }
     }
 }
 
@@ -216,6 +223,7 @@ impl Drawable for Gui {
         self.map.draw_transformed(view_matrix);
         if self.ui_visible_button.toggle_state() {
             self.seeding_loc_slider.draw_transformed(view_matrix);
+            self.world_points_toggle.draw_transformed(view_matrix);
             for element in &self.ui_elements {
                 element.draw_transformed(view_matrix);
             }

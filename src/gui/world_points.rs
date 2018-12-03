@@ -32,6 +32,7 @@ impl WorldPoints {
 
     pub fn set_points(&mut self, points: Vec<(f32, f32, f32)>) {
         self.texts.clear();
+        self.dots.clear();
 
         let mut id = 1;
         for point in points {

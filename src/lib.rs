@@ -261,6 +261,8 @@ impl App {
                             self.gpu_field = gpu_field_provider;
                             self.gpu_particles = GPUParticleEngine::new(self.gpu_particle_count);
                             self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
+                            self.gui.world_points
+                                .set_points(self.particles.calculate_highly_directional_positions());
                         }
                     },
                     Err(e) => self.gui.status.set_status(e),

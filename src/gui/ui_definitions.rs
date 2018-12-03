@@ -442,6 +442,25 @@ pub fn cpu_gpu_particles_toggle(
     ))
 }
 
+/// A button toggling world point visibility.
+pub fn toggle_world_points(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Button {
+    Button::new(
+        position::Absolute {
+            height: 40,
+            width: 120,
+            anchor: position::WindowCorner::BotLeft,
+            margin_vertical: 280,
+            margin_horizontal: 40,
+        },
+        (0.44, 0.5, 0.56),
+        screensize,
+        true,
+        Box::new(|ref mut _context, _toggle_state| {}),
+        "  Toggle points".to_owned(),
+        font.clone(),
+    )
+}
+
 pub fn map(screensize: (f32, f32)) -> Map {
     Map::new(
         position::Absolute {
