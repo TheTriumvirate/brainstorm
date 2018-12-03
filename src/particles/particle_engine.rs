@@ -110,10 +110,10 @@ impl ParticleEngine {
         let speed_multiplier = 0.016 * state.speed_multiplier;
 
         let mut respawned = 0;
-
-        assert!(PARTICLE_COUNT <= self.particles.len());
+        
         for i in 0..PARTICLE_COUNT {
-            let mut data = unsafe { &mut self.particles.get_unchecked_mut(i) };
+
+            let mut data = &mut self.particles[i];
             // Respawn particle if it's too old.
             if data.lifetime > state.lifetime {
                 data.lifetime = 500.0;
@@ -170,13 +170,9 @@ impl ParticleEngine {
                 .min((dx * dx + dy * dy + dz * dz).sqrt());
 
             // Send the data to the GPU.
-            let count_x_3 = self.alive_count * 3;
-            assert!(count_x_3 + 2 <= self.particle_data.len());
-            unsafe {
-                *(self.particle_data.get_unchecked_mut(count_x_3)) = data.position.0;
-                *(self.particle_data.get_unchecked_mut(count_x_3 + 1)) = data.position.1;
-                *(self.particle_data.get_unchecked_mut(count_x_3 + 2)) = data.position.2;
-            }
+            self.particle_data[self.alive_count * 3] = data.position.0;
+            self.particle_data[self.alive_count * 3 + 1] = data.position.1;
+            self.particle_data[self.alive_count * 3 + 2] = data.position.2;
 
             // Update lifetime and alive count.
             data.lifetime += 1.0;

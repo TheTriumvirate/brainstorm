@@ -29,14 +29,6 @@ pub struct Buffer<T: Clone+GlPrimitive> {
 }
 
 impl<T: Clone+GlPrimitive> Buffer<T> {
-    /// Returns a mutable reference to an element without doing bounds checking.
-    #[inline(always)]
-    pub unsafe fn get_unchecked_mut(&mut self, index: usize) -> &mut T {
-        self.data.get_unchecked_mut(index)
-    }
-}
-
-impl<T: Clone+GlPrimitive> Buffer<T> {
     /// Creates a new buffor of the selected type.
     pub fn new(buffer_type: BufferType) -> Self {
         let context = Context::get_context();
