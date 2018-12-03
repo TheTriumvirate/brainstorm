@@ -20,7 +20,6 @@ use State;
 use rand::rngs::SmallRng;
 use rand::{FromEntropy, Rng};
 
-const TEXTURESIZE: usize = 1028;
 const MAXSTREAMLETSIZE: usize = 4;
 
 pub struct GPUParticleEngine {
@@ -36,27 +35,29 @@ pub struct GPUParticleEngine {
     timer: f32,
     update: bool,
     swap: bool,
+    texture_size: usize,
 }
 
 impl GPUParticleEngine {
-    pub fn new() -> Self {
+    pub fn new(gpu_particle_count: usize) -> Self {
+        let texture_size = gpu_particle_count;
         let mut data = Vec::new();
         let mut particle_data = Vec::new();
         let mut noise_data = Vec::new();
         let mut rng = SmallRng::from_entropy();
         let mut index_data = Vec::new();
         let mut index = 0;
-        const OFFSET: u32 = (TEXTURESIZE * TEXTURESIZE) as u32;
+        let offset = (texture_size * texture_size) as u32;
         for q in 0..MAXSTREAMLETSIZE {
-            for u in 0..(TEXTURESIZE) {
-                for v in 0..(TEXTURESIZE) {
+            for u in 0..(texture_size) {
+                for v in 0..(texture_size) {
                     data.push(0.0);
                     data.push(0.0);
                     data.push(0.0);
                     data.push(255.0);
 
-                    particle_data.push(u as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
-                    particle_data.push(v as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
+                    particle_data.push(u as f32 / (texture_size as f32) + 0.5 / texture_size as f32);
+                    particle_data.push(v as f32 / (texture_size as f32) + 0.5 / texture_size as f32);
 
                     if q == 0 {
                         noise_data.push(rng.gen_range(0.0, 1.0));
@@ -64,7 +65,7 @@ impl GPUParticleEngine {
                         noise_data.push(rng.gen_range(0.0, 1.0));
                         noise_data.push(rng.gen_range(0.0, 1.0));
                     } else {
-                        index_data.push(index - OFFSET);
+                        index_data.push(index - offset);
                         index_data.push(index);
                     }
                     index += 1;
@@ -107,16 +108,16 @@ impl GPUParticleEngine {
         indices.upload_data(0, len, true);
 
         let texture = Rc::new(Texture::from_3d_data_f(
-            TEXTURESIZE as u32,
-            TEXTURESIZE as u32,
+            texture_size as u32,
+            texture_size as u32,
             MAXSTREAMLETSIZE as u32,
             TextureFormat::RGBA,
             &data[..],
             false,
         ));
         let texture2 = Rc::new(Texture::from_3d_data_f(
-            TEXTURESIZE as u32,
-            TEXTURESIZE as u32,
+            texture_size as u32,
+            texture_size as u32,
             MAXSTREAMLETSIZE as u32,
             TextureFormat::RGBA,
             &data[..],
@@ -125,15 +126,15 @@ impl GPUParticleEngine {
 
         let framebuffer = FrameBuffer::new();
 
-        shader.uniform1f("u_size", TEXTURESIZE as f32);
+        shader.uniform1f("u_size", texture_size as f32);
         shader.uniform1i("u_layer", 0);
 
         GPUParticleEngine {
             texture,
             texture2,
             noise: Rc::new(Texture::from_data(
-                TEXTURESIZE as u32,
-                TEXTURESIZE as u32,
+                texture_size as u32,
+                texture_size as u32,
                 TextureFormat::RGBA,
                 &noise_data[..],
             )),
@@ -146,6 +147,7 @@ impl GPUParticleEngine {
             timer: 0.0,
             update: false,
             swap: false,
+            texture_size,
         }
     }
 
@@ -155,7 +157,7 @@ impl GPUParticleEngine {
         //if self.timer < 1.0 {
         //    return;
         //}
-        self.update_shader.uniform1f("u_size", TEXTURESIZE as f32);
+        self.update_shader.uniform1f("u_size", self.texture_size as f32);
         self.update_shader
             .uniform1f("u_speed", state.speed_multiplier * 0.016);
         self.update_shader
@@ -176,7 +178,7 @@ impl GPUParticleEngine {
 
         self.timer = 0.0;
         self.update = true;
-        Context::get_context().viewport(0, 0, TEXTURESIZE as i32, TEXTURESIZE as i32);
+        Context::get_context().viewport(0, 0, self.texture_size as i32, self.texture_size as i32);
         let len = self.vertices.len() as i32 / 2 / (MAXSTREAMLETSIZE) as i32;
         self.get_texture()
             .unwrap()

@@ -11,10 +11,13 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 use window::AbstractWindow;
 
+#[allow(dead_code)]
+const DEFAULT_GPU_PARTICLE_COUNT: usize = 512;
+
 /// Main entry point for the Web application.
 #[cfg(target_arch = "wasm32")]
 fn main() {
-    let mut app = brainstorm::App::new(None, false);
+    let mut app = brainstorm::App::new(None, false, DEFAULT_GPU_PARTICLE_COUNT);
     window::Window::run_loop(move |_| app.run());
 }
 
@@ -28,6 +31,11 @@ struct Opt {
     /// Start with GPU particles instead of CPU particles.
     #[structopt(short = "g", long = "gpu")]
     gpu: bool,
+    
+    /// Number of particles (squared) to use on the GPU. It's recommended to use a power
+    /// of two, like 256, 512 or 1024.
+    #[structopt(short = "gc", long = "gpu-particle-count", default_value = "DEFAULT_GPU_PARTICLE_COUNT")]
+    gpu_particle_count: usize,
 }
 
 /// Main entry point for the native application.
@@ -35,6 +43,6 @@ struct Opt {
 fn main() {
     let opt = Opt::from_args();
 
-    let mut app = brainstorm::App::new(opt.file, opt.gpu);
+    let mut app = brainstorm::App::new(opt.file, opt.gpu, opt.gpu_particle_count);
     window::Window::run_loop(move |_| app.run());
 }

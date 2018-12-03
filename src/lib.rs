@@ -58,6 +58,7 @@ pub struct App {
     gpu_field: GPUFieldProvider,
     gpu_particles: GPUParticleEngine,
     march: MarchingCubes,
+    gpu_particle_count: usize,
 }
 
 /// Holds application state.
@@ -119,7 +120,7 @@ impl Default for State {
 impl App {
     /// Starts the application.
     /// Expects a file path for non-web compile targets.
-    pub fn new(path: Option<PathBuf>, start_with_gpu: bool) -> App {
+    pub fn new(path: Option<PathBuf>, start_with_gpu: bool, gpu_particle_count: usize) -> App {
         #[allow(unused_assignments)]
         let mut field_provider = None;
         #[allow(unused_assignments)]
@@ -156,7 +157,7 @@ impl App {
         let gpu_field = gpu_field.unwrap();
         let march = MarchingCubes::marching_cubes(&field_provider);
         let particles = ParticleEngine::new(field_provider);
-        let gpu_particles = GPUParticleEngine::new();
+        let gpu_particles = GPUParticleEngine::new(gpu_particle_count);
 
         let mut state = State::new();
         state.file_path = path;
@@ -186,6 +187,7 @@ impl App {
             gpu_field,
             gpu_particles: gpu_particles,
             march,
+            gpu_particle_count,
         }
     }
 
@@ -257,7 +259,7 @@ impl App {
                                 .seeding_loc_slider
                                 .set_steps(self.state.directional_data.len().max(1) as u32);
                             self.gpu_field = gpu_field_provider;
-                            self.gpu_particles = GPUParticleEngine::new();
+                            self.gpu_particles = GPUParticleEngine::new(self.gpu_particle_count);
                             self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
                         }
                     },
