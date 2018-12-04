@@ -293,13 +293,20 @@ impl App {
 
         if self.state.use_gpu_particles {
             Context::get_context().disable(Context::DEPTH_TEST);
+            context.disable(Context::BLEND);
             self.gpu_particles
                 .update(&self.gpu_field, &self.state, &self.camera);
-            Context::get_context().enable(Context::DEPTH_TEST);
+
+            context.enable(Context::BLEND);
+            //context.blend_function(Context::SRC_ALPHA, Context::ONE);
             self.gpu_particles.draw_transformed(&projection_matrix);
+            context.blend_function(Context::SRC_ALPHA, Context::ONE_MINUS_SRC_ALPHA);
+            Context::get_context().enable(Context::DEPTH_TEST);
         } else {
             self.particles.update(&self.state, &mut self.camera);
+            context.blend_function(Context::SRC_ALPHA, Context::ONE);
             self.particles.draw(&projection_matrix, &self.state);
+            context.blend_function(Context::SRC_ALPHA, Context::ONE_MINUS_SRC_ALPHA);
         }
 
         if self.state.mesh_transparency < 1.0 {

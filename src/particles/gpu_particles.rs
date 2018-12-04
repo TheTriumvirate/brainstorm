@@ -20,8 +20,8 @@ use State;
 use rand::rngs::SmallRng;
 use rand::{FromEntropy, Rng};
 
-const TEXTURESIZE: usize = 1028;
-const MAXSTREAMLETSIZE: usize = 4;
+const TEXTURESIZE: usize = 1024;
+const MAXSTREAMLETSIZE: usize = 16;
 
 pub struct GPUParticleEngine {
     texture: Rc<Texture>,
@@ -36,6 +36,7 @@ pub struct GPUParticleEngine {
     timer: f32,
     update: bool,
     swap: bool,
+    spawn_idx: i32,
 }
 
 impl GPUParticleEngine {
@@ -53,7 +54,7 @@ impl GPUParticleEngine {
                     data.push(0.0);
                     data.push(0.0);
                     data.push(0.0);
-                    data.push(255.0);
+                    data.push(0.0);
 
                     particle_data.push(u as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
                     particle_data.push(v as f32 / (TEXTURESIZE as f32) + 0.5 / TEXTURESIZE as f32);
@@ -62,7 +63,7 @@ impl GPUParticleEngine {
                         noise_data.push(rng.gen_range(0.0, 1.0));
                         noise_data.push(rng.gen_range(0.0, 1.0));
                         noise_data.push(rng.gen_range(0.0, 1.0));
-                        noise_data.push(rng.gen_range(0.0, 1.0));
+                        noise_data.push((rng.gen_range(0.0, 1.0) as f32).sqrt());
                     } else {
                         index_data.push(index - OFFSET);
                         index_data.push(index);
@@ -146,6 +147,7 @@ impl GPUParticleEngine {
             timer: 0.0,
             update: false,
             swap: false,
+            spawn_idx: 0,
         }
     }
 
@@ -173,6 +175,12 @@ impl GPUParticleEngine {
         self.layer = (self.layer + 1) % MAXSTREAMLETSIZE as i32;
 
         self.shader.uniform1i("u_layer", (self.layer) as i32);
+
+        self.update_shader.uniform1i("u_spawnIdx", self.spawn_idx);
+        let spawn = (4000.0 * state.seeding_size).ceil() as i32;
+        self.update_shader.uniform1i("u_spawnCount", spawn);
+        self.spawn_idx += spawn;
+        self.spawn_idx = self.spawn_idx % (TEXTURESIZE * TEXTURESIZE) as i32;
 
         self.timer = 0.0;
         self.update = true;

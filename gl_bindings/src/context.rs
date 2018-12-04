@@ -82,6 +82,11 @@ pub trait AbstractContext {
     const INTERLEAVED_ATTRIBS: u32;
     const STATIC_READ: u32;
     const LINK_STATUS: u32;
+    const ONE: u32;
+    const ONE_MINUS_SRC_ALPHA: u32;
+    const SRC_ALPHA: u32;
+    const ZERO: u32;
+    const BLEND: u32;
 
     fn get_context() -> &'static Context;
     
@@ -171,6 +176,8 @@ pub trait AbstractContext {
 
     fn begin_transform_feedback(&self, type_: GLEnum);
     fn end_transform_feedback(&self);
+
+    fn blend_function(&self, s_factor: GLEnum, d_factor: GLEnum);
 }
 
 impl GlPrimitive for f32 {

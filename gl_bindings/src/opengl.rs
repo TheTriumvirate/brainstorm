@@ -116,6 +116,11 @@ impl AbstractContext for GLContext {
     const INTERLEAVED_ATTRIBS: u32 = gl::INTERLEAVED_ATTRIBS;
     const STATIC_READ: u32 = gl::STATIC_READ;
     const LINK_STATUS: u32 = gl::LINK_STATUS;
+    const ONE: u32 = gl::ONE;
+    const ONE_MINUS_SRC_ALPHA: u32 = gl::ONE_MINUS_SRC_ALPHA;
+    const SRC_ALPHA: u32 = gl::SRC_ALPHA;
+    const ZERO: u32 = gl::ZERO;
+    const BLEND: u32 = gl::BLEND;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -622,6 +627,12 @@ impl AbstractContext for GLContext {
     fn end_transform_feedback(&self) {
         unsafe {
             gl::EndTransformFeedback();
+        }
+    }
+
+    fn blend_function(&self, s_factor: GLEnum, d_factor: GLEnum) {
+        unsafe {
+            gl::BlendFunc(s_factor, d_factor);
         }
     }
 }
