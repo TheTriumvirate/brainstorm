@@ -14,7 +14,6 @@ pub struct Map {
     sectionxz: MapSection,
     sectionzy: MapSection,
     shader: Rc<OurShader>,
-    circle: Circle,
     target: (f32, f32, f32),
     clicked: bool,
     selected: i32,
@@ -47,7 +46,6 @@ impl Map {
             sectionxz,
             sectionzy,
             shader,
-            circle: Circle::new(0.0, 0.0, 0.0, 0.1, 0.0, (1.0, 0.0, 0.0), false),
             target: (0.0, 0.0, 0.0),
             clicked: false,
             selected: -1,
@@ -66,6 +64,13 @@ impl Map {
 
     pub fn get_target(&self) -> (f32, f32, f32) {
         self.target
+    }
+
+    pub fn set_target(&mut self, target: (f32, f32, f32)) {
+        self.sectionxy.set_target((target.0, target.1));
+        self.sectionxz.set_target((target.0, target.2));
+        self.sectionzy.set_target((target.1, target.2));
+        self.target = target;
     }
 }
 
@@ -121,9 +126,6 @@ impl UiElement for Map {
         }
 
         self.shader.uniform1f("u_size", state.seeding_size * 0.6 + 0.01);
-
-        self.circle.set_center(self.target);
-        self.circle.rebuild_data();
     }
 
     fn resize(&mut self, screensize: (f32, f32)) {
@@ -185,6 +187,10 @@ impl MapSection {
 
     pub fn get_target(&self) -> (f32, f32) {
         self.target
+    }
+
+    pub fn set_target(&mut self, target: (f32, f32)) {
+        self.target = target;
     }
 }
 

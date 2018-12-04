@@ -53,7 +53,7 @@ impl ArcBall {
         let ey = self.target.y + self.distance * self.pitch.cos();
         let ez = self.target.z + self.distance * self.yaw.sin() * self.pitch.sin();
         let eye = Point3::new(ex, ey, ez);
-        let perspective = Perspective3::new(self.aspect, f32::consts::PI / 4.0, 0.1, 1024.0);
+        let perspective = Perspective3::new(self.aspect, 1.0, 0.1, 1024.0);
         let view: Isometry3<f32> = Isometry3::look_at_rh(&eye, &self.target, &Vector3::y());
         self.projection = perspective.as_matrix() * view.to_homogeneous();
     }

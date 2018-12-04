@@ -2,19 +2,26 @@ use std::{cell::RefCell, rc::Rc};
 
 use graphics::{Drawable, Font, Text, Circle};
 use gui::UiElement;
-use na::{Matrix4, Isometry3, Vector3, Point3, Translation3};
+use na::{Matrix4, Isometry3, Vector3, Point3, Translation3, Vector4, Perspective3};
 use gl_bindings::{Context, AbstractContext};
+use State;
 
 use std::f32;
+
+struct WorldPoint {
+    text: Text<'static>,
+    dot: Circle,
+    hovered: bool,    
+}
 
 /// A simple button that can be pressed.
 pub struct WorldPoints {
     screensize: (f32, f32),
-    texts: Vec<Text<'static>>,
-    dots: Vec<Circle>,
+    points: Vec<WorldPoint>,
     font: Rc<RefCell<Font<'static>>>,
     camera_pos: (f32, f32, f32),
-    dir: f32,
+    target_pos: (f32, f32, f32),
+    view_matrix: Matrix4<f32>,   
 }
 
 impl WorldPoints {
@@ -26,29 +33,45 @@ impl WorldPoints {
 
         Self {
             screensize,
-            texts: Vec::new(),// ,
-            dots: Vec::new(),
+            points: Vec::new(),// ,
             font: font.clone(),
             camera_pos: (0.0, 0.0, 0.0),
-            dir: 0.0,
+            target_pos: (0.0, 0.0, 0.0),
+            view_matrix: Matrix4::<f32>::identity(),
         }
     }
 
     pub fn set_points(&mut self, points: Vec<(f32, f32, f32)>) {
-        self.texts.clear();
+        self.points.clear();
+
+        self.points.push(WorldPoint {
+            text: Text::new("Center".to_owned(), self.font.clone(), 0.0, 0.0 + 0.03, 0.0, self.screensize),
+            dot: Circle::new(0.0, 0.0, 0.0, 0.005, 3.1415 / 2.0, (0.0,1.0,0.0), true),
+            hovered: false,
+        });
 
         let mut id = 1;
         for point in points {
             let (x, y, z) = point;
-            self.texts.push(Text::new(format!("point {}", id).to_owned(), self.font.clone(), x, y + 0.03, z, self.screensize));
-            self.dots.push(Circle::new(x, y, z, 0.005, 3.1415 / 2.0, (0.0,1.0,0.0), true));
+            self.points.push(WorldPoint {
+                text: Text::new(format!("point {}", id).to_owned(), self.font.clone(), x, y + 0.03, z, self.screensize),
+                dot: Circle::new(x, y, z, 0.005, 3.1415 / 2.0, (0.0,1.0,0.0), true),
+                hovered: false,
+            });
             id += 1;
         }
     }
 
     pub fn set_camera_pos(&mut self, pos: (f32, f32, f32)) {
         self.camera_pos = pos;
-        self.dir += 0.1;
+    }
+
+    pub fn set_camera_target_pos(&mut self, pos: (f32, f32, f32)) {
+        self.target_pos = pos;
+    }
+
+    pub fn set_view_matrix(&mut self, view_matrix: &Matrix4<f32>) {
+        self.view_matrix = view_matrix.clone();
     }
 }
 
@@ -57,34 +80,106 @@ impl UiElement for WorldPoints {
         //let text_coords = self.pos.to_relative(screensize).get_coordinates();
         //self.text.set_position(text_coords.x1, text_coords.y1, screensize);
     }
+    
+    fn is_within(&self, x: f64, y: f64) -> bool {
+        for point in &self.points {
+            let (cx, cy, cz) = point.dot.get_center();
+            let screen_pos = self.view_matrix * Vector4::new(cx, cy, cz, 1.0);
+
+            let dx = screen_pos.x / screen_pos.w - x as f32;
+            let dy = screen_pos.y / screen_pos.w - y as f32;
+
+            if(dx * dx + dy * dy < 0.02 * 0.02) {
+                return true;
+            }
+        }
+
+        false
+    }
+    
+    fn click(&mut self, x: f64, y: f64, state: &mut State) {
+        for point in &self.points {
+            let (cx, cy, cz) = point.dot.get_center();
+            let screen_pos = self.view_matrix * Vector4::new(cx, cy, cz, 1.0);
+
+            let dx = screen_pos.x / screen_pos.w - x as f32;
+            let dy = screen_pos.y / screen_pos.w - y as f32;
+
+            if(dx * dx + dy * dy < 0.02 * 0.02) {
+                state.camera_target = point.dot.get_center();
+                return;
+            }
+        }
+    }
+
+    
+    fn mouse_moved(&mut self, x: f64, y: f64, state: &mut State) {
+        for point in &mut self.points {
+            point.hovered = false;
+        }
+        for point in &mut self.points {
+            let (cx, cy, cz) = point.dot.get_center();
+            let screen_pos = self.view_matrix * Vector4::new(cx, cy, cz, 1.0);
+
+            let dx = screen_pos.x / screen_pos.w - x as f32;
+            let dy = screen_pos.y / screen_pos.w - y as f32;
+
+            if(dx * dx + dy * dy < 0.02 * 0.02) {
+                point.hovered = true;
+                return;
+            }
+        }
+    
+    }
 }
 
 impl Drawable for WorldPoints {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
-        let (ex, ey, ez) = self.camera_pos;
-        let eye = Point3::new(ex, ey, ez);
-        const ZOOM_FACTOR : f32 = 3.0;
-        let scale = Matrix4::new_orthographic(-ZOOM_FACTOR,ZOOM_FACTOR,-ZOOM_FACTOR,ZOOM_FACTOR,ZOOM_FACTOR,-ZOOM_FACTOR);
+        let (tx, ty, tz) = self.target_pos;
+        
+        let (px, py, pz) = self.camera_pos;
+        const ZOOM_FACTOR : f32 = 2.0;
         Context::get_context().disable(Context::DEPTH_TEST);
-        for text in &self.texts {
-            let (ex, ey, ez) = text.get_position();
-            let (cx, cy, cz) = text.get_center();
+        for point in &self.points {
+            let hover_factor = if point.hovered {
+                0.3
+            } else {
+                1.0
+            };
+            
+            let scale = Matrix4::new_orthographic(-ZOOM_FACTOR - hover_factor,ZOOM_FACTOR + hover_factor,-ZOOM_FACTOR - hover_factor,ZOOM_FACTOR + hover_factor,ZOOM_FACTOR + hover_factor,-ZOOM_FACTOR - hover_factor);
+            let (ex, ey, ez) = point.text.get_position();
+            let (cx, cy, cz) = point.text.get_center();
             let target: Point3<f32> = Point3::new(0.0, 0.0, 0.0);
+            let eye = Point3::new(px - tx, py - ty, pz - tz);
             let view: Isometry3<f32> = Isometry3::look_at_lh(&target, &eye, &Vector3::y());
             let trans = Translation3::new(-cx, -cy, -cz);
-            let trans2 = Translation3::new(ex, ey, ez);
+            let trans2 = Translation3::new(ex, ey + (1.0 - hover_factor) / 50.0, ez);
             let projection = view_matrix * trans2.to_homogeneous() * scale * view.inverse().to_homogeneous() * trans.to_homogeneous();
-            text.draw_transformed(&projection);
+            point.text.draw_transformed(&projection);
         }
 
-        for dot in &self.dots {
-            let (cx, cy, cz) = dot.get_center();
+        let (ex, ey, ez) = self.camera_pos;
+        for point in &self.points {
+            
+            let hover_factor = if point.hovered {
+                0.3
+            } else {
+                1.0
+            };
+            
+            let scale = Matrix4::new_orthographic(-hover_factor,hover_factor,- hover_factor,hover_factor,hover_factor, - hover_factor);
+            
+            let (cx, cy, cz) = point.dot.get_center();
             let target: Point3<f32> = Point3::new(0.0, 0.0, 0.0);
+            let eye = Point3::new(px - tx, py - ty, pz - tz);
             let view: Isometry3<f32> = Isometry3::look_at_lh(&target, &eye, &Vector3::y());
             let trans = Translation3::new(-cx, -cy, -cz);
             let trans2 = Translation3::new(cx, cy, cz);
-            let projection = view_matrix * trans2.to_homogeneous() * view.inverse().to_homogeneous() * trans.to_homogeneous();
-            dot.draw_transformed(&projection);
+            let projection = view_matrix * trans2.to_homogeneous() * scale * view.inverse().to_homogeneous() * trans.to_homogeneous();
+
+            point.dot.draw_transformed(&projection);
+            
         }
         Context::get_context().enable(Context::DEPTH_TEST);
 

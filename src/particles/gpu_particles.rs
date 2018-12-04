@@ -14,7 +14,7 @@ use camera::{ArcBall};
 use rand::{FromEntropy, Rng};
 use rand::rngs::SmallRng;
 
-const TEXTURESIZE: usize = 1028;
+const TEXTURESIZE: usize = 768;
 const MAXSTREAMLETSIZE: usize = 4;
 
 pub struct GPUParticleEngine {
