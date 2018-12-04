@@ -1,7 +1,7 @@
 use std::{rc::Rc, str};
 
 use State;
-use graphics::{position, Drawable, Rectangle, Circle};
+use graphics::{position, Drawable, Rectangle};
 use gui::UiElement;
 use na::Matrix4;
 use gl_bindings::{Texture, shaders::OurShader, shaders::ShaderAttribute};

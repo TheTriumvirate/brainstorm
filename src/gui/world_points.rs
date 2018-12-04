@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use graphics::{Drawable, Font, Text, Circle};
 use gui::UiElement;
-use na::{Matrix4, Isometry3, Vector3, Point3, Translation3, Vector4, Perspective3};
+use na::{Matrix4, Isometry3, Vector3, Point3, Translation3, Vector4};
 use gl_bindings::{Context, AbstractContext};
 use State;
 
@@ -89,7 +89,7 @@ impl UiElement for WorldPoints {
             let dx = screen_pos.x / screen_pos.w - x as f32;
             let dy = screen_pos.y / screen_pos.w - y as f32;
 
-            if(dx * dx + dy * dy < 0.02 * 0.02) {
+            if dx * dx + dy * dy < 0.02 * 0.02 {
                 return true;
             }
         }
@@ -105,7 +105,7 @@ impl UiElement for WorldPoints {
             let dx = screen_pos.x / screen_pos.w - x as f32;
             let dy = screen_pos.y / screen_pos.w - y as f32;
 
-            if(dx * dx + dy * dy < 0.02 * 0.02) {
+            if dx * dx + dy * dy < 0.02 * 0.02 {
                 state.camera_target = point.dot.get_center();
                 return;
             }
@@ -113,7 +113,7 @@ impl UiElement for WorldPoints {
     }
 
     
-    fn mouse_moved(&mut self, x: f64, y: f64, state: &mut State) {
+    fn mouse_moved(&mut self, x: f64, y: f64, _: &mut State) {
         for point in &mut self.points {
             point.hovered = false;
         }
@@ -124,7 +124,7 @@ impl UiElement for WorldPoints {
             let dx = screen_pos.x / screen_pos.w - x as f32;
             let dy = screen_pos.y / screen_pos.w - y as f32;
 
-            if(dx * dx + dy * dy < 0.02 * 0.02) {
+            if dx * dx + dy * dy < 0.02 * 0.02 {
                 point.hovered = true;
                 return;
             }
@@ -159,7 +159,6 @@ impl Drawable for WorldPoints {
             point.text.draw_transformed(&projection);
         }
 
-        let (ex, ey, ez) = self.camera_pos;
         for point in &self.points {
             
             let hover_factor = if point.hovered {
