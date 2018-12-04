@@ -34,7 +34,7 @@ struct Opt {
     
     /// Number of particles (squared) to use on the GPU. It's recommended to use a power
     /// of two, like 256, 512 or 1024.
-    #[structopt(short = "gc", long = "gpu-particle-count", default_value = "DEFAULT_GPU_PARTICLE_COUNT")]
+    #[structopt(short = "c", long = "gpu-particle-count", default_value = "512")]
     gpu_particle_count: usize,
 }
 
