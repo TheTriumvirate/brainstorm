@@ -127,7 +127,7 @@ impl AbstractWindow for WebGLWindow {
                 prev_dist.set(dist);
 
             }
-            else if pointers.len() == 1 {
+            else {
 
                 events.borrow_mut().push(EventWrapper::CursorMoved{x, y});
             }

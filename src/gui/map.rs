@@ -1,12 +1,12 @@
 use std::{rc::Rc, str};
 
-use gl_bindings::{shaders::OurShader, shaders::ShaderAttribute, Texture};
-use gl_bindings::{AbstractContext, Context};
-use graphics::{position, Circle, Drawable, Rectangle};
+use State;
+use graphics::{position, Drawable, Rectangle, Circle};
 use gui::UiElement;
 use na::Matrix4;
-use resources::shaders::{MAP_FRAGMENT_SHADER, MAP_VERTEX_SHADER};
-use State;
+use gl_bindings::{Texture, shaders::OurShader, shaders::ShaderAttribute};
+use resources::shaders::{MAP_VERTEX_SHADER, MAP_FRAGMENT_SHADER};
+use gl_bindings::{Context, AbstractContext};
 
 /// A simple button that can be pressed.
 pub struct Map {
@@ -14,7 +14,6 @@ pub struct Map {
     sectionxz: MapSection,
     sectionzy: MapSection,
     shader: Rc<OurShader>,
-    circle: Circle,
     target: (f32, f32, f32),
     clicked: bool,
     selected: i32,
@@ -29,24 +28,15 @@ impl Map {
         screensize: (f32, f32),
     ) -> Self {
         let shader = Rc::new(OurShader::new(
-            str::from_utf8(MAP_VERTEX_SHADER).expect("Failed to read vertex shader"),
-            str::from_utf8(MAP_FRAGMENT_SHADER).expect("Failed to read fragment shader"),
+            str::from_utf8(MAP_VERTEX_SHADER).expect("Failed to read vertex shader"), 
+            str::from_utf8(MAP_FRAGMENT_SHADER).expect("Failed to read fragment shader"), 
             &[
-                ShaderAttribute {
-                    name: "a_position".to_string(),
-                    size: 3,
-                },
-                ShaderAttribute {
-                    name: "a_color".to_string(),
-                    size: 3,
-                },
-                ShaderAttribute {
-                    name: "a_texture".to_string(),
-                    size: 2,
-                },
-            ],
+                ShaderAttribute{name: "a_position".to_string(), size: 3},
+                ShaderAttribute{name: "a_color".to_string(), size: 3},
+                ShaderAttribute{name: "a_texture".to_string(), size: 2},
+            ]
         ));
-
+        
         let sectionxy = MapSection::new(pos1, screensize, shader.clone());
         let sectionxz = MapSection::new(pos2, screensize, shader.clone());
         let sectionzy = MapSection::new(pos3, screensize, shader.clone());
@@ -56,7 +46,6 @@ impl Map {
             sectionxz,
             sectionzy,
             shader,
-            circle: Circle::new(0.0, 0.0, 0.0, 0.1, 0.0, (1.0, 0.0, 0.0), false),
             target: (0.0, 0.0, 0.0),
             clicked: false,
             selected: -1,
@@ -76,13 +65,20 @@ impl Map {
     pub fn get_target(&self) -> (f32, f32, f32) {
         self.target
     }
+
+    pub fn set_target(&mut self, target: (f32, f32, f32)) {
+        self.sectionxy.set_target((target.0, target.1));
+        self.sectionxz.set_target((target.0, target.2));
+        self.sectionzy.set_target((target.1, target.2));
+        self.target = target;
+    }
 }
 
 impl UiElement for Map {
     fn is_within(&self, x: f64, y: f64) -> bool {
-        self.sectionxy.is_within(x, y)
-            || self.sectionxz.is_within(x, y)
-            || self.sectionzy.is_within(x, y)
+        self.sectionxy.is_within(x, y) ||
+        self.sectionxz.is_within(x, y) ||
+        self.sectionzy.is_within(x, y)
     }
 
     fn click(&mut self, x: f64, y: f64, _state: &mut State) {
@@ -98,6 +94,7 @@ impl UiElement for Map {
         }
     }
 
+    
     fn click_release(&mut self, _x: f64, _y: f64, _state: &mut State) {
         self.clicked = false;
         self.selected = -1;
@@ -107,19 +104,19 @@ impl UiElement for Map {
         if self.clicked {
             if self.sectionxy.is_within(x, y) && self.selected == 0 {
                 self.sectionxy.mouse_moved(x, y, state);
-
+                
                 let starget = self.sectionxy.get_target();
                 self.target.0 = starget.0;
                 self.target.1 = starget.1;
             }
-
+            
             if self.sectionxz.is_within(x, y) && self.selected == 1 {
                 self.sectionxz.mouse_moved(x, y, state);
                 let starget = self.sectionxz.get_target();
                 self.target.0 = starget.0;
                 self.target.2 = starget.1;
             }
-
+            
             if self.sectionzy.is_within(x, y) && self.selected == 2 {
                 self.sectionzy.mouse_moved(x, y, state);
                 let starget = self.sectionzy.get_target();
@@ -128,11 +125,7 @@ impl UiElement for Map {
             }
         }
 
-        self.shader
-            .uniform1f("u_size", state.seeding_size * 0.6 + 0.01);
-
-        self.circle.set_center(self.target);
-        self.circle.rebuild_data();
+        self.shader.uniform1f("u_size", state.seeding_size * 0.6 + 0.01);
     }
 
     fn resize(&mut self, screensize: (f32, f32)) {
@@ -147,18 +140,15 @@ impl Drawable for Map {
         Context::get_context().disable(Context::DEPTH_TEST);
         self.shader.uniform3f("u_up", 0.0, 0.0, 1.0);
         self.shader.uniform1f("u_progress", self.target.2 + 0.5);
-        self.shader
-            .uniform2f("u_test", self.target.0 + 0.5, self.target.1 + 0.5);
+        self.shader.uniform2f("u_test", self.target.0 + 0.5, self.target.1 + 0.5);
         self.sectionxy.draw();
         self.shader.uniform3f("u_up", 0.0, 1.0, 0.0);
         self.shader.uniform1f("u_progress", self.target.1 + 0.5);
-        self.shader
-            .uniform2f("u_test", self.target.0 + 0.5, self.target.2 + 0.5);
+        self.shader.uniform2f("u_test", self.target.0 + 0.5, self.target.2 + 0.5);
         self.sectionxz.draw();
         self.shader.uniform3f("u_up", 1.0, 0.0, 0.0);
         self.shader.uniform1f("u_progress", self.target.0 + 0.5);
-        self.shader
-            .uniform2f("u_test", self.target.2 + 0.5, self.target.1 + 0.5);
+        self.shader.uniform2f("u_test", self.target.2 + 0.5, self.target.1 + 0.5);
         self.sectionzy.draw();
     }
 }
@@ -173,7 +163,11 @@ pub struct MapSection {
 
 impl MapSection {
     /// Creates a new button.
-    pub fn new(pos: position::Absolute, screensize: (f32, f32), shader: Rc<OurShader>) -> Self {
+    pub fn new(
+        pos: position::Absolute,
+        screensize: (f32, f32),
+        shader: Rc<OurShader>
+    ) -> Self {
         let pos_rel = pos.to_relative(screensize);
         let coords = pos_rel.get_coordinates();
         let mut rect = Rectangle::new(coords, (0.0, 0.0, 0.0));
@@ -183,7 +177,7 @@ impl MapSection {
             pos,
             rect,
             pos_rel,
-            target: (0.0, 0.0),
+            target: (0.0, 0.0)
         }
     }
 
@@ -194,6 +188,10 @@ impl MapSection {
     pub fn get_target(&self) -> (f32, f32) {
         self.target
     }
+
+    pub fn set_target(&mut self, target: (f32, f32)) {
+        self.target = target;
+    }
 }
 
 impl UiElement for MapSection {
@@ -203,10 +201,7 @@ impl UiElement for MapSection {
     }
 
     fn mouse_moved(&mut self, x: f64, y: f64, state: &mut State) {
-        let coords = self
-            .pos
-            .to_relative((state.window_w, state.window_h))
-            .get_coordinates();
+        let coords = self.pos.to_relative((state.window_w, state.window_h)).get_coordinates();
         let x = (x as f32 - coords.x1) / (coords.x2 - coords.x1) - 0.5;
         let y = (y as f32 - coords.y1) / (coords.y2 - coords.y1) - 0.5;
 

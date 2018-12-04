@@ -41,7 +41,7 @@ use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use window::{AbstractWindow, Event, Window};
 
 const INITIAL_WINDOW_WIDTH: u32 = 1000;
-const INITIAL_WINDOW_HEIGHT: u32 = 800;
+const INITIAL_WINDOW_HEIGHT: u32 = 1000;
 use particles::gpu_fieldprovider::GPUFieldProvider;
 use particles::gpu_particles::GPUParticleEngine;
 use particles::MarchingCubes;
@@ -211,9 +211,8 @@ impl App {
 
             if !consumed {
                 self.camera.handle_events(&event);
-                self.gui
-                    .world_points
-                    .set_camera_pos(self.camera.get_position());
+                self.gui.world_points.set_camera_pos(self.camera.get_position());
+                self.gui.world_points.set_camera_target_pos(self.camera.get_target());
             }
         }
 
@@ -221,7 +220,8 @@ impl App {
         {
             self.camera.set_target_position(self.state.camera_target);
             self.gui.seeding_sphere.retarget(self.state.camera_target);
-        }
+            self.gui.map.set_target(self.state.camera_target);
+        }        
 
         // Replace particle data if requested.
         // Special preparation for web due to it's asynchronous nature.
@@ -316,6 +316,7 @@ impl App {
         if self.state.mesh_transparency < 1.0 {
             Context::get_context().depth_mask(true);
         }
+        self.gui.world_points.set_view_matrix(&projection_matrix);
         self.gui.draw_3d_elements(&projection_matrix);
 
         Context::get_context().disable(Context::DEPTH_TEST);

@@ -140,6 +140,7 @@ impl Gui {
                 state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
 
                 self.map.mouse_moved(state.mouse_x, state.mouse_y, state);
+                self.world_points.mouse_moved(state.mouse_x, state.mouse_y, state);
                 if self.map.clicked() {
                     // TODO: Set camera position
                     state.camera_target = self.map.get_target();
@@ -163,12 +164,12 @@ impl Gui {
                         self.map.click(state.mouse_x, state.mouse_y, state);
                         handled = true;
                     }
-                    if self
-                        .ui_visible_button
-                        .is_within(state.mouse_x, state.mouse_y)
-                    {
-                        self.ui_visible_button
-                            .click(state.mouse_x, state.mouse_y, state);
+                    if self.world_points.is_within(state.mouse_x, state.mouse_y) {
+                        self.world_points.click(state.mouse_x, state.mouse_y, state);
+                        handled = true;
+                    }
+                    if self.ui_visible_button.is_within(state.mouse_x, state.mouse_y) {
+                        self.ui_visible_button.click(state.mouse_x, state.mouse_y, state);
                         handled = true;
                     }
                     if self.ui_visible_button.toggle_state() {
