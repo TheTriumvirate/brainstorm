@@ -8,8 +8,8 @@ edition = "2018"
 
 [dependencies]
 na = {package = "nalgebra", version= "0.16", default-features = false}
-lazy_static = {version = "1.1.0", default-features = false}
-image = {version="0.19", default-features = false}
+lazy_static = {version = "1.2.0", default-features = false}
+image = {version="0.20", default-features = false}
 gl = {version = "*", path = "../gl"}
 
 [target.wasm32-unknown-unknown.dependencies]
