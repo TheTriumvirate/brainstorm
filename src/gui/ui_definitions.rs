@@ -4,10 +4,12 @@
 use nfd;
 #[cfg(not(target_arch = "wasm32"))]
 use std::path::PathBuf;
+#[cfg(target_arch = "wasm32")]
+use stdweb::*;
 use std::{cell::RefCell, rc::Rc};
 
 use super::{Button, Label, Map, Slider, StatusLabel, UiElement, WorldPoints};
-use graphics::{position, Font};
+use crate::graphics::{position, Font};
 
 const DELTA_MOVEMENT: f32 = 0.05;
 

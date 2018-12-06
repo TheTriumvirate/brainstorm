@@ -1,26 +1,6 @@
 //! Provides a seamless wrapper around OpenGL and WebGL, so that the rest of
 //! the code doesn't need to know which of the two it's running on.
 
-#![cfg_attr(target_arch = "wasm32", feature(extern_prelude))]
-#![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
-
-#[macro_use]
-#[cfg(target_arch = "wasm32")]
-extern crate stdweb;
-#[macro_use]
-#[cfg(target_arch = "wasm32")]
-extern crate stdweb_derive;
-#[macro_use]
-#[cfg(target_arch = "wasm32")]
-extern crate serde_derive;
-#[cfg(target_arch = "wasm32")]
-extern crate serde;
-#[macro_use]
-extern crate lazy_static;
-extern crate nalgebra as na;
-extern crate image;
-
-
 #[cfg(target_arch = "wasm32")]
 pub mod webgl;
 #[cfg(not(target_arch = "wasm32"))]
@@ -33,18 +13,18 @@ mod framebuffer;
 mod vertexbuffer;
 
 #[cfg(not(target_arch = "wasm32"))]
-pub use opengl::GLContext as Context;
+pub use crate::opengl::GLContext as Context;
 #[cfg(target_arch = "wasm32")]
-pub use webgl::WebGLContext as Context;
+pub use crate::webgl::WebGLContext as Context;
 
-pub use context::Buffer as NativeBuffer;
-pub use context::Texture as NativeTexture;
-pub use context::FrameBuffer as NativeFrameBuffer;
-pub use context::VertexArray as NativeVertexBuffer;
-pub use context::{Program, Shader, AbstractContext, GlPrimitive, UniformLocation};
-pub use buffer::Buffer;
-pub use buffer::BufferType;
-pub use texture::Texture;
-pub use texture::TextureFormat;
-pub use framebuffer::FrameBuffer;
-pub use vertexbuffer::VertexBuffer;
+pub use crate::context::Buffer as NativeBuffer;
+pub use crate::context::Texture as NativeTexture;
+pub use crate::context::FrameBuffer as NativeFrameBuffer;
+pub use crate::context::VertexArray as NativeVertexBuffer;
+pub use crate::context::{Program, Shader, AbstractContext, GlPrimitive, UniformLocation};
+pub use crate::buffer::Buffer;
+pub use crate::buffer::BufferType;
+pub use crate::texture::Texture;
+pub use crate::texture::TextureFormat;
+pub use crate::framebuffer::FrameBuffer;
+pub use crate::vertexbuffer::VertexBuffer;

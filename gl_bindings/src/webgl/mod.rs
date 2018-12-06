@@ -12,25 +12,25 @@
 #[cfg(target_arch = "wasm32")]
 mod webgl2_bindings;
 
-use shaders::ShaderType;
+use stdweb::{
+    *,
+    unstable::TryInto,
+    web::html_element::CanvasElement,
+    web::{document, IParentNode, TypedArray},
+};
+use std::mem;
+use na::Matrix4;
 
-use stdweb::unstable::TryInto;
-use stdweb::web::html_element::CanvasElement;
-use stdweb::web::{document, IParentNode, TypedArray};
-use stdweb::Value;
-
-use std::{mem};
-
-use na::{Matrix4};
-
-use context::{GlPrimitive, GlPrimitiveArray};
-
-use Program;
-use Shader;
-use AbstractContext;
-use NativeBuffer;
-use Context;
-use NativeTexture;
+use crate::{
+    context::{GlPrimitive, GlPrimitiveArray},
+    Program,
+    Shader,
+    shaders::ShaderType,
+    AbstractContext,
+    NativeBuffer,
+    Context,
+    NativeTexture,
+};
 
 use self::webgl2_bindings::{
     WebGL2RenderingContext, WebGLBuffer, WebGLProgram,
@@ -51,7 +51,7 @@ pub type GLTexture = WebGLTexture;
 pub type GLFrameBuffer = WebGLFramebuffer;
 pub type GLVertexArray = WebGLVertexArrayObject;
 
-lazy_static! {
+lazy_static::lazy_static! {
     static ref CONTEXT: Context = WebGLContext::new();
 }
 
@@ -603,7 +603,7 @@ impl AbstractContext for WebGLContext {
         self.context.bind_buffer_base(target, index, buffer);
     }
 
-    fn get_buffer_sub_data(&self, target: GLEnum, index: u32, data: &mut [f32]) {
+    fn get_buffer_sub_data(&self, _target: GLEnum, _index: u32, _data: &mut [f32]) {
         unimplemented!();
     }
 

@@ -1,4 +1,4 @@
-use Event as EventWrapper;
+use crate::Event as EventWrapper;
 /// The "abstract interface" for a "window" in both web and desktop
 /// environments.
 pub trait AbstractWindow {

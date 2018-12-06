@@ -1,9 +1,9 @@
 use na::Matrix4;
 use std::{cell::RefCell, rc::Rc};
 
-use graphics::{position, position::WindowCorner, Drawable, Font, Rectangle};
-use gui::{Label, UiElement};
-use State;
+use crate::graphics::{position, position::WindowCorner, Drawable, Font, Rectangle};
+use crate::gui::{Label, UiElement};
+use crate::State;
 
 /// Vertical offset divisor for the label.
 const LABEL_V_DIV: f32 = 1.5;

@@ -2,6 +2,8 @@ use crate::particles::VectorField;
 use crate::{FieldProvider, GPUFieldProvider, State};
 #[cfg(target_arch = "wasm32")]
 use std::path::PathBuf;
+#[cfg(target_arch = "wasm32")]
+use stdweb::*;
 
 pub enum FileResult {
     OptionsFile(reparser::Options),

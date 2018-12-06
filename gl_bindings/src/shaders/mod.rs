@@ -5,18 +5,18 @@ use std::{
     ops::Drop,
 };
 
-use Shader;
-use Program;
-use AbstractContext;
-use Context;
-use context::{UniformLocation, GLUint};
+use crate::Shader;
+use crate::Program;
+use crate::AbstractContext;
+use crate::Context;
+use crate::context::{UniformLocation, GLUint};
 
 use na::Matrix4;    
 
 const DEFAULT_VERTEX_SHADER: &[u8] = include_bytes!("default.vert");
 const DEFAULT_FRAGMENT_SHADER: &[u8] = include_bytes!("default.frag");
 
-lazy_static! {
+lazy_static::lazy_static! {
     static ref DEFAULT: OurShader = OurShader::new(
         str::from_utf8(DEFAULT_VERTEX_SHADER).expect("Failed to read vertex shader"), 
         str::from_utf8(DEFAULT_FRAGMENT_SHADER).expect("Failed to read fragment shader"), 

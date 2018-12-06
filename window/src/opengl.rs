@@ -2,7 +2,7 @@
 //! Go check out their code! https://github.com/sebcrozet/kiss3d
 extern crate gl;
 
-use {Event as EventWrapper, MouseButton as MouseButtonWrapper, ModifierKeys, Key, AbstractWindow};
+use crate::{Event as EventWrapper, MouseButton as MouseButtonWrapper, ModifierKeys, Key, AbstractWindow};
 
 use glutin::{
     self,

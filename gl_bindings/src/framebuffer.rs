@@ -1,7 +1,7 @@
-use AbstractContext;
-use Context;
-use NativeFrameBuffer;
-use Texture;
+use crate::AbstractContext;
+use crate::Context;
+use crate::NativeFrameBuffer;
+use crate::Texture;
 
 
 /// Holds a GL buffer and lets you upload it to the GPU.

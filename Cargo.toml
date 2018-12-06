@@ -5,10 +5,11 @@ authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail
 readme = "readme.md"
 homepage = "https://github.com/TheTriumvirate/brainstorm"
 publish = false
+edition = "2018"
 
 [dependencies]
 reparser = {git = "https://github.com/TheTriumvirate/reparser.git"}
-nalgebra = {version= "0.16", default-features = false}
+na = {package = "nalgebra", version= "0.16", default-features = false}
 gl_bindings = {version = "*", path = "./gl_bindings"}
 resources = {version = "*", path = "./resources"}
 window = {version = "*", path = "./window"}

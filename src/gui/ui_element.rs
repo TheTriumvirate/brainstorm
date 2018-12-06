@@ -1,5 +1,5 @@
-use graphics::Drawable;
-use State;
+use crate::graphics::Drawable;
+use crate::State;
 
 /// Defines the basic requirements of a UI element,
 /// with default behaviour of not doing anything.

@@ -5,6 +5,7 @@ authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail
 readme = "readme.md"
 homepage = "https://github.com/TheTriumvirate/particles"
 publish = false
+edition = "2018"
 
 [dependencies]
 

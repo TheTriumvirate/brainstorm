@@ -1,6 +1,6 @@
-use AbstractContext;
-use Context;
-use NativeVertexBuffer;
+use crate::AbstractContext;
+use crate::Context;
+use crate::NativeVertexBuffer;
 
 
 /// Holds a GL buffer and lets you upload it to the GPU.

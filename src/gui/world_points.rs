@@ -1,10 +1,10 @@
 use std::{cell::RefCell, rc::Rc};
 
-use graphics::{Drawable, Font, Text, Circle};
-use gui::UiElement;
+use crate::graphics::{Drawable, Font, Text, Circle};
+use crate::gui::UiElement;
 use na::{Matrix4, Isometry3, Vector3, Point3, Translation3, Vector4};
 use gl_bindings::{Context, AbstractContext};
-use State;
+use crate::State;
 
 use std::f32;
 

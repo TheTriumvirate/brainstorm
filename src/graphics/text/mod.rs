@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 use gl_bindings::{shaders::OurShader, Buffer, BufferType, Texture};
 
-use graphics::{render_target, DrawMode, Drawable};
+use crate::graphics::{render_target, DrawMode, Drawable};
 use na::Matrix4;
 
 pub struct Text<'a> {

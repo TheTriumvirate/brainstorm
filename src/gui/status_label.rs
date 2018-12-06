@@ -2,8 +2,8 @@
 use std::time::Instant;
 use std::{cell::RefCell, rc::Rc};
 
-use graphics::{position, Drawable, Font};
-use gui::{Label, UiElement};
+use crate::graphics::{position, Drawable, Font};
+use crate::gui::{Label, UiElement};
 use na::Matrix4;
 
 const STATUS_TIMEOUT_SECONDS: u64 = 5;

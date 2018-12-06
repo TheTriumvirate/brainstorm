@@ -1,5 +1,5 @@
 use gl_bindings::{Texture, Buffer, BufferType, shaders::OurShader};
-use graphics::{Drawable, DrawMode, render_target, position};
+use crate::graphics::{Drawable, DrawMode, render_target, position};
 use na::Matrix4;
 use std::rc::Rc;
 

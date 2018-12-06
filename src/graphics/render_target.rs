@@ -1,6 +1,6 @@
 //! Methods for interacting with the render target.
 use gl_bindings::{shaders::*, AbstractContext, Buffer, Context, GlPrimitive};
-use graphics::{DrawMode, RenderStates};
+use crate::graphics::{DrawMode, RenderStates};
 use na::Matrix4;
 
 pub fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {

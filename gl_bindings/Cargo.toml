@@ -4,9 +4,10 @@ version = "0.1.0"
 authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "Vegard Itland <veggitland@hotmail.com>"]
 readme = "readme.md"
 publish = false
+edition = "2018"
 
 [dependencies]
-nalgebra = {version= "0.16", default-features = false}
+na = {package = "nalgebra", version= "0.16", default-features = false}
 lazy_static = {version = "1.1.0", default-features = false}
 image = {version="0.19", default-features = false}
 gl = {version = "*", path = "../gl"}
