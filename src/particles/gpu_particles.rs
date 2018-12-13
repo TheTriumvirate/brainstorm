@@ -2,20 +2,20 @@ use gl_bindings::{
     shaders::OurShader, shaders::ShaderAttribute, AbstractContext, Buffer, BufferType, Context,
     FrameBuffer, Texture, TextureFormat,
 };
-use graphics::{render_target, DrawMode, Drawable};
+use crate::graphics::{render_target, DrawMode, Drawable};
 use resources::shaders::{
     GPU_PARTICLES_FRAGMENT_SHADER, GPU_PARTICLES_UPDATE_FRAGMENT_SHADER,
     GPU_PARTICLES_UPDATE_VERTEX_SHADER, GPU_PARTICLES_VERTEX_SHADER,
 };
 
-use particles::gpu_fieldprovider::GPUFieldProvider;
+use crate::particles::gpu_fieldprovider::GPUFieldProvider;
 
 use na::Matrix4;
 use std::rc::Rc;
 use std::str;
 
-use camera::ArcBall;
-use State;
+use crate::camera::ArcBall;
+use crate::State;
 
 use rand::rngs::SmallRng;
 use rand::{FromEntropy, Rng};

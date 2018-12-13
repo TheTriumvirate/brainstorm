@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
-use graphics::{position, Drawable, Font, Text};
-use gui::UiElement;
+use crate::graphics::{position, Drawable, Font, Text};
+use crate::gui::UiElement;
 use na::Matrix4;
 
 /// A simple button that can be pressed.

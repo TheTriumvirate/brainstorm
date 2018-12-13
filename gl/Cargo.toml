@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "Vegard Itland <veggitland@hotmail.com>"]
 readme = "readme.md"
 publish = false
+edition = "2018"
 
 [profile.dev]
 codegen-units = 5

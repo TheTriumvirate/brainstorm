@@ -1,50 +1,35 @@
-#![cfg_attr(feature = "cargo-clippy", allow(cast_lossless))]
+mod camera;
+mod file_loading;
+mod graphics;
+mod gui;
+mod particles;
 
-#[cfg(target_arch = "wasm32")]
-extern crate base64;
-#[cfg(target_arch = "wasm32")]
-#[macro_use]
-extern crate stdweb;
-#[cfg(not(target_arch = "wasm32"))]
-extern crate nfd;
-
-extern crate bincode;
-extern crate nalgebra as na;
-extern crate rand;
-extern crate rusttype;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate unicode_normalization;
-
-extern crate gl_bindings;
-extern crate resources;
-extern crate window;
-
-pub mod camera;
-pub mod file_loading;
-pub mod graphics;
-pub mod gui;
-pub mod particles;
-
-use std::f32;
-#[cfg(not(target_arch = "wasm32"))]
-use std::io::Read;
-use std::path::PathBuf;
-
-use camera::Camera;
-use file_loading::FileResult;
+use std::{
+    f32,
+    io::Read,
+    path::PathBuf
+};
 use gl_bindings::{AbstractContext, Context};
-use graphics::Drawable;
-use gui::Gui;
-use particles::{fieldprovider::FieldProvider, ParticleEngine};
 use window::{AbstractWindow, Event, Window};
+use crate::{
+    camera::Camera,
+    file_loading::FileResult,
+    graphics::Drawable,
+    gui::Gui,
+    particles::{
+        fieldprovider::FieldProvider,
+        gpu_fieldprovider::GPUFieldProvider,
+        gpu_particles::GPUParticleEngine,
+        MarchingCubes,
+        ParticleEngine
+    },
+};
+
+#[cfg(target_arch = "wasm32")]
+use stdweb::*;
 
 const INITIAL_WINDOW_WIDTH: u32 = 1000;
 const INITIAL_WINDOW_HEIGHT: u32 = 1000;
-use particles::gpu_fieldprovider::GPUFieldProvider;
-use particles::gpu_particles::GPUParticleEngine;
-use particles::MarchingCubes;
 
 /// Holds application resources.
 pub struct App {

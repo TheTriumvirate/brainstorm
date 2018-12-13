@@ -1,9 +1,9 @@
 use image::{self};
 
-use AbstractContext;
-use Context;
-use NativeTexture;
-use shaders::OurShader;
+use crate::AbstractContext;
+use crate::Context;
+use crate::NativeTexture;
+use crate::shaders::OurShader;
 
 #[derive(Copy, Clone)]
 pub enum TextureFormat {

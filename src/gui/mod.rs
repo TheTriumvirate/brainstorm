@@ -13,11 +13,11 @@ mod world_points;
 
 use std::{cell::RefCell, rc::Rc};
 
-use graphics::{Drawable, Font};
+use crate::graphics::{Drawable, Font};
 use na::Matrix4;
 use resources::fonts;
 use window::{Event, Key, ModifierKeys, MouseButton};
-use State;
+use crate::State;
 
 use self::{
     button::Button, label::Label, map::Map, model_bound::ModelBound, slider::Slider,

@@ -4,13 +4,22 @@
 
 use gl_bindings::{AbstractContext, Context};
 
-use {Event as EventWrapper, MouseButton as MouseButtonWrapper, ModifierKeys, Key, AbstractWindow};
+use crate::{
+    Event as EventWrapper,
+    MouseButton as MouseButtonWrapper,
+    ModifierKeys,
+    Key,
+    AbstractWindow
+};
 
-use stdweb::unstable::TryInto;
-use stdweb::web::event::MouseButton as WebMouseButton;
-use stdweb::web::event::*;
-use stdweb::web::html_element::CanvasElement;
-use stdweb::web::{document, window, IEventTarget, IParentNode};
+use stdweb::{
+    *,
+    unstable::TryInto,
+    web::event::MouseButton as WebMouseButton,
+    web::event::*,
+    web::html_element::CanvasElement,
+    web::{document, window, IEventTarget, IParentNode},
+};
 
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
@@ -89,8 +98,6 @@ impl AbstractWindow for WebGLWindow {
             let x = js!(return @{&event}.clientX;).try_into().unwrap_or(0.0);
             let y = js!(return @{&event}.clientY;).try_into().unwrap_or(0.0);
                 
-            let len = pointers.len().to_string();
-
             for i in 0..pointers.len() {
                 if pointers[i].id == event.pointer_id() {
                     pointers[i] = PointerData {

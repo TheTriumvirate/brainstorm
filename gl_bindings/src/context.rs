@@ -1,14 +1,14 @@
 
 #[cfg(not(target_arch = "wasm32"))]
-use opengl as ContextImpl;
+use crate::opengl as ContextImpl;
 #[cfg(target_arch = "wasm32")]
-use webgl as ContextImpl;
+use crate::webgl as ContextImpl;
 
 use std::slice;
-
-use shaders::ShaderType;
 use na::{Matrix4};
-use Context;
+
+use crate::shaders::ShaderType;
+use crate::Context;
 
 pub enum GlPrimitiveArray<'a> {
     F32(&'a [f32]),

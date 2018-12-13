@@ -1,5 +1,7 @@
 //! Module containing all particle-system related code.
 
+use serde_derive::{Deserialize, Serialize};
+
 pub mod fieldprovider;
 pub mod gpu_fieldprovider;
 pub mod gpu_particles;

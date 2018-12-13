@@ -1,4 +1,4 @@
-use camera::Camera;
+use crate::camera::Camera;
 use na::{Isometry3, Matrix4, Perspective3, Point3, Vector2, Vector3};
 use std::f32;
 use window::{Event, MouseButton};

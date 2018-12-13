@@ -1,9 +1,9 @@
 use std::ops::{Index,IndexMut};
 
-use context::GlPrimitive;
-use AbstractContext;
-use Context;
-use NativeBuffer;
+use crate::context::GlPrimitive;
+use crate::AbstractContext;
+use crate::Context;
+use crate::NativeBuffer;
 
 /// Represents the two GL buffer types.
 pub enum BufferType {

@@ -1,10 +1,10 @@
 // Largely translated from this: http://paulbourke.net/geometry/polygonise/
 
 use gl_bindings::{Buffer, BufferType, shaders::OurShader, shaders::ShaderAttribute};
-use particles::fieldprovider::FieldProvider;
+use crate::particles::fieldprovider::FieldProvider;
 use resources::shaders::{OBJ_FRAGMENT_SHADER, OBJ_VERTEX_SHADER};
 
-use graphics::{Drawable, DrawMode, render_target};
+use crate::graphics::{Drawable, DrawMode, render_target};
 use na::Matrix4;
 use std::str;
 use std::rc::Rc;

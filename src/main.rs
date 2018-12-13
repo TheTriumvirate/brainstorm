@@ -1,11 +1,3 @@
-#[cfg(not(target_arch = "wasm32"))]
-extern crate structopt;
-
-extern crate brainstorm;
-extern crate gl_bindings;
-extern crate window;
-
-#[cfg(not(target_arch = "wasm32"))]
 use std::path::PathBuf;
 #[cfg(not(target_arch = "wasm32"))]
 use structopt::StructOpt;

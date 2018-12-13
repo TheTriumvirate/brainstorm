@@ -1,10 +1,10 @@
-use particles::fieldprovider::FieldProvider;
+use crate::particles::fieldprovider::FieldProvider;
 
 use gl_bindings::{shaders, Buffer, BufferType};
 
 use resources::shaders::{STREAMLINES_FRAGMENT_SHADER, STREAMLINES_VERTEX_SHADER};
 
-use graphics::{render_target, DrawMode, Drawable};
+use crate::graphics::{render_target, DrawMode, Drawable};
 use na::Matrix4;
 use std::rc::Rc;
 use std::str;

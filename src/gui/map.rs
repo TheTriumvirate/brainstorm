@@ -1,8 +1,8 @@
 use std::{rc::Rc, str};
 
-use State;
-use graphics::{position, Drawable, Rectangle};
-use gui::UiElement;
+use crate::State;
+use crate::graphics::{position, Drawable, Rectangle};
+use crate::gui::UiElement;
 use na::Matrix4;
 use gl_bindings::{Texture, shaders::OurShader, shaders::ShaderAttribute};
 use resources::shaders::{MAP_VERTEX_SHADER, MAP_FRAGMENT_SHADER};

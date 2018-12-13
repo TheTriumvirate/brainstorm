@@ -1,8 +1,8 @@
 use na::Matrix4;
 
 use gl_bindings::{AbstractContext, Context};
-use graphics::{Circle, Drawable};
-use gui::UiElement;
+use crate::graphics::{Circle, Drawable};
+use crate::gui::UiElement;
 
 /// A 3D
 pub struct UnitSphere {

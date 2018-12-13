@@ -1,9 +1,9 @@
 use na::Matrix4;
 use std::{cell::RefCell, rc::Rc};
 
-use graphics::{position, position::WindowCorner, Drawable, Font, Rectangle};
-use gui::{Label, UiElement};
-use State;
+use crate::graphics::{position, position::WindowCorner, Drawable, Font, Rectangle};
+use crate::gui::{Label, UiElement};
+use crate::State;
 
 /// Vertical offset factor for the label.
 const LABEL_V_FAC: f32 = 1.5;
@@ -114,7 +114,7 @@ impl Slider {
 
     /// Moves the visible slider to match the `x` value.
     fn update_slider_pos(&mut self, x: f64) {
-        use graphics::position::WindowCorner;
+        use crate::graphics::position::WindowCorner;
 
         // Cap to edges
         let c = self.pos_rel.get_coordinates();

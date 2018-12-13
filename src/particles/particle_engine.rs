@@ -5,10 +5,10 @@ use rand::{FromEntropy, Rng};
 use std::{f32, str};
 
 use gl_bindings::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
-use particles::fieldprovider::FieldProvider;
-use State;
+use crate::particles::fieldprovider::FieldProvider;
+use crate::State;
 
-use camera::{ArcBall, Camera};
+use crate::camera::{ArcBall, Camera};
 
 use resources::shaders::{PARTICLES_FRAGMENT_SHADER, PARTICLES_VERTEX_SHADER};
 

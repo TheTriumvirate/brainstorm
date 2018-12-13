@@ -7,16 +7,15 @@ use std::mem;
 use std::os::raw::{c_void, c_char};
 use std::ptr;
 
-use shaders::ShaderType;
-
 use na::{self, Matrix4};
 
-use Program;
-use Shader;
-use AbstractContext;
-use NativeBuffer;
-use Context;
-use NativeTexture;
+use crate::Program;
+use crate::Shader;
+use crate::shaders::ShaderType;
+use crate::AbstractContext;
+use crate::NativeBuffer;
+use crate::Context;
+use crate::NativeTexture;
 
 pub type GLShader = u32;
 pub type GLProgram = u32;
@@ -30,7 +29,7 @@ pub type GLUint = u32;
 pub type GLTexture = u32;
 pub type GLFrameBuffer = u32;
 
-lazy_static! {
+lazy_static::lazy_static! {
     static ref CONTEXT: Context = GLContext::new();
 }
 
