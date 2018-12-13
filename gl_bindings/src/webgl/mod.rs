@@ -125,6 +125,9 @@ impl AbstractContext for WebGLContext {
     const INTERLEAVED_ATTRIBS: u32 = WebGL2RenderingContext::INTERLEAVED_ATTRIBS;
     const STATIC_READ: u32 = WebGL2RenderingContext::STATIC_READ;
     const LINK_STATUS: u32 = WebGL2RenderingContext::LINK_STATUS;
+    const ONE_MINUS_SRC_ALPHA: u32 = WebGL2RenderingContext::ONE_MINUS_SRC_ALPHA;
+    const SRC_ALPHA: u32 = WebGL2RenderingContext::SRC_ALPHA;
+    const ONE: u32 = WebGL2RenderingContext::ONE;
 
     fn get_context() -> &'static Context {
         &CONTEXT
@@ -613,5 +616,9 @@ impl AbstractContext for WebGLContext {
 
     fn end_transform_feedback(&self) {
         self.context.end_transform_feedback();
+    }
+    
+    fn blend_func(&self, s_factor: GLEnum, d_factor: GLEnum) {
+        self.context.blend_func(s_factor, d_factor);
     }
 }

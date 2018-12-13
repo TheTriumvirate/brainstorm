@@ -300,7 +300,11 @@ impl App {
             self.gpu_particles
                 .update(&self.gpu_field, &self.state, &self.camera);
             Context::get_context().enable(Context::DEPTH_TEST);
+            context.blend_func(Context::SRC_ALPHA, Context::ONE);
+            Context::get_context().depth_mask(false);
             self.gpu_particles.draw_transformed(&projection_matrix);
+            Context::get_context().depth_mask(true);
+            context.blend_func(Context::SRC_ALPHA, Context::ONE_MINUS_SRC_ALPHA);
         } else {
             self.particles.update(&self.state, &mut self.camera);
             self.particles.draw(&projection_matrix, &self.state);

@@ -12,7 +12,7 @@ use structopt::StructOpt;
 use window::AbstractWindow;
 
 #[allow(dead_code)]
-const DEFAULT_GPU_PARTICLE_COUNT: usize = 512;
+const DEFAULT_GPU_PARTICLE_COUNT: usize = 768;
 
 /// Main entry point for the Web application.
 #[cfg(target_arch = "wasm32")]

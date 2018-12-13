@@ -88,7 +88,7 @@ impl Camera for ArcBall {
                 }
             }
             Event::CursorScroll(_, dt) => {
-                self.distance -= dt / 4.0;
+                self.distance -= dt / 8.0;
                 self.recalculate_matrices();
             }
             Event::Resized(w, h) => {
