@@ -165,7 +165,7 @@ impl Gui {
                         self.map.click(state.mouse_x, state.mouse_y, state);
                         handled = true;
                     }
-                    if self.world_points.is_within(state.mouse_x, state.mouse_y) {
+                    if self.world_points_toggle.toggle_state() && self.world_points.is_within(state.mouse_x, state.mouse_y) {
                         self.world_points.click(state.mouse_x, state.mouse_y, state);
                         handled = true;
                     }

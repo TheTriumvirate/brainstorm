@@ -33,7 +33,7 @@ impl State {
             speed_multiplier: 0.5,
             seeding_size: 1.0,
             lifetime: 100.0,
-            mesh_transparency: 0.1,
+            mesh_transparency: 0.02,
             particle_size: 8.0,
             particle_respawn_per_tick: 1000,
             file_path: None,

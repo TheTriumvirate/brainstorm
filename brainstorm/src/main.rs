@@ -212,7 +212,7 @@ impl App {
     fn render_all(&mut self) {
         // Clear screen
         let context = Context::get_context();
-        context.clear_color(0.0, 0.0, 0.0, 1.0);
+        context.clear_color(28.0/255.0, 29.0/255.0, 28.0/255.0, 1.0);
         context.clear(Context::COLOR_BUFFER_BIT);
         context.clear(Context::DEPTH_BUFFER_BIT);
 

@@ -23,7 +23,7 @@ impl ArcBall {
             target: Point3::new(0.0, 0.0, 0.0),
             yaw: f32::consts::PI / 2.0,
             pitch: f32::consts::PI / 2.0,
-            distance: 5.0,
+            distance: 2.0,
             projection: Matrix4::identity(),
             last_cursor_pos: Vector2::new(0.0, 0.0),
             is_pressed: false,
