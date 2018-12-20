@@ -5,6 +5,3 @@ authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail
 readme = "readme.md"
 publish = false
 edition = "2018"
-
-[profile.dev]
-codegen-units = 5

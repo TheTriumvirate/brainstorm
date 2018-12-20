@@ -1,33 +1,12 @@
-[package]
-name = "brainstorm"
-version = "0.8.0"
-authors = ["theAzack9 <robin@cavachi.be>", "Stian Soltvedt <soltvedt.stian@gmail.com>", "Vegard Itland <veggitland@hotmail.com>"]
-readme = "readme.md"
-homepage = "https://github.com/TheTriumvirate/brainstorm"
-publish = false
-edition = "2018"
+[workspace]
 
-[dependencies]
-reparser = {git = "https://github.com/TheTriumvirate/reparser.git"}
-na = {package = "nalgebra", version= "0.16", default-features = false}
-gl_bindings = {version = "*", path = "./gl_bindings"}
-resources = {version = "*", path = "./resources"}
-window = {version = "*", path = "./window"}
-serde = {version="1.0", default-features = false}
-serde_derive = "1.0"
-bincode = "1.0"
-rusttype = { version = "0.7", features = [ "gpu_cache" ], default-features = false}
-unicode-normalization = "0.1.7"
-
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-rand = {version="0.6", default-features = false}
-structopt = "0.2"
-nfd = "0.0.4"
-
-[target.wasm32-unknown-unknown.dependencies]
-stdweb = "0.4"
-rand = {version = "0.6", features = ["stdweb"]}
-base64 = "0.10.0"
+members = [
+    "brainstorm",
+    "gl",
+    "gl_bindings",
+    "resources",
+    "window",
+]
 
 [profile.dev]
 opt-level = 2
