@@ -12,34 +12,27 @@
 #[cfg(target_arch = "wasm32")]
 mod webgl2_bindings;
 
+use na::Matrix4;
+use std::mem;
 use stdweb::{
-    *,
     unstable::TryInto,
     web::html_element::CanvasElement,
     web::{document, IParentNode, TypedArray},
+    *,
 };
-use std::mem;
-use na::Matrix4;
 
 use crate::{
     context::{GlPrimitive, GlPrimitiveArray},
-    Program,
-    Shader,
     shaders::ShaderType,
-    AbstractContext,
-    NativeBuffer,
-    Context,
-    NativeTexture,
+    AbstractContext, Context, NativeBuffer, NativeTexture, Program, Shader,
 };
 
 use self::webgl2_bindings::{
-    WebGL2RenderingContext, WebGLBuffer, WebGLProgram,
-    WebGLShader, WebGLUniformLocation, WebGLTexture, WebGLFramebuffer, WebGLVertexArrayObject
+    WebGL2RenderingContext, WebGLBuffer, WebGLFramebuffer, WebGLProgram, WebGLShader, WebGLTexture,
+    WebGLUniformLocation, WebGLVertexArrayObject,
 };
 
-pub use self::webgl2_bindings::{
-    GLenum, GLintptr, GLsizeiptr
-};
+pub use self::webgl2_bindings::{GLenum, GLintptr, GLsizeiptr};
 
 pub type GLShader = WebGLShader;
 pub type GLProgram = WebGLProgram;
@@ -56,7 +49,7 @@ lazy_static::lazy_static! {
 }
 
 pub struct WebGLContext {
-    context: WebGL2RenderingContext
+    context: WebGL2RenderingContext,
 }
 
 impl WebGLContext {
@@ -69,11 +62,13 @@ impl WebGLContext {
             .unwrap();
 
         let context = js!(
-            var gl = @{canvas}.getContext("webgl2", {alpha: false});
-            console.log("NO_EXT? ", gl.getExtension("EXT_color_buffer_float"));
-            return gl;
-            ).try_into().unwrap();
-        
+        var gl = @{canvas}.getContext("webgl2", {alpha: false});
+        console.log("NO_EXT? ", gl.getExtension("EXT_color_buffer_float"));
+        return gl;
+        )
+        .try_into()
+        .unwrap();
+
         WebGLContext { context }
     }
 }
@@ -189,13 +184,14 @@ impl AbstractContext for WebGLContext {
     fn delete_program(&self, program: &Program) {
         self.context.delete_program(Some(program));
     }
-    
+
     fn get_program_info_log(&self, program: &Program) -> Option<String> {
         self.context.get_program_info_log(program)
     }
-    
+
     fn transform_feedback_varyings(&self, program: &Program, varyings: &str, buffer_mode: GLEnum) {
-        self.context.transform_feedback_varyings(program, &[varyings], buffer_mode);
+        self.context
+            .transform_feedback_varyings(program, &[varyings], buffer_mode);
     }
 
     fn get_program_parameter(&self, program: &Program, pname: GLEnum) -> Option<i32> {
@@ -220,12 +216,12 @@ impl AbstractContext for WebGLContext {
                 let abuf = TypedArray::<f32>::from(data);
                 self.context
                     .buffer_data_1(target, Some(&abuf.buffer()), usage);
-            },
+            }
             GlPrimitiveArray::U16(data) => {
                 let abuf = TypedArray::<u16>::from(data);
                 self.context
                     .buffer_data_1(target, Some(&abuf.buffer()), usage);
-            },
+            }
             GlPrimitiveArray::U32(data) => {
                 let abuf = TypedArray::<u32>::from(data);
                 self.context
@@ -249,7 +245,7 @@ impl AbstractContext for WebGLContext {
     fn delete_vertexbuffer(&self, vertex_array: &GLVertexArray) {
         self.context.delete_vertex_array(Some(vertex_array));
     }
-    
+
     fn create_framebuffer(&self) -> Option<GLFrameBuffer> {
         self.context.create_framebuffer()
     }
@@ -273,7 +269,7 @@ impl AbstractContext for WebGLContext {
         self.context
             .framebuffer_texture2_d(target, attachment, textarget, Some(texture), level)
     }
-    
+
     fn framebuffer_texture_layer(
         &self,
         target: GLEnum,
@@ -316,23 +312,32 @@ impl AbstractContext for WebGLContext {
     fn disable_vertex_attrib_array(&self, pointer: &GLUint) {
         self.context.disable_vertex_attrib_array(*pointer)
     }
-    
+
     fn bind_attrib_location(&self, program: &Program, index: GLUint, name: &str) {
         self.context.bind_attrib_location(program, index, name)
     }
 
     fn get_uniform_location(&self, program: &Program, name: &str) -> UniformLocation {
-        self.context.get_uniform_location(program, name).expect("Uniform location could not be found or does not exist")
+        self.context
+            .get_uniform_location(program, name)
+            .expect("Uniform location could not be found or does not exist")
     }
 
-    fn uniform_matrix_4fv(&self, location: &UniformLocation, _size: i32, transpose: bool, matrix: &Matrix4<f32>) {
-        self.context.uniform_matrix4fv_1(Some(location), transpose, matrix.as_slice())
+    fn uniform_matrix_4fv(
+        &self,
+        location: &UniformLocation,
+        _size: i32,
+        transpose: bool,
+        matrix: &Matrix4<f32>,
+    ) {
+        self.context
+            .uniform_matrix4fv_1(Some(location), transpose, matrix.as_slice())
     }
-    
+
     fn uniform1i(&self, location: &UniformLocation, x: i32) {
         self.context.uniform1i(Some(location), x);
     }
-    
+
     fn uniform1f(&self, location: &UniformLocation, x: f32) {
         self.context.uniform1f(Some(location), x);
     }
@@ -340,11 +345,11 @@ impl AbstractContext for WebGLContext {
     fn uniform2f(&self, location: &UniformLocation, x: f32, y: f32) {
         self.context.uniform2f(Some(location), x, y);
     }
-    
+
     fn uniform3f(&self, location: &UniformLocation, x: f32, y: f32, z: f32) {
         self.context.uniform3f(Some(location), x, y, z);
     }
-    
+
     fn create_texture(&self) -> Option<NativeTexture> {
         self.context.create_texture()
     }
@@ -352,11 +357,11 @@ impl AbstractContext for WebGLContext {
     fn bind_texture(&self, target: GLEnum, texture: &NativeTexture) {
         self.context.bind_texture(target, Some(texture));
     }
-    
+
     fn unbind_texture(&self, target: GLEnum) {
         self.context.bind_texture(target, None);
     }
-    
+
     fn tex_parameteri(&self, target: GLEnum, pname: GLEnum, param: i32) {
         self.context.tex_parameteri(target, pname, param)
     }
@@ -555,11 +560,11 @@ impl AbstractContext for WebGLContext {
     fn delete_texture(&self, texture: &NativeTexture) {
         self.context.delete_texture(Some(texture));
     }
-    
+
     fn active_texture(&self, _type: GLEnum) {
         self.context.active_texture(_type);
     }
-    
+
     fn generate_mipmap(&self, target: GLEnum) {
         self.context.generate_mipmap(target);
     }
@@ -576,7 +581,7 @@ impl AbstractContext for WebGLContext {
     fn draw_elements(&self, mode: GLEnum, count: i32, type_: GLEnum, offset: GLintptr) {
         self.context.draw_elements(mode, count, type_, offset);
     }
-    
+
     fn flush(&self) {
         self.context.flush();
     }
@@ -584,7 +589,6 @@ impl AbstractContext for WebGLContext {
     fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {
         self.context.viewport(x, y, width, height);
     }
-    
 
     fn pixel_storei(&self, pname: GLenum, param: i32) {
         self.context.pixel_storei(pname, param)
@@ -597,11 +601,11 @@ impl AbstractContext for WebGLContext {
     fn disable(&self, cap: GLEnum) {
         self.context.disable(cap);
     }
-    
+
     fn depth_mask(&self, flag: bool) {
         self.context.depth_mask(flag);
     }
-    
+
     fn bind_buffer_base(&self, target: GLEnum, index: u32, buffer: Option<&GLBuffer>) {
         self.context.bind_buffer_base(target, index, buffer);
     }
@@ -617,7 +621,7 @@ impl AbstractContext for WebGLContext {
     fn end_transform_feedback(&self) {
         self.context.end_transform_feedback();
     }
-    
+
     fn blend_func(&self, s_factor: GLEnum, d_factor: GLEnum) {
         self.context.blend_func(s_factor, d_factor);
     }

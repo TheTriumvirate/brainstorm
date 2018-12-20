@@ -1,21 +1,21 @@
 extern crate gl;
 
-use std::ffi::CString;
 use std::ffi::CStr;
+use std::ffi::CString;
 use std::iter;
 use std::mem;
-use std::os::raw::{c_void, c_char};
+use std::os::raw::{c_char, c_void};
 use std::ptr;
 
 use na::{self, Matrix4};
 
-use crate::Program;
-use crate::Shader;
 use crate::shaders::ShaderType;
 use crate::AbstractContext;
-use crate::NativeBuffer;
 use crate::Context;
+use crate::NativeBuffer;
 use crate::NativeTexture;
+use crate::Program;
+use crate::Shader;
 
 pub type GLShader = u32;
 pub type GLProgram = u32;
@@ -52,14 +52,24 @@ impl GLContext {
         }
         GLContext {}
     }
-
 }
 
-extern "system" fn callaback(source: GLEnum, type_: GLEnum, id: GLUint, severity: GLEnum, _length: i32, message: *const c_char, _user_param: *mut c_void) {
+extern "system" fn callaback(
+    source: GLEnum,
+    type_: GLEnum,
+    id: GLUint,
+    severity: GLEnum,
+    _length: i32,
+    message: *const c_char,
+    _user_param: *mut c_void,
+) {
     unsafe {
         if severity != gl::DEBUG_SEVERITY_NOTIFICATION {
             let m = CStr::from_ptr(message);
-            eprintln!("source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}", source, type_, id, severity, m);
+            eprintln!(
+                "source: {:?}, type: {:?}, id: {:?}, severity: {:?}, message: {:#?}",
+                source, type_, id, severity, m
+            );
 
             if type_ == gl::DEBUG_TYPE_ERROR {
                 panic!("GL ERROR");
@@ -122,7 +132,7 @@ impl AbstractContext for GLContext {
     fn get_context() -> &'static Context {
         &CONTEXT
     }
-    
+
     fn create_shader(&self, type_: ShaderType) -> Option<Shader> {
         unsafe {
             match type_ {
@@ -219,7 +229,7 @@ impl AbstractContext for GLContext {
             gl::DeleteProgram(*program);
         }
     }
-    
+
     fn get_program_info_log(&self, program: &Program) -> Option<String> {
         let info_length = self
             .get_program_parameter(program, gl::INFO_LOG_LENGTH)
@@ -244,7 +254,7 @@ impl AbstractContext for GLContext {
             None
         }
     }
-    
+
     fn transform_feedback_varyings(&self, program: &Program, varyings: &str, buffer_mode: GLEnum) {
         unsafe {
             let src = CString::new(varyings).unwrap();
@@ -292,12 +302,7 @@ impl AbstractContext for GLContext {
                     );
                 }
             } else {
-                gl::BufferData(
-                    target,
-                    0,
-                    ptr::null(),
-                    usage,
-                );
+                gl::BufferData(target, 0, ptr::null(), usage);
             }
         }
     }
@@ -307,7 +312,7 @@ impl AbstractContext for GLContext {
             gl::DeleteBuffers(1, buffer);
         }
     }
-    
+
     fn create_vertexbuffer(&self) -> Option<GLVertexArray> {
         let mut vao = 0;
         unsafe {
@@ -342,12 +347,26 @@ impl AbstractContext for GLContext {
         unsafe { gl::DeleteFramebuffers(1, framebuffer) }
     }
 
-    fn framebuffer_texture2d(&self, target: GLEnum, attachment: GLEnum, textarget: GLEnum, texture: &GLTexture, level: i32) {
+    fn framebuffer_texture2d(
+        &self,
+        target: GLEnum,
+        attachment: GLEnum,
+        textarget: GLEnum,
+        texture: &GLTexture,
+        level: i32,
+    ) {
         unsafe { gl::FramebufferTexture2D(target, attachment, textarget, *texture, level) }
     }
-    
-    fn framebuffer_texture_layer(&self, target: GLEnum, attachment: GLEnum, texture: &GLTexture, level: i32, layer: i32) {
-        unsafe {gl::FramebufferTextureLayer(target, attachment, *texture, level, layer)}
+
+    fn framebuffer_texture_layer(
+        &self,
+        target: GLEnum,
+        attachment: GLEnum,
+        texture: &GLTexture,
+        level: i32,
+        layer: i32,
+    ) {
+        unsafe { gl::FramebufferTextureLayer(target, attachment, *texture, level, layer) }
     }
 
     fn get_attrib_location(&self, program: &Program, name: &str) -> GLUint {
@@ -383,13 +402,13 @@ impl AbstractContext for GLContext {
             gl::EnableVertexAttribArray(*pointer);
         }
     }
-    
+
     fn disable_vertex_attrib_array(&self, pointer: &GLUint) {
         unsafe {
             gl::DisableVertexAttribArray(*pointer);
         }
     }
-    
+
     fn bind_attrib_location(&self, program: &Program, index: GLUint, name: &str) {
         unsafe {
             let src = CString::new(name).unwrap();
@@ -404,24 +423,37 @@ impl AbstractContext for GLContext {
         }
     }
 
-    fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>) {
+    fn uniform_matrix_4fv(
+        &self,
+        location: &UniformLocation,
+        size: i32,
+        transpose: bool,
+        matrix: &Matrix4<f32>,
+    ) {
         unsafe {
-            gl::UniformMatrix4fv(*location as i32, size, transpose as u8, matrix as *const na::Matrix<f32, na::U4, na::U4, na::MatrixArray<f32, na::U4, na::U4>> as *const f32);
+            gl::UniformMatrix4fv(
+                *location as i32,
+                size,
+                transpose as u8,
+                matrix
+                    as *const na::Matrix<f32, na::U4, na::U4, na::MatrixArray<f32, na::U4, na::U4>>
+                    as *const f32,
+            );
         }
     }
-    
+
     fn uniform1i(&self, location: &UniformLocation, x: i32) {
         unsafe {
             gl::Uniform1i(*location as i32, x);
         }
     }
-    
+
     fn uniform1f(&self, location: &UniformLocation, x: f32) {
         unsafe {
             gl::Uniform1f(*location as i32, x);
         }
     }
-    
+
     fn uniform2f(&self, location: &UniformLocation, x: f32, y: f32) {
         unsafe {
             gl::Uniform2f(*location as i32, x, y);
@@ -433,7 +465,7 @@ impl AbstractContext for GLContext {
             gl::Uniform3f(*location as i32, x, y, z);
         }
     }
-    
+
     fn create_texture(&self) -> Option<NativeTexture> {
         let mut texture = 0;
         unsafe {
@@ -447,7 +479,7 @@ impl AbstractContext for GLContext {
             gl::BindTexture(target, *texture);
         }
     }
-    
+
     fn unbind_texture(&self, target: GLEnum) {
         unsafe {
             gl::BindTexture(target, 0);
@@ -458,38 +490,164 @@ impl AbstractContext for GLContext {
         unsafe { gl::TexParameteri(target, pname, param) }
     }
 
-    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>) {
+    fn tex_image2d(
+        &self,
+        target: GLEnum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        border: i32,
+        format: GLEnum,
+        pixels: Option<&[u8]>,
+    ) {
         unsafe {
             match pixels {
-                Some(data) => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::UNSIGNED_BYTE, mem::transmute(&data[0])),
-                _ => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::UNSIGNED_BYTE, ptr::null()),
+                Some(data) => gl::TexImage2D(
+                    target,
+                    level,
+                    internalformat,
+                    width,
+                    height,
+                    border,
+                    format,
+                    Self::UNSIGNED_BYTE,
+                    mem::transmute(&data[0]),
+                ),
+                _ => gl::TexImage2D(
+                    target,
+                    level,
+                    internalformat,
+                    width,
+                    height,
+                    border,
+                    format,
+                    Self::UNSIGNED_BYTE,
+                    ptr::null(),
+                ),
             }
         }
     }
 
-    fn tex_image2d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>) {
+    fn tex_image2d_f(
+        &self,
+        target: GLEnum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        border: i32,
+        format: GLEnum,
+        pixels: Option<&[f32]>,
+    ) {
         unsafe {
             match pixels {
-                Some(data) => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::FLOAT, mem::transmute(&data[0])),
-                _ => gl::TexImage2D(target, level, internalformat, width, height, border, format, Self::FLOAT, ptr::null()),
-            }
-        }
-    }
-    
-    fn tex_image3d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, depth: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>) {
-        unsafe {
-            match pixels {
-                Some(data) => gl::TexImage3D(target, level, internalformat, width, height, depth, border, format, Self::UNSIGNED_BYTE, mem::transmute(&data[0])),
-                _ => gl::TexImage3D(target, level, internalformat, width, height, depth, border, format, Self::UNSIGNED_BYTE, ptr::null()),
+                Some(data) => gl::TexImage2D(
+                    target,
+                    level,
+                    internalformat,
+                    width,
+                    height,
+                    border,
+                    format,
+                    Self::FLOAT,
+                    mem::transmute(&data[0]),
+                ),
+                _ => gl::TexImage2D(
+                    target,
+                    level,
+                    internalformat,
+                    width,
+                    height,
+                    border,
+                    format,
+                    Self::FLOAT,
+                    ptr::null(),
+                ),
             }
         }
     }
 
-    fn tex_image3d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, depth: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>) {
+    fn tex_image3d(
+        &self,
+        target: GLEnum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        depth: i32,
+        border: i32,
+        format: GLEnum,
+        pixels: Option<&[u8]>,
+    ) {
         unsafe {
             match pixels {
-                Some(data) => gl::TexImage3D(target, level, internalformat, width, height, depth, border, format, Self::FLOAT, mem::transmute(&data[0])),
-                _ => gl::TexImage3D(target, level, internalformat, width, height, depth, border, format, Self::FLOAT, ptr::null()),
+                Some(data) => gl::TexImage3D(
+                    target,
+                    level,
+                    internalformat,
+                    width,
+                    height,
+                    depth,
+                    border,
+                    format,
+                    Self::UNSIGNED_BYTE,
+                    mem::transmute(&data[0]),
+                ),
+                _ => gl::TexImage3D(
+                    target,
+                    level,
+                    internalformat,
+                    width,
+                    height,
+                    depth,
+                    border,
+                    format,
+                    Self::UNSIGNED_BYTE,
+                    ptr::null(),
+                ),
+            }
+        }
+    }
+
+    fn tex_image3d_f(
+        &self,
+        target: GLEnum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        depth: i32,
+        border: i32,
+        format: GLEnum,
+        pixels: Option<&[f32]>,
+    ) {
+        unsafe {
+            match pixels {
+                Some(data) => gl::TexImage3D(
+                    target,
+                    level,
+                    internalformat,
+                    width,
+                    height,
+                    depth,
+                    border,
+                    format,
+                    Self::FLOAT,
+                    mem::transmute(&data[0]),
+                ),
+                _ => gl::TexImage3D(
+                    target,
+                    level,
+                    internalformat,
+                    width,
+                    height,
+                    depth,
+                    border,
+                    format,
+                    Self::FLOAT,
+                    ptr::null(),
+                ),
             }
         }
     }
@@ -540,16 +698,16 @@ impl AbstractContext for GLContext {
             gl::DeleteTextures(1, texture);
         }
     }
-    
+
     fn active_texture(&self, _type: GLEnum) {
         unsafe {
             gl::ActiveTexture(_type);
         }
     }
-    
+
     fn generate_mipmap(&self, target: GLEnum) {
         unsafe {
-            gl::GenerateMipmap(target); 
+            gl::GenerateMipmap(target);
         }
     }
 
@@ -560,9 +718,7 @@ impl AbstractContext for GLContext {
     }
 
     fn draw_elements(&self, mode: GLEnum, count: i32, type_: GLEnum, offset: GLintptr) {
-        unsafe { 
-            gl::DrawElements(mode, count, type_, mem::transmute(offset)) 
-        }
+        unsafe { gl::DrawElements(mode, count, type_, mem::transmute(offset)) }
     }
 
     fn flush(&self) {
@@ -576,11 +732,11 @@ impl AbstractContext for GLContext {
             gl::Viewport(x, y, width, height);
         }
     }
-    
+
     fn pixel_storei(&self, pname: GLEnum, param: i32) {
         unsafe { gl::PixelStorei(pname, param) }
     }
-    
+
     fn enable(&self, cap: GLEnum) {
         unsafe {
             gl::Enable(cap);
@@ -592,11 +748,9 @@ impl AbstractContext for GLContext {
             gl::Disable(cap);
         }
     }
-    
+
     fn depth_mask(&self, flag: bool) {
-        unsafe {
-            gl::DepthMask(if flag {1} else {0})
-        }
+        unsafe { gl::DepthMask(if flag { 1 } else { 0 }) }
     }
 
     fn bind_buffer_base(&self, target: GLEnum, index: u32, buffer: Option<&GLBuffer>) {
@@ -605,16 +759,20 @@ impl AbstractContext for GLContext {
                 Some(b) => gl::BindBufferBase(target, index, *b),
                 None => gl::BindBufferBase(target, index, 0),
             }
-            
         }
     }
-    
+
     fn get_buffer_sub_data(&self, target: GLEnum, index: u32, data: &mut [f32]) {
         unsafe {
-            gl::GetBufferSubData(target, index as isize, (data.len() * mem::size_of::<f32>()) as isize, data.as_ptr() as *mut c_void)
+            gl::GetBufferSubData(
+                target,
+                index as isize,
+                (data.len() * mem::size_of::<f32>()) as isize,
+                data.as_ptr() as *mut c_void,
+            )
         }
     }
-    
+
     fn begin_transform_feedback(&self, type_: GLEnum) {
         unsafe {
             gl::BeginTransformFeedback(type_);
@@ -626,7 +784,7 @@ impl AbstractContext for GLContext {
             gl::EndTransformFeedback();
         }
     }
-    
+
     fn blend_func(&self, s_factor: GLEnum, d_factor: GLEnum) {
         unsafe {
             gl::BlendFunc(s_factor, d_factor);

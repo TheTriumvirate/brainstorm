@@ -1,11 +1,10 @@
-
 #[cfg(not(target_arch = "wasm32"))]
 use crate::opengl as ContextImpl;
 #[cfg(target_arch = "wasm32")]
 use crate::webgl as ContextImpl;
 
+use na::Matrix4;
 use std::slice;
-use na::{Matrix4};
 
 use crate::shaders::ShaderType;
 use crate::Context;
@@ -87,7 +86,7 @@ pub trait AbstractContext {
     const ONE: u32;
 
     fn get_context() -> &'static Context;
-    
+
     fn clear_color(&self, r: f32, g: f32, b: f32, a: f32);
     fn clear(&self, mask: u32);
 
@@ -119,8 +118,22 @@ pub trait AbstractContext {
     fn create_framebuffer(&self) -> Option<FrameBuffer>;
     fn bind_framebuffer(&self, target: GLEnum, framebuffer: Option<&FrameBuffer>);
     fn delete_framebuffer(&self, framebuffer: &FrameBuffer);
-    fn framebuffer_texture2d(&self, target: GLEnum, attachment: GLEnum, textarget: GLEnum, texture: &Texture, level: i32);
-    fn framebuffer_texture_layer(&self, target: GLEnum, attachment: GLEnum, texture: &Texture, level: i32, layer: i32);
+    fn framebuffer_texture2d(
+        &self,
+        target: GLEnum,
+        attachment: GLEnum,
+        textarget: GLEnum,
+        texture: &Texture,
+        level: i32,
+    );
+    fn framebuffer_texture_layer(
+        &self,
+        target: GLEnum,
+        attachment: GLEnum,
+        texture: &Texture,
+        level: i32,
+        layer: i32,
+    );
 
     fn get_attrib_location(&self, program: &Program, name: &str) -> GLUint;
     fn vertex_attrib_pointer(
@@ -135,9 +148,15 @@ pub trait AbstractContext {
     fn enable_vertex_attrib_array(&self, pointer: &GLUint);
     fn disable_vertex_attrib_array(&self, pointer: &GLUint);
     fn bind_attrib_location(&self, program: &Program, index: GLUint, name: &str);
-    
+
     fn get_uniform_location(&self, program: &Program, name: &str) -> UniformLocation;
-    fn uniform_matrix_4fv(&self, location: &UniformLocation, size: i32, transpose: bool, matrix: &Matrix4<f32>);
+    fn uniform_matrix_4fv(
+        &self,
+        location: &UniformLocation,
+        size: i32,
+        transpose: bool,
+        matrix: &Matrix4<f32>,
+    );
     fn uniform1i(&self, location: &UniformLocation, x: i32);
     fn uniform1f(&self, location: &UniformLocation, x: f32);
     fn uniform2f(&self, location: &UniformLocation, x: f32, y: f32);
@@ -147,11 +166,63 @@ pub trait AbstractContext {
     fn bind_texture(&self, target: GLEnum, texture: &Texture);
     fn unbind_texture(&self, target: GLEnum);
     fn tex_parameteri(&self, target: GLEnum, pname: GLEnum, param: i32);
-    fn tex_image2d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>);
-    fn tex_sub_image2d(&self, target: GLEnum, level: i32, xoffset: i32, yoffset: i32, width: i32, height: i32, format: GLEnum, pixels: Option<&[u8]>);
-    fn tex_image2d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>);
-    fn tex_image3d(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, depth: i32, border: i32, format: GLEnum, pixels: Option<&[u8]>);
-    fn tex_image3d_f(&self, target: GLEnum, level: i32, internalformat: i32, width: i32, height: i32, depth: i32, border: i32, format: GLEnum, pixels: Option<&[f32]>);
+    fn tex_image2d(
+        &self,
+        target: GLEnum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        border: i32,
+        format: GLEnum,
+        pixels: Option<&[u8]>,
+    );
+    fn tex_sub_image2d(
+        &self,
+        target: GLEnum,
+        level: i32,
+        xoffset: i32,
+        yoffset: i32,
+        width: i32,
+        height: i32,
+        format: GLEnum,
+        pixels: Option<&[u8]>,
+    );
+    fn tex_image2d_f(
+        &self,
+        target: GLEnum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        border: i32,
+        format: GLEnum,
+        pixels: Option<&[f32]>,
+    );
+    fn tex_image3d(
+        &self,
+        target: GLEnum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        depth: i32,
+        border: i32,
+        format: GLEnum,
+        pixels: Option<&[u8]>,
+    );
+    fn tex_image3d_f(
+        &self,
+        target: GLEnum,
+        level: i32,
+        internalformat: i32,
+        width: i32,
+        height: i32,
+        depth: i32,
+        border: i32,
+        format: GLEnum,
+        pixels: Option<&[f32]>,
+    );
     fn delete_texture(&self, texture: &Texture);
     fn active_texture(&self, _type: GLEnum);
     fn generate_mipmap(&self, target: GLEnum);
@@ -164,8 +235,8 @@ pub trait AbstractContext {
 
     fn pixel_storei(&self, pname: GLEnum, param: i32);
 
-    fn enable(&self, cap: GLEnum);    
-    fn disable(&self, cap: GLEnum);    
+    fn enable(&self, cap: GLEnum);
+    fn disable(&self, cap: GLEnum);
 
     fn depth_mask(&self, flag: bool);
 

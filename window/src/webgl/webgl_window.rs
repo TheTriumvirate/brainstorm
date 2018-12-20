@@ -5,20 +5,16 @@
 use gl_bindings::{AbstractContext, Context};
 
 use crate::{
-    Event as EventWrapper,
-    MouseButton as MouseButtonWrapper,
-    ModifierKeys,
-    Key,
-    AbstractWindow
+    AbstractWindow, Event as EventWrapper, Key, ModifierKeys, MouseButton as MouseButtonWrapper,
 };
 
 use stdweb::{
-    *,
     unstable::TryInto,
     web::event::MouseButton as WebMouseButton,
     web::event::*,
     web::html_element::CanvasElement,
     web::{document, window, IEventTarget, IParentNode},
+    *,
 };
 
 use std::cell::{Cell, RefCell};
@@ -94,52 +90,52 @@ impl AbstractWindow for WebGLWindow {
 
         canvas.add_event_listener(
             enclose!((events, pointers, prev_dist) move |event: PointerMoveEvent| {
-            let mut pointers = pointers.borrow_mut();
-            let x = js!(return @{&event}.clientX;).try_into().unwrap_or(0.0);
-            let y = js!(return @{&event}.clientY;).try_into().unwrap_or(0.0);
-                
-            for i in 0..pointers.len() {
-                if pointers[i].id == event.pointer_id() {
-                    pointers[i] = PointerData {
-                        id: event.pointer_id(),
-                        client_x: x as f32,
-                        client_y: y as f32,
-                    };
-                    break;
-                }
-            }
+                let mut pointers = pointers.borrow_mut();
+                let x = js!(return @{&event}.clientX;).try_into().unwrap_or(0.0);
+                let y = js!(return @{&event}.clientY;).try_into().unwrap_or(0.0);
 
-            if pointers.len() == 2 {
-
-                let mut ox = 0.0;
-                let mut oy = 0.0;
-                for pointer in pointers.iter() {
-                    if pointer.id != event.pointer_id() {
-                        ox = pointer.client_x;
-                        oy = pointer.client_y;
+                for i in 0..pointers.len() {
+                    if pointers[i].id == event.pointer_id() {
+                        pointers[i] = PointerData {
+                            id: event.pointer_id(),
+                            client_x: x as f32,
+                            client_y: y as f32,
+                        };
+                        break;
                     }
                 }
 
-                let dx = ox - x as f32;
-                let dy = oy - y as f32;
-                let dist = (dx * dx + dy * dy).sqrt();
+                if pointers.len() == 2 {
 
-                let p_dist = prev_dist.get();
-                if p_dist > 0.0 {
-                    let delta = (dist - p_dist) / 10.0;
-                    // TODO: zoom event
-                    events.borrow_mut().push(EventWrapper::CursorScroll(0.0, delta as f32));
+                    let mut ox = 0.0;
+                    let mut oy = 0.0;
+                    for pointer in pointers.iter() {
+                        if pointer.id != event.pointer_id() {
+                            ox = pointer.client_x;
+                            oy = pointer.client_y;
+                        }
+                    }
+
+                    let dx = ox - x as f32;
+                    let dy = oy - y as f32;
+                    let dist = (dx * dx + dy * dy).sqrt();
+
+                    let p_dist = prev_dist.get();
+                    if p_dist > 0.0 {
+                        let delta = (dist - p_dist) / 10.0;
+                        // TODO: zoom event
+                        events.borrow_mut().push(EventWrapper::CursorScroll(0.0, delta as f32));
+                    }
+
+                    prev_dist.set(dist);
+
+                }
+                else {
+
+                    events.borrow_mut().push(EventWrapper::CursorMoved{x, y});
                 }
 
-                prev_dist.set(dist);
-
-            }
-            else {
-
-                events.borrow_mut().push(EventWrapper::CursorMoved{x, y});
-            }
-
-        }),
+            }),
         );
 
         canvas.add_event_listener(enclose!((events, pointers, prev_dist) move |event: PointerUpEvent| {

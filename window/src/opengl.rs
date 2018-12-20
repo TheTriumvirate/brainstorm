@@ -2,11 +2,13 @@
 //! Go check out their code! https://github.com/sebcrozet/kiss3d
 extern crate gl;
 
-use crate::{Event as EventWrapper, MouseButton as MouseButtonWrapper, ModifierKeys, Key, AbstractWindow};
+use crate::{
+    AbstractWindow, Event as EventWrapper, Key, ModifierKeys, MouseButton as MouseButtonWrapper,
+};
 
 use glutin::{
     self,
-    dpi::{LogicalSize, LogicalPosition},
+    dpi::{LogicalPosition, LogicalSize},
     ElementState, GlContext, GlRequest, KeyboardInput as KeyboardData, ModifiersState,
     MouseScrollDelta, VirtualKeyCode,
     WindowEvent::{
@@ -91,14 +93,14 @@ impl AbstractWindow for GLWindow {
             .with_gl(GlRequest::GlThenGles {
                 opengl_version: (3, 2),
                 opengles_version: (2, 0),
-            }).with_multisampling(0)
+            })
+            .with_multisampling(0)
             .with_vsync(true);
         let gl_window = glutin::GlWindow::new(window, context, &events_loop).unwrap();
 
         unsafe {
             gl_window.make_current().unwrap();
         };
-
 
         gl::load_with(|symbol| gl_window.get_proc_address(symbol) as *const _);
 
@@ -111,8 +113,7 @@ impl AbstractWindow for GLWindow {
     }
 
     fn run_loop(mut callback: impl FnMut(f64) -> bool + 'static) {
-        while callback(0.0) {
-        }
+        while callback(0.0) {}
     }
 
     fn get_events(&mut self) -> Vec<EventWrapper> {
@@ -135,7 +136,7 @@ impl AbstractWindow for GLWindow {
     fn set_size(&mut self, width: u32, height: u32) {
         // FIXME: Do this with a call from context instead
         unsafe {
-            gl::Viewport(0,0,width as i32, height as i32);
+            gl::Viewport(0, 0, width as i32, height as i32);
         }
         self.height = height;
         self.width = width;

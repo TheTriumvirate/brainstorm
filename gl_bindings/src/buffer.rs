@@ -1,4 +1,4 @@
-use std::ops::{Index,IndexMut};
+use std::ops::{Index, IndexMut};
 
 use crate::context::GlPrimitive;
 use crate::AbstractContext;
@@ -17,27 +17,31 @@ impl BufferType {
         match *self {
             BufferType::Array => Context::ARRAY_BUFFER,
             BufferType::IndexArray => Context::ELEMENT_ARRAY_BUFFER,
-        } 
+        }
     }
 }
 
 /// Holds a GL buffer and lets you upload it to the GPU.
-pub struct Buffer<T: Clone+GlPrimitive> {
+pub struct Buffer<T: Clone + GlPrimitive> {
     buffer: NativeBuffer,
     buffer_type: BufferType,
     data: Vec<T>,
 }
 
-impl<T: Clone+GlPrimitive> Buffer<T> {
+impl<T: Clone + GlPrimitive> Buffer<T> {
     /// Creates a new buffor of the selected type.
     pub fn new(buffer_type: BufferType) -> Self {
         let context = Context::get_context();
-        
+
         let buffer = context.create_buffer().expect("Failed to create buffer");
 
-        let data : Vec<T> = Vec::new();
+        let data: Vec<T> = Vec::new();
         // assume static until update
-        Buffer {buffer, buffer_type, data}
+        Buffer {
+            buffer,
+            buffer_type,
+            data,
+        }
     }
 
     /// Resizes the buffer to the requested size.
@@ -49,7 +53,7 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
     pub fn len(&self) -> usize {
         self.data.len()
     }
-    
+
     /// Returns whether or not the buffer is empty.
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
@@ -76,7 +80,7 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
         let context = Context::get_context();
         context.bind_buffer_base(Context::TRANSFORM_FEEDBACK_BUFFER, 0, Some(&self.buffer));
     }
-    
+
     pub fn unbind_buffer_base(&self) {
         let context = Context::get_context();
         context.bind_buffer_base(Context::TRANSFORM_FEEDBACK_BUFFER, 0, None);
@@ -91,7 +95,11 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
         };
 
         let context = Context::get_context();
-        context.buffer_data(self.buffer_type.gl_type(), Some(&self.data[offset..length]), alloc_type);
+        context.buffer_data(
+            self.buffer_type.gl_type(),
+            Some(&self.data[offset..length]),
+            alloc_type,
+        );
     }
 
     /// Binds the buffer to the GPU.
@@ -101,7 +109,7 @@ impl<T: Clone+GlPrimitive> Buffer<T> {
     }
 }
 
-impl<T: Clone+GlPrimitive> Index<usize> for Buffer<T> {
+impl<T: Clone + GlPrimitive> Index<usize> for Buffer<T> {
     type Output = T;
 
     fn index(&self, index: usize) -> &T {
@@ -109,13 +117,13 @@ impl<T: Clone+GlPrimitive> Index<usize> for Buffer<T> {
     }
 }
 
-impl<T: Clone+GlPrimitive> IndexMut<usize> for Buffer<T> {
+impl<T: Clone + GlPrimitive> IndexMut<usize> for Buffer<T> {
     fn index_mut(&mut self, index: usize) -> &mut T {
         &mut self.data[index]
     }
 }
 
-impl<T: Clone+GlPrimitive> Drop for Buffer<T> {
+impl<T: Clone + GlPrimitive> Drop for Buffer<T> {
     fn drop(&mut self) {
         let context = Context::get_context();
         context.delete_buffer(&self.buffer);
