@@ -11,7 +11,7 @@ edition = "2018"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 glutin = "0.19"
-gl = {version = "*", path = "../gl"}
+gl = "0.11.0"
 
 [target.wasm32-unknown-unknown.dependencies]
 stdweb = "0.4"

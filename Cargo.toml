@@ -2,7 +2,6 @@
 
 members = [
     "brainstorm",
-    "gl",
     "gl_bindings",
     "resources",
     "window",
