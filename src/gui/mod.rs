@@ -136,8 +136,8 @@ impl Gui {
                 false
             }
             Event::CursorMoved { x, y } => {
-                state.mouse_x = (x - (size.0 as f64 / 2.0)) * 2.0 / size.0 as f64;
-                state.mouse_y = (y - (size.1 as f64 / 2.0)) * -2.0 / size.1 as f64;
+                state.mouse_x = (x - (f64::from(size.0) / 2.0)) *  2.0 / f64::from(size.0);
+                state.mouse_y = (y - (f64::from(size.1) / 2.0)) * -2.0 / f64::from(size.1);
 
                 self.map.mouse_moved(state.mouse_x, state.mouse_y, state);
                 self.world_points.mouse_moved(state.mouse_x, state.mouse_y, state);

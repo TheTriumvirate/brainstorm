@@ -52,7 +52,7 @@ impl Map {
         }
     }
 
-    pub fn set_texture(&mut self, texture: Option<Rc<Texture>>) {
+    pub fn set_texture(&mut self, texture: &Option<Rc<Texture>>) {
         self.sectionxy.set_texture(texture.clone());
         self.sectionxz.set_texture(texture.clone());
         self.sectionzy.set_texture(texture.clone());
@@ -172,7 +172,7 @@ impl MapSection {
         let coords = pos_rel.get_coordinates();
         let mut rect = Rectangle::new(coords, (0.0, 0.0, 0.0));
 
-        rect.set_shader(Some(shader.clone()));
+        rect.set_shader(Some(shader));
         Self {
             pos,
             rect,
@@ -182,7 +182,7 @@ impl MapSection {
     }
 
     pub fn set_texture(&mut self, texture: Option<Rc<Texture>>) {
-        self.rect.set_texture(texture.clone());
+        self.rect.set_texture(texture);
     }
 
     pub fn get_target(&self) -> (f32, f32) {

@@ -34,7 +34,7 @@ impl WorldPoints {
         Self {
             screensize,
             points: Vec::new(),// ,
-            font: font.clone(),
+            font,
             camera_pos: (0.0, 0.0, 0.0),
             target_pos: (0.0, 0.0, 0.0),
             view_matrix: Matrix4::<f32>::identity(),
@@ -46,7 +46,7 @@ impl WorldPoints {
 
         self.points.push(WorldPoint {
             text: Text::new("Center".to_owned(), self.font.clone(), 0.0, 0.0 + 0.03, 0.0, self.screensize),
-            dot: Circle::new(0.0, 0.0, 0.0, 0.005, 3.1415 / 2.0, (0.0,1.0,0.0), true),
+            dot: Circle::new(0.0, 0.0, 0.0, 0.005, f32::consts::PI / 2.0, (0.0,1.0,0.0), true),
             hovered: false,
         });
 
@@ -55,7 +55,7 @@ impl WorldPoints {
             let (x, y, z) = point;
             self.points.push(WorldPoint {
                 text: Text::new(format!("point {}", id).to_owned(), self.font.clone(), x, y + 0.03, z, self.screensize),
-                dot: Circle::new(x, y, z, 0.005, 3.1415 / 2.0, (0.0,1.0,0.0), true),
+                dot: Circle::new(x, y, z, 0.005, f32::consts::PI / 2.0, (0.0,1.0,0.0), true),
                 hovered: false,
             });
             id += 1;
@@ -70,8 +70,8 @@ impl WorldPoints {
         self.target_pos = pos;
     }
 
-    pub fn set_view_matrix(&mut self, view_matrix: &Matrix4<f32>) {
-        self.view_matrix = view_matrix.clone();
+    pub fn set_view_matrix(&mut self, view_matrix: Matrix4<f32>) {
+        self.view_matrix = view_matrix;
     }
 }
 

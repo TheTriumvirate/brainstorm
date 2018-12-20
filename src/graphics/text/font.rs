@@ -58,13 +58,12 @@ impl<'a> Font<'a> {
     pub fn update_texture(
         &mut self,
         text: &str,
-        x: f32,
-        y: f32,
-        z: f32,
+        pos: (f32, f32, f32),
         vertices: &mut Buffer<f32>,
         indices: &mut Buffer<u16>,
         screen_size: (f32, f32),
     ) -> (f32, f32) {
+        let (x, y, z) = pos;
         let glyphs = self.layout_paragraph(Scale::uniform(24.0), 512, text);
 
         for glyph in &glyphs {
@@ -180,9 +179,8 @@ impl<'a> Font<'a> {
         let mut last_glyph_id = None;
         for c in text.nfc() {
             if c.is_control() {
-                match c {
-                    '\n' => caret = point(0.0, caret.y + advance_height),
-                    _ => {}
+                if c == '\n'{
+                    caret = point(0.0, caret.y + advance_height);
                 }
                 continue;
             }

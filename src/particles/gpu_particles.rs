@@ -239,7 +239,7 @@ impl Drawable for GPUParticleEngine {
             DrawMode::LINES,
             &self.vertices,
             &self.indices,
-            self.render_states(),
+            &self.render_states(),
             view_matrix,
         );
         //let len = self.vertices.len() as i32 / 2 / (MAXSTREAMLETSIZE) as i32;

@@ -14,7 +14,7 @@ impl Cube {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
-        let (x, y, z) = pos;
+        let (pos_x, pos_y, pos_z) = pos;
         let (w, h, d) = size;
 
         let mut data = Vec::new();
@@ -57,14 +57,14 @@ impl Cube {
         data.extend_from_slice(&[x  , y+h, z+d, color.0, color.1, color.2, 0.0, 1.0]);
         */
 
-        data.extend_from_slice(&[x  , y  , z  , color.0, color.1, color.2, 0.0, 0.0]);
-        data.extend_from_slice(&[x+w, y  , z  , color.0, color.1, color.2, 0.0, 0.0]);
-        data.extend_from_slice(&[x  , y+h, z  , color.0, color.1, color.2, 0.0, 0.0]);
-        data.extend_from_slice(&[x  , y  , z+d, color.0, color.1, color.2, 0.0, 0.0]);
-        data.extend_from_slice(&[x+w, y+h, z  , color.0, color.1, color.2, 0.0, 0.0]);
-        data.extend_from_slice(&[x+w, y  , z+d, color.0, color.1, color.2, 0.0, 0.0]);
-        data.extend_from_slice(&[x  , y+h, z+d, color.0, color.1, color.2, 0.0, 0.0]);
-        data.extend_from_slice(&[x+w, y+h, z+d, color.0, color.1, color.2, 0.0, 0.0]);
+        data.extend_from_slice(&[pos_x    , pos_y    , pos_z    , color.0, color.1, color.2, 0.0, 0.0]);
+        data.extend_from_slice(&[pos_x + w, pos_y    , pos_z    , color.0, color.1, color.2, 0.0, 0.0]);
+        data.extend_from_slice(&[pos_x    , pos_y + h, pos_z    , color.0, color.1, color.2, 0.0, 0.0]);
+        data.extend_from_slice(&[pos_x    , pos_y    , pos_z + d, color.0, color.1, color.2, 0.0, 0.0]);
+        data.extend_from_slice(&[pos_x + w, pos_y + h, pos_z    , color.0, color.1, color.2, 0.0, 0.0]);
+        data.extend_from_slice(&[pos_x + w, pos_y    , pos_z + d, color.0, color.1, color.2, 0.0, 0.0]);
+        data.extend_from_slice(&[pos_x    , pos_y + h, pos_z + d, color.0, color.1, color.2, 0.0, 0.0]);
+        data.extend_from_slice(&[pos_x + w, pos_y + h, pos_z + d, color.0, color.1, color.2, 0.0, 0.0]);
 
         indices.set_data(&[
             0, 1,
@@ -97,6 +97,6 @@ impl Cube {
 
 impl Drawable for Cube {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
-        render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, self.render_states(), view_matrix);
+        render_target::draw_indices(DrawMode::LINES, &self.vertices, &self.indices, &self.render_states(), view_matrix);
     }
 }

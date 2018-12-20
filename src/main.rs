@@ -139,7 +139,7 @@ impl App {
         gui.seeding_loc_slider
             .set_steps(state.directional_data.len().max(1) as u32);
 
-        gui.map.set_texture(Some(gpu_field.get_texture()));
+        gui.map.set_texture(&Some(gpu_field.get_texture()));
 
         gui.world_points
             .set_points(particles.calculate_highly_directional_positions());
@@ -153,7 +153,7 @@ impl App {
             gui,
             mid_reload: false,
             gpu_field,
-            gpu_particles: gpu_particles,
+            gpu_particles,
             march,
             gpu_particle_count,
         }
@@ -163,14 +163,12 @@ impl App {
     pub fn run(&mut self) -> bool {
         // Handle events
         for event in &self.window.get_events() {
-            match event {
-                Event::Resized(w, h) => {
-                    self.state.window_w = *w;
-                    self.state.window_h = *h;
-                    self.window.set_size(*w as u32, *h as u32)
-                }
-                _ => {}
+            if let Event::Resized(w, h) = event {
+                self.state.window_w = *w;
+                self.state.window_h = *h;
+                self.window.set_size(*w as u32, *h as u32)
             };
+
             let consumed = self
                 .gui
                 .handle_event(&event, &mut self.state, self.window.get_size());
@@ -237,7 +235,7 @@ impl App {
             context.depth_mask(true);
             context.blend_func(Context::SRC_ALPHA, Context::ONE_MINUS_SRC_ALPHA);
         } else {
-            self.particles.update(&self.state, &mut self.camera);
+            self.particles.update(&self.state, &self.camera);
             self.particles.draw(&projection_matrix, &self.state);
         }
 
@@ -251,7 +249,7 @@ impl App {
         if self.state.mesh_transparency < 1.0 {
             context.depth_mask(true);
         }
-        self.gui.world_points.set_view_matrix(&projection_matrix);
+        self.gui.world_points.set_view_matrix(projection_matrix);
         self.gui.draw_3d_elements(&projection_matrix);
 
         context.disable(Context::DEPTH_TEST);
@@ -289,7 +287,7 @@ impl App {
                                 .set_steps(self.state.directional_data.len().max(1) as u32);
                             self.gpu_field = gpu_field_provider;
                             self.gpu_particles = GPUParticleEngine::new(self.gpu_particle_count);
-                            self.gui.map.set_texture(Some(self.gpu_field.get_texture()));
+                            self.gui.map.set_texture(&Some(self.gpu_field.get_texture()));
                             self.gui.world_points
                                 .set_points(self.particles.calculate_highly_directional_positions());
                         }

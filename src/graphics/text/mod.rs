@@ -38,7 +38,7 @@ impl<'a> Drawable for Text<'a> {
             DrawMode::TRIANGLES,
             &self.vertices,
             &self.indices,
-            self.render_states(),
+            &self.render_states(),
             view_matrix,
         );
     }
@@ -56,12 +56,9 @@ impl<'a> Text<'a> {
         let mut vertices: Buffer<f32> = Buffer::new(BufferType::Array);
         let mut indices: Buffer<u16> = Buffer::new(BufferType::IndexArray);
 
-        let font = font.clone();
         let (width, height) = font.borrow_mut().update_texture(
             &text,
-            x,
-            y,
-            z,
+            (x, y, z),
             &mut vertices,
             &mut indices,
             screen_size,
@@ -84,9 +81,7 @@ impl<'a> Text<'a> {
     pub fn set_position(&mut self, x: f32, y: f32, z: f32, screen_size: (f32, f32)) {
         let (width, height) = self.font.borrow_mut().update_texture(
             &self.text,
-            x,
-            y,
-            z,
+            (x, y, z),
             &mut self.vertices,
             &mut self.indices,
             screen_size,
@@ -100,9 +95,7 @@ impl<'a> Text<'a> {
         self.text = text;
         let (width, height) = self.font.borrow_mut().update_texture(
             &self.text,
-            self.x,
-            self.y,
-            self.z,
+            (self.x, self.y, self.z),
             &mut self.vertices,
             &mut self.indices,
             self.screen_size,

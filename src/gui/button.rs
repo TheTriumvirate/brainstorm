@@ -36,7 +36,7 @@ impl Button {
         font: Rc<RefCell<Font<'static>>>,
     ) -> Self {
         let pos_rel = pos_abs.to_relative(screensize);
-        let mut color_toggled = color.clone();
+        let mut color_toggled = color;
         color_toggled.0 += 0.1;
         color_toggled.1 += 0.1;
         color_toggled.2 += 0.1;

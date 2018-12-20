@@ -12,7 +12,7 @@ pub fn bind_all(states: &RenderStates, view_matrix: &Matrix4<f32>) {
     };
 
     let proj_mat: Matrix4<f32> = match states.transform {
-        Some(m) => m.clone(),
+        Some(m) => *m,
         _ => Matrix4::identity(),
     };
 
@@ -47,7 +47,7 @@ pub fn draw_indices<T>(
     mode: DrawMode,
     vertex_data: &Buffer<f32>,
     index_data: &Buffer<T>,
-    states: RenderStates,
+    states: &RenderStates,
     view_matrix: &Matrix4<f32>,
 ) where
     T: GlPrimitive,
@@ -73,7 +73,7 @@ pub fn draw_vertex_array(
     first: i32,
     count: i32,
     vertex_data: &Buffer<f32>,
-    states: RenderStates,
+    states: &RenderStates,
     view_matrix: &Matrix4<f32>,
 ) {
     let context = Context::get_context();

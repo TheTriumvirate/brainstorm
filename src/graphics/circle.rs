@@ -79,7 +79,6 @@ impl Circle {
         let rot = self.rotation;
         let (ax, ay, az) = self.rotation_axis;
         let radius = self.radius;
-        let (r, g, b) = self.color;
 
         if self.filled {
             vertex_data.extend_from_slice(&[x, y, z, 1.0, 1.0, 1.0, 0.5, 0.5]);
@@ -123,9 +122,9 @@ impl Circle {
                     dx,
                     dy,
                     dz,
-                    r,
-                    g,
-                    b,
+                    self.color.0,
+                    self.color.1,
+                    self.color.2,
                     dx / 2.0 + 0.5,
                     dy / 2.0 + 0.5,
                 ]);
@@ -155,10 +154,10 @@ impl Circle {
 impl Drawable for Circle {
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         render_target::draw_indices(
-            self.draw_mode.clone(),
+            self.draw_mode,
             &self.vertices,
             &self.indices,
-            self.render_states(),
+            &self.render_states(),
             view_matrix,
         );
     }

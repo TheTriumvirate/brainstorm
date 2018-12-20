@@ -23,7 +23,7 @@ impl Drawable for MarchingCubes {
 
     fn draw_transformed(&self, view_matrix: &Matrix4<f32>) {
         let len = self.vertices.len() as i32 / 6;
-        render_target::draw_vertex_array(DrawMode::TRIANGLES, 0, len, &self.vertices, self.render_states(), view_matrix)
+        render_target::draw_vertex_array(DrawMode::TRIANGLES, 0, len, &self.vertices, &self.render_states(), view_matrix)
     }
 }
 
@@ -144,6 +144,7 @@ impl MarchingCubes {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn push_edge(edges: u32, edge: usize, verts: &mut [Vector3], epsilon: f32, v1: Vector3, v2: Vector3, m1: f32, m2: f32) {
         if edges & (1<<edge) != 0 {
             let vert = MarchingCubes::interp(epsilon, v1, v2, m1, m2);

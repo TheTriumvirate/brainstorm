@@ -51,7 +51,7 @@ pub fn highpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
             context.highpass_filter = value;
         }),
         "High-pass filter".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -75,7 +75,7 @@ pub fn speed_multiplier(
             context.speed_multiplier = value;
         }),
         "Speed".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -96,7 +96,7 @@ pub fn seeding_size(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
             context.seeding_size = value;
         }),
         "Seeding size".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -117,7 +117,7 @@ pub fn lifetime(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box
             context.lifetime = value * 500.0;
         }),
         "Lifetime".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -141,7 +141,7 @@ pub fn mesh_transparency(
             context.mesh_transparency = value;
         }),
         "Mesh transparency".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -162,7 +162,7 @@ pub fn particle_size(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -
             context.particle_size = value * 16.0;
         }),
         "Particle size".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -186,7 +186,7 @@ pub fn particle_spawn_rate(
             context.particle_respawn_per_tick = (value * 2000.0) as u32;
         }),
         "Particle spawn rate".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -206,14 +206,14 @@ pub fn directional_areas(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>
         Box::new(|ref mut context, value| {
             let directional = &context.directional_data;
             let idx = (value * (directional.len() as f32)).round() as usize;
-            if idx == 0 || idx - 1 >= directional.len() {
+            if idx == 0 || idx > directional.len() {
                 context.camera_target = (0.0, 0.0, 0.0); // reset to middle
             } else {
                 context.camera_target = directional[idx - 1];
             }
         }),
         "Seeding point".to_owned(),
-        font.clone(),
+        font,
     )
 }
 
@@ -242,7 +242,7 @@ pub fn load_file(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Bo
             js!(openFileDialog());
         }),
         "       Load file".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -261,7 +261,7 @@ pub fn toggle_ui(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Bu
         true,
         Box::new(|ref mut _context, _toggle_state| {}),
         "     Toggle UI".to_owned(),
-        font.clone(),
+        font,
     )
 }
 
@@ -276,7 +276,7 @@ pub fn status_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
             margin_horizontal: 10,
         },
         screensize,
-        font.clone(),
+        font,
     )
 }
 
@@ -297,7 +297,7 @@ pub fn move_camera_x_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
             context.camera_target.2 += DELTA_MOVEMENT;
         }),
         "   W".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -318,7 +318,7 @@ pub fn move_camera_x_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
             context.camera_target.2 -= DELTA_MOVEMENT;
         }),
         "   S".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -339,7 +339,7 @@ pub fn move_camera_y_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
             context.camera_target.1 += DELTA_MOVEMENT;
         }),
         "   Q".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -360,7 +360,7 @@ pub fn move_camera_y_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
             context.camera_target.1 -= DELTA_MOVEMENT;
         }),
         "   E".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -381,7 +381,7 @@ pub fn move_camera_z_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
             context.camera_target.0 += DELTA_MOVEMENT;
         }),
         "   A".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -402,7 +402,7 @@ pub fn move_camera_z_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
             context.camera_target.0 -= DELTA_MOVEMENT;
         }),
         "   D".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -418,7 +418,7 @@ pub fn credits_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -
         },
         screensize,
         "By Robin Grundvåg, Vegard Itland and Stian Soltvedt".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -440,7 +440,7 @@ pub fn cpu_gpu_particles_toggle(
         true,
         Box::new(|ref mut context, toggle_state| context.use_gpu_particles = toggle_state),
         "     Use GPU".to_owned(),
-        font.clone(),
+        font,
     ))
 }
 
@@ -459,7 +459,7 @@ pub fn toggle_world_points(screensize: (f32, f32), font: Rc<RefCell<Font<'static
         true,
         Box::new(|ref mut _context, _toggle_state| {}),
         "  Toggle points".to_owned(),
-        font.clone(),
+        font,
     )
 }
 
@@ -491,5 +491,5 @@ pub fn map(screensize: (f32, f32)) -> Map {
 }
 
 pub fn world_points(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> WorldPoints {
-    WorldPoints::new(screensize, font.clone())
+    WorldPoints::new(screensize, font)
 }

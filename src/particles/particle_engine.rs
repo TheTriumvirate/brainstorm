@@ -126,9 +126,9 @@ impl ParticleEngine {
                 let mut dz: f32 = self.rng.gen_range(-1.0, 1.0);
                 let dist = self.rng.gen_range(0.0, radius * radius).sqrt();
                 let dt = (dx * dx + dy * dy + dz * dz).sqrt();
-                dx = dx / dt;
-                dy = dy / dt;
-                dz = dz / dt;
+                dx /= dt;
+                dy /= dt;
+                dz /= dt;
                 data.position = (dx * dist + tx, dy * dist + ty, dz * dist + tz);
                 respawned += 1;
             }

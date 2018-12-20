@@ -20,6 +20,7 @@ fn lerp2d(lxly: Vector4, lxuy: Vector4, uxly: Vector4, uxuy: Vector4, t1: f32, t
     lerp(s, v, t2)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn lerp3d(
     // naming scheme: face <n> <lower|upper>x <lower|upper>y
     f1lxly: Vector4,
