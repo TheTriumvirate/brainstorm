@@ -135,7 +135,7 @@ pub fn mesh_transparency(
             margin_horizontal: 285,
         },
         50,
-        0.1,
+        0.02,
         screensize,
         Box::new(|ref mut context, value| {
             context.mesh_transparency = value;

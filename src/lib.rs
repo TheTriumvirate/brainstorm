@@ -81,7 +81,7 @@ impl State {
             speed_multiplier: 0.5,
             seeding_size: 1.0,
             lifetime: 100.0,
-            mesh_transparency: 0.1,
+            mesh_transparency: 0.02,
             particle_size: 8.0,
             particle_respawn_per_tick: 1000,
             file_path: None,
@@ -269,7 +269,7 @@ impl App {
         self.march.set_light_dir((cx, cy, cz));
 
         // Clear screen
-        context.clear_color(0.0, 0.0, 0.0, 1.0);
+        context.clear_color(28.0/255.0, 29.0/255.0, 28.0/255.0, 1.0);
         context.clear(Context::COLOR_BUFFER_BIT);
         context.clear(Context::DEPTH_BUFFER_BIT);
 
