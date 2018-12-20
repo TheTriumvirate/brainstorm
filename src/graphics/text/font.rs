@@ -179,7 +179,7 @@ impl<'a> Font<'a> {
         let mut last_glyph_id = None;
         for c in text.nfc() {
             if c.is_control() {
-                if c == '\n'{
+                if c == '\n' {
                     caret = point(0.0, caret.y + advance_height);
                 }
                 continue;

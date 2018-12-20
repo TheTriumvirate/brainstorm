@@ -14,10 +14,10 @@ mod world_points;
 use std::{cell::RefCell, rc::Rc};
 
 use crate::graphics::{Drawable, Font};
+use crate::State;
 use na::Matrix4;
 use resources::fonts;
 use window::{Event, Key, ModifierKeys, MouseButton};
-use crate::State;
 
 use self::{
     button::Button, label::Label, map::Map, model_bound::ModelBound, slider::Slider,
@@ -136,11 +136,12 @@ impl Gui {
                 false
             }
             Event::CursorMoved { x, y } => {
-                state.mouse_x = (x - (f64::from(size.0) / 2.0)) *  2.0 / f64::from(size.0);
+                state.mouse_x = (x - (f64::from(size.0) / 2.0)) * 2.0 / f64::from(size.0);
                 state.mouse_y = (y - (f64::from(size.1) / 2.0)) * -2.0 / f64::from(size.1);
 
                 self.map.mouse_moved(state.mouse_x, state.mouse_y, state);
-                self.world_points.mouse_moved(state.mouse_x, state.mouse_y, state);
+                self.world_points
+                    .mouse_moved(state.mouse_x, state.mouse_y, state);
                 if self.map.clicked() {
                     // TODO: Set camera position
                     state.camera_target = self.map.get_target();
@@ -168,17 +169,29 @@ impl Gui {
                         self.world_points.click(state.mouse_x, state.mouse_y, state);
                         handled = true;
                     }
-                    if self.ui_visible_button.is_within(state.mouse_x, state.mouse_y) {
-                        self.ui_visible_button.click(state.mouse_x, state.mouse_y, state);
+                    if self
+                        .ui_visible_button
+                        .is_within(state.mouse_x, state.mouse_y)
+                    {
+                        self.ui_visible_button
+                            .click(state.mouse_x, state.mouse_y, state);
                         handled = true;
                     }
                     if self.ui_visible_button.toggle_state() {
-                        if self.world_points_toggle.is_within(state.mouse_x, state.mouse_y) {
-                            self.world_points_toggle.click(state.mouse_x, state.mouse_y, state);
+                        if self
+                            .world_points_toggle
+                            .is_within(state.mouse_x, state.mouse_y)
+                        {
+                            self.world_points_toggle
+                                .click(state.mouse_x, state.mouse_y, state);
                             handled = true;
                         }
-                        if self.seeding_loc_slider.is_within(state.mouse_x, state.mouse_y) {
-                            self.seeding_loc_slider.click(state.mouse_x, state.mouse_y, state);
+                        if self
+                            .seeding_loc_slider
+                            .is_within(state.mouse_x, state.mouse_y)
+                        {
+                            self.seeding_loc_slider
+                                .click(state.mouse_x, state.mouse_y, state);
                             handled = true;
                         }
                         for element in &mut self.ui_elements {

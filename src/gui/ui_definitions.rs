@@ -4,9 +4,9 @@
 use nfd;
 #[cfg(not(target_arch = "wasm32"))]
 use std::path::PathBuf;
+use std::{cell::RefCell, rc::Rc};
 #[cfg(target_arch = "wasm32")]
 use stdweb::*;
-use std::{cell::RefCell, rc::Rc};
 
 use super::{Button, Label, Map, Slider, StatusLabel, UiElement, WorldPoints};
 use crate::graphics::{position, Font};

@@ -49,7 +49,7 @@ impl GPUFieldProvider {
                 TextureFormat::RGBA,
                 &data[..],
                 false,
-            ))
+            )),
         }
     }
 

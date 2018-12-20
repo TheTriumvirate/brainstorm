@@ -4,9 +4,9 @@ use rand::{FromEntropy, Rng};
 
 use std::{f32, str};
 
-use gl_bindings::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
 use crate::particles::fieldprovider::FieldProvider;
 use crate::State;
+use gl_bindings::{shaders, AbstractContext, Buffer, BufferType, Context, UniformLocation};
 
 use crate::camera::{ArcBall, Camera};
 
@@ -110,9 +110,8 @@ impl ParticleEngine {
         let speed_multiplier = 0.016 * state.speed_multiplier;
 
         let mut respawned = 0;
-        
-        for i in 0..PARTICLE_COUNT {
 
+        for i in 0..PARTICLE_COUNT {
             let mut data = &mut self.particles[i];
             // Respawn particle if it's too old.
             if data.lifetime > state.lifetime {

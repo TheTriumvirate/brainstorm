@@ -5,29 +5,22 @@ mod gui;
 mod particles;
 mod state;
 
-use gl_bindings::{AbstractContext, Context};
-#[cfg(not(target_arch = "wasm32"))]
-use structopt::StructOpt;
-use std::{
-    f32,
-    io::Read,
-    path::PathBuf
-};
-use window::{AbstractWindow, Event, Window};
+pub use crate::state::State;
 use crate::{
     camera::Camera,
     file_loading::FileResult,
     graphics::Drawable,
     gui::Gui,
     particles::{
-        fieldprovider::FieldProvider,
-        gpu_fieldprovider::GPUFieldProvider,
-        gpu_particles::GPUParticleEngine,
-        MarchingCubes,
-        ParticleEngine
+        fieldprovider::FieldProvider, gpu_fieldprovider::GPUFieldProvider,
+        gpu_particles::GPUParticleEngine, MarchingCubes, ParticleEngine,
     },
 };
-pub use crate::state::State;
+use gl_bindings::{AbstractContext, Context};
+use std::{f32, io::Read, path::PathBuf};
+#[cfg(not(target_arch = "wasm32"))]
+use structopt::StructOpt;
+use window::{AbstractWindow, Event, Window};
 
 #[cfg(target_arch = "wasm32")]
 use stdweb::*;
@@ -54,7 +47,7 @@ struct Opt {
     /// Start with GPU particles instead of CPU particles.
     #[structopt(short = "g", long = "gpu")]
     gpu: bool,
-    
+
     /// Number of particles (squared) to use on the GPU. It's recommended to use a power
     /// of two, like 256, 512 or 1024.
     #[structopt(short = "c", long = "gpu-particle-count", default_value = "512")]
@@ -175,8 +168,12 @@ impl App {
 
             if !consumed {
                 self.camera.handle_events(&event);
-                self.gui.world_points.set_camera_pos(self.camera.get_position());
-                self.gui.world_points.set_camera_target_pos(self.camera.get_target());
+                self.gui
+                    .world_points
+                    .set_camera_pos(self.camera.get_position());
+                self.gui
+                    .world_points
+                    .set_camera_target_pos(self.camera.get_target());
             }
         }
 
@@ -185,7 +182,7 @@ impl App {
             self.camera.set_target_position(self.state.camera_target);
             self.gui.seeding_sphere.retarget(self.state.camera_target);
             self.gui.map.set_target(self.state.camera_target);
-        }        
+        }
 
         // Replace particle data if requested.
         // Special preparation for web due to it's asynchronous nature.
@@ -287,9 +284,12 @@ impl App {
                                 .set_steps(self.state.directional_data.len().max(1) as u32);
                             self.gpu_field = gpu_field_provider;
                             self.gpu_particles = GPUParticleEngine::new(self.gpu_particle_count);
-                            self.gui.map.set_texture(&Some(self.gpu_field.get_texture()));
-                            self.gui.world_points
-                                .set_points(self.particles.calculate_highly_directional_positions());
+                            self.gui
+                                .map
+                                .set_texture(&Some(self.gpu_field.get_texture()));
+                            self.gui.world_points.set_points(
+                                self.particles.calculate_highly_directional_positions(),
+                            );
                         }
                     },
                     Err(e) => self.gui.status.set_status(e),

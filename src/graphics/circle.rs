@@ -1,6 +1,6 @@
 #![allow(dead_code)] // Not yet in use.
-use gl_bindings::{Buffer, BufferType};
 use crate::graphics::{render_target, DrawMode, Drawable};
+use gl_bindings::{Buffer, BufferType};
 use na::Matrix4;
 use std::f32;
 

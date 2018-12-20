@@ -1,8 +1,8 @@
 use na::Matrix4;
 
-use gl_bindings::{AbstractContext, Context};
 use crate::graphics::{Cube, Drawable};
 use crate::gui::UiElement;
+use gl_bindings::{AbstractContext, Context};
 
 pub struct ModelBound {
     bound: Cube,

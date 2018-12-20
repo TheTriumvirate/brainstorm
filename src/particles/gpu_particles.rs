@@ -1,8 +1,8 @@
+use crate::graphics::{render_target, DrawMode, Drawable};
 use gl_bindings::{
     shaders::OurShader, shaders::ShaderAttribute, AbstractContext, Buffer, BufferType, Context,
     FrameBuffer, Texture, TextureFormat,
 };
-use crate::graphics::{render_target, DrawMode, Drawable};
 use resources::shaders::{
     GPU_PARTICLES_FRAGMENT_SHADER, GPU_PARTICLES_UPDATE_FRAGMENT_SHADER,
     GPU_PARTICLES_UPDATE_VERTEX_SHADER, GPU_PARTICLES_VERTEX_SHADER,
@@ -56,8 +56,10 @@ impl GPUParticleEngine {
                     data.push(0.0);
                     data.push(255.0);
 
-                    particle_data.push(u as f32 / (texture_size as f32) + 0.5 / texture_size as f32);
-                    particle_data.push(v as f32 / (texture_size as f32) + 0.5 / texture_size as f32);
+                    particle_data
+                        .push(u as f32 / (texture_size as f32) + 0.5 / texture_size as f32);
+                    particle_data
+                        .push(v as f32 / (texture_size as f32) + 0.5 / texture_size as f32);
 
                     if q == 0 {
                         noise_data.push(rng.gen_range(0.0, 1.0));
@@ -157,7 +159,8 @@ impl GPUParticleEngine {
         //if self.timer < 1.0 {
         //    return;
         //}
-        self.update_shader.uniform1f("u_size", self.texture_size as f32);
+        self.update_shader
+            .uniform1f("u_size", self.texture_size as f32);
         self.update_shader
             .uniform1f("u_speed", state.speed_multiplier * 0.016);
         self.update_shader

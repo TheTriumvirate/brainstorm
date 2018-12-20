@@ -76,7 +76,8 @@ fn handle_file_ext(file_ext: &str, data: &[u8], state: &State) -> Result<FileRes
             create_providers(vector_field)
         }
         "nhdr" => {
-            let string_rep = std::str::from_utf8(data).map_err(|e| format!("Parse error: {}", e))?;
+            let string_rep =
+                std::str::from_utf8(data).map_err(|e| format!("Parse error: {}", e))?;
             Ok(FileResult::OptionsFile(
                 reparser::Options::from_header_file(string_rep.lines()),
             ))
