@@ -4,7 +4,6 @@ use std::{f32, rc::Rc};
 
 pub struct GPUFieldProvider {
     texture: Rc<Texture>,
-    size: usize,
 }
 
 impl GPUFieldProvider {
@@ -50,13 +49,8 @@ impl GPUFieldProvider {
                 TextureFormat::RGBA,
                 &data[..],
                 false,
-            )),
-            size: x.depth,
+            ))
         }
-    }
-
-    pub fn len(&self) -> usize {
-        self.size
     }
 
     pub fn get_texture(&self) -> Rc<Texture> {

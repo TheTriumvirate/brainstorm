@@ -206,10 +206,6 @@ impl GPUParticleEngine {
         self.swap = !self.swap;
     }
 
-    pub fn get_layer(&self) -> i32 {
-        self.layer
-    }
-
     pub fn update_texture(&self) -> Rc<Texture> {
         if !self.swap {
             self.texture.clone()

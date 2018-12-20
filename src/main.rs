@@ -161,8 +161,6 @@ impl App {
 
     /// Runs the application for one frame.
     pub fn run(&mut self) -> bool {
-        let context = Context::get_context();
-
         // Handle events
         for event in &self.window.get_events() {
             match event {

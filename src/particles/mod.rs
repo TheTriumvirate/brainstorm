@@ -5,16 +5,8 @@ use serde_derive::{Deserialize, Serialize};
 pub mod fieldprovider;
 pub mod gpu_fieldprovider;
 pub mod gpu_particles;
-
-pub enum EngineType {
-    CPU,
-    GPU,
-}
-
-pub enum FieldProviderType {
-    CPU(fieldprovider::FieldProvider),
-    GPU(gpu_fieldprovider::GPUFieldProvider),
-}
+mod marching_cubes;
+mod particle_engine;
 
 pub type Vector4 = (f32, f32, f32, f32);
 
@@ -27,11 +19,5 @@ pub struct VectorField {
     directional: Vec<(f32, f32, f32)>,
 }
 
-mod particle_engine;
-pub use self::particle_engine::ParticleEngine;
-
-mod marching_cubes;
 pub use self::marching_cubes::MarchingCubes;
-
-mod streamlines;
-pub use self::streamlines::Streamlines;
+pub use self::particle_engine::ParticleEngine;

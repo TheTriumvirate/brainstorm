@@ -20,7 +20,6 @@ fn lerp2d(lxly: Vector4, lxuy: Vector4, uxly: Vector4, uxuy: Vector4, t1: f32, t
     lerp(s, v, t2)
 }
 
-#[allow(unknown_lints, too_many_arguments)]
 fn lerp3d(
     // naming scheme: face <n> <lower|upper>x <lower|upper>y
     f1lxly: Vector4,
@@ -130,14 +129,5 @@ impl FieldProvider {
 
     pub fn directional(&self) -> &[(f32, f32, f32)] {
         &self.directional
-    }
-
-    pub fn fa(&self, (x, y, z): (f32, f32, f32)) -> f32 {
-        let x = x * (self.width as f32) + (self.width as f32) / 2.0;
-        let y = y * (self.height as f32) + (self.height as f32) / 2.0;
-        let z = z * (self.depth as f32) + (self.depth as f32) / 2.0;
-        return self
-            .get_vec((x.round() as usize, y.round() as usize, z.round() as usize))
-            .3;
     }
 }

@@ -21,6 +21,7 @@ use std::rc::Rc;
 use na::Matrix4;
 
 #[derive(Copy, Clone)]
+#[allow(dead_code)]
 pub enum DrawMode {
     TRIANGLES,
     LINES,
