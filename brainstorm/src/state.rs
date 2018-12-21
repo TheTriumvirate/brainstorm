@@ -42,7 +42,7 @@ impl State {
             camera_target: (0.0, 0.0, 0.0),
             window_w: 0.0,
             window_h: 0.0,
-            use_gpu_particles: false,
+            use_gpu_particles: true,
             directional_data: Vec::new(),
             options_file: None,
             particle_transparency: 0.2,

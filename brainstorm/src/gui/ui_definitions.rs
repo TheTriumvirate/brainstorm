@@ -199,10 +199,10 @@ pub fn transparency(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
             margin_horizontal: 40,
         },
         100,
-        0.5,
+        0.2,
         screensize,
         Box::new(|ref mut context, value| {
-            context.particle_transparency = value / 2.5;
+            context.particle_transparency = value;
         }),
         "GPU Particle transparency".to_owned(),
         font,
