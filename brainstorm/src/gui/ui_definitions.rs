@@ -11,8 +11,6 @@ use stdweb::*;
 use super::{Button, Label, Map, Slider, StatusLabel, UiElement, WorldPoints};
 use crate::graphics::{position, Font};
 
-const DELTA_MOVEMENT: f32 = 0.05;
-
 /// A slider acting as a low-pass filter.
 pub fn lowpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
     Box::new(Slider::new(
@@ -190,9 +188,9 @@ pub fn particle_spawn_rate(
     ))
 }
 
-/// A slider controlling which of the strongly directional areas the spawn point should jump to
-pub fn directional_areas(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Slider {
-    Slider::new(
+/// A slider controlling the particle transparency
+pub fn transparency(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+    Box::new(Slider::new(
         position::Absolute {
             height: 40,
             width: 225,
@@ -200,21 +198,15 @@ pub fn directional_areas(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>
             margin_vertical: 360,
             margin_horizontal: 40,
         },
-        1,
-        0.0,
+        100,
+        0.5,
         screensize,
         Box::new(|ref mut context, value| {
-            let directional = &context.directional_data;
-            let idx = (value * (directional.len() as f32)).round() as usize;
-            if idx == 0 || idx > directional.len() {
-                context.camera_target = (0.0, 0.0, 0.0); // reset to middle
-            } else {
-                context.camera_target = directional[idx - 1];
-            }
+            context.particle_transparency = value / 2.5;
         }),
-        "Seeding point".to_owned(),
+        "GPU Particle transparency".to_owned(),
         font,
-    )
+    ))
 }
 
 /// A button letting the user load a new file.
@@ -278,132 +270,6 @@ pub fn status_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
         screensize,
         font,
     )
-}
-
-/// A button to move the camera forwards
-pub fn move_camera_x_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
-    Box::new(Button::new(
-        position::Absolute {
-            height: 40,
-            width: 40,
-            anchor: position::WindowCorner::BotLeft,
-            margin_vertical: 90,
-            margin_horizontal: 250,
-        },
-        (0.44, 0.5, 0.56),
-        screensize,
-        false,
-        Box::new(|ref mut context, _toggle_state| {
-            context.camera_target.2 += DELTA_MOVEMENT;
-        }),
-        "   W".to_owned(),
-        font,
-    ))
-}
-
-/// A button to move the camera backwards
-pub fn move_camera_x_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
-    Box::new(Button::new(
-        position::Absolute {
-            height: 40,
-            width: 40,
-            anchor: position::WindowCorner::BotLeft,
-            margin_vertical: 40,
-            margin_horizontal: 250,
-        },
-        (0.44, 0.5, 0.56),
-        screensize,
-        false,
-        Box::new(|ref mut context, _toggle_state| {
-            context.camera_target.2 -= DELTA_MOVEMENT;
-        }),
-        "   S".to_owned(),
-        font,
-    ))
-}
-
-/// A button to move the camera upwards
-pub fn move_camera_y_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
-    Box::new(Button::new(
-        position::Absolute {
-            height: 40,
-            width: 40,
-            anchor: position::WindowCorner::BotLeft,
-            margin_vertical: 90,
-            margin_horizontal: 200,
-        },
-        (0.44, 0.5, 0.56),
-        screensize,
-        false,
-        Box::new(|ref mut context, _toggle_state| {
-            context.camera_target.1 += DELTA_MOVEMENT;
-        }),
-        "   Q".to_owned(),
-        font,
-    ))
-}
-
-/// A button to move the camera downwards
-pub fn move_camera_y_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
-    Box::new(Button::new(
-        position::Absolute {
-            height: 40,
-            width: 40,
-            anchor: position::WindowCorner::BotLeft,
-            margin_vertical: 90,
-            margin_horizontal: 300,
-        },
-        (0.44, 0.5, 0.56),
-        screensize,
-        false,
-        Box::new(|ref mut context, _toggle_state| {
-            context.camera_target.1 -= DELTA_MOVEMENT;
-        }),
-        "   E".to_owned(),
-        font,
-    ))
-}
-
-/// A button to move the camera left
-pub fn move_camera_z_f(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
-    Box::new(Button::new(
-        position::Absolute {
-            height: 40,
-            width: 40,
-            anchor: position::WindowCorner::BotLeft,
-            margin_vertical: 40,
-            margin_horizontal: 200,
-        },
-        (0.44, 0.5, 0.56),
-        screensize,
-        false,
-        Box::new(|ref mut context, _toggle_state| {
-            context.camera_target.0 += DELTA_MOVEMENT;
-        }),
-        "   A".to_owned(),
-        font,
-    ))
-}
-
-/// A button to move the camera right
-pub fn move_camera_z_b(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<Button> {
-    Box::new(Button::new(
-        position::Absolute {
-            height: 40,
-            width: 40,
-            anchor: position::WindowCorner::BotLeft,
-            margin_vertical: 40,
-            margin_horizontal: 300,
-        },
-        (0.44, 0.5, 0.56),
-        screensize,
-        false,
-        Box::new(|ref mut context, _toggle_state| {
-            context.camera_target.0 -= DELTA_MOVEMENT;
-        }),
-        "   D".to_owned(),
-        font,
-    ))
 }
 
 /// The credits!

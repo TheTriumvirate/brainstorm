@@ -129,8 +129,6 @@ impl App {
             (INITIAL_WINDOW_WIDTH as f32, INITIAL_WINDOW_HEIGHT as f32),
             &state,
         );
-        gui.seeding_loc_slider
-            .set_steps(state.directional_data.len().max(1) as u32);
 
         gui.map.set_texture(&Some(gpu_field.get_texture()));
 
@@ -279,9 +277,6 @@ impl App {
                             self.particles = ParticleEngine::new(field_provider);
                             self.state.directional_data =
                                 self.particles.calculate_highly_directional_positions();
-                            self.gui
-                                .seeding_loc_slider
-                                .set_steps(self.state.directional_data.len().max(1) as u32);
                             self.gpu_field = gpu_field_provider;
                             self.gpu_particles = GPUParticleEngine::new(self.gpu_particle_count);
                             self.gui

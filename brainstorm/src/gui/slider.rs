@@ -105,13 +105,6 @@ impl Slider {
         }
     }
 
-    /// Sets the number of steps in the slider.
-    /// Must be larger than 0.
-    pub fn set_steps(&mut self, steps: u32) {
-        assert!(steps > 0);
-        self.steps = steps as f32;
-    }
-
     /// Moves the visible slider to match the `x` value.
     fn update_slider_pos(&mut self, x: f64) {
         use crate::graphics::position::WindowCorner;

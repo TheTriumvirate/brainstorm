@@ -19,6 +19,7 @@ pub struct State {
     pub use_gpu_particles: bool,
     pub directional_data: Vec<(f32, f32, f32)>,
     pub options_file: Option<reparser::Options>,
+    pub particle_transparency: f32,
 }
 
 impl State {
@@ -44,6 +45,7 @@ impl State {
             use_gpu_particles: false,
             directional_data: Vec::new(),
             options_file: None,
+            particle_transparency: 0.2,
         }
     }
 }

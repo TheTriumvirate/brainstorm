@@ -175,6 +175,8 @@ impl GPUParticleEngine {
             .uniform3f("u_seedpos", cx + 0.5, cy + 0.5, cz + 0.5);
 
         self.shader.uniform1f("u_q", state.seeding_size + 0.01);
+        self.shader
+            .uniform1f("u_transparency", state.particle_transparency);
 
         self.update_shader.uniform1i("u_layer", (self.layer) as i32);
         self.layer = (self.layer + 1) % MAXSTREAMLETSIZE as i32;

@@ -31,7 +31,6 @@ pub struct Gui {
     pub model_bound: ModelBound,
     pub status: StatusLabel,
     pub ui_visible_button: Button,
-    pub seeding_loc_slider: Slider,
     pub ui_elements: Vec<Box<ui_element::UiElement>>,
     pub map: Map,
     pub world_points: WorldPoints,
@@ -56,15 +55,9 @@ impl Gui {
             ui_definitions::load_file(screensize, font.clone()),
             ui_definitions::credits_label(screensize, font.clone()),
             ui_definitions::cpu_gpu_particles_toggle(screensize, font.clone()),
-            ui_definitions::move_camera_x_f(screensize, font.clone()),
-            ui_definitions::move_camera_x_b(screensize, font.clone()),
-            ui_definitions::move_camera_y_f(screensize, font.clone()),
-            ui_definitions::move_camera_y_b(screensize, font.clone()),
-            ui_definitions::move_camera_z_f(screensize, font.clone()),
-            ui_definitions::move_camera_z_b(screensize, font.clone()),
+            ui_definitions::transparency(screensize, font.clone()),
         ];
 
-        let seeding_loc_slider = ui_definitions::directional_areas(screensize, font.clone());
         let ui_visible_button = ui_definitions::toggle_ui(screensize, font.clone());
         let status = ui_definitions::status_label(screensize, font.clone());
         let seeding_sphere = UnitSphere::new((0.0, 0.0, 0.0), state.seeding_size);
@@ -78,7 +71,6 @@ impl Gui {
             status,
             ui_elements,
             ui_visible_button,
-            seeding_loc_slider,
             map,
             world_points,
             world_points_toggle,
@@ -92,7 +84,6 @@ impl Gui {
             Event::Resized(x, y) => {
                 self.ui_visible_button.resize((*x, *y));
                 self.world_points_toggle.resize((*x, *y));
-                self.seeding_loc_slider.resize((*x, *y));
                 self.status.resize((*x, *y));
                 self.map.resize((*x, *y));
                 for element in &mut self.ui_elements {
@@ -147,8 +138,6 @@ impl Gui {
                     state.camera_target = self.map.get_target();
                 }
 
-                self.seeding_loc_slider
-                    .mouse_moved(state.mouse_x, state.mouse_y, state);
                 for element in &mut self.ui_elements {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
                 }
@@ -188,14 +177,6 @@ impl Gui {
                                 .click(state.mouse_x, state.mouse_y, state);
                             handled = true;
                         }
-                        if self
-                            .seeding_loc_slider
-                            .is_within(state.mouse_x, state.mouse_y)
-                        {
-                            self.seeding_loc_slider
-                                .click(state.mouse_x, state.mouse_y, state);
-                            handled = true;
-                        }
                         for element in &mut self.ui_elements {
                             if element.is_within(state.mouse_x, state.mouse_y) {
                                 element.click(state.mouse_x, state.mouse_y, state);
@@ -208,8 +189,6 @@ impl Gui {
                     self.ui_visible_button
                         .click_release(state.mouse_x, state.mouse_y, state);
                     self.world_points_toggle
-                        .click_release(state.mouse_x, state.mouse_y, state);
-                    self.seeding_loc_slider
                         .click_release(state.mouse_x, state.mouse_y, state);
                     for element in &mut self.ui_elements {
                         element.click_release(state.mouse_x, state.mouse_y, state);
@@ -238,7 +217,6 @@ impl Drawable for Gui {
         self.status.draw_transformed(view_matrix);
         self.map.draw_transformed(view_matrix);
         if self.ui_visible_button.toggle_state() {
-            self.seeding_loc_slider.draw_transformed(view_matrix);
             self.world_points_toggle.draw_transformed(view_matrix);
             for element in &self.ui_elements {
                 element.draw_transformed(view_matrix);
