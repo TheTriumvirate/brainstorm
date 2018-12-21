@@ -98,8 +98,8 @@ pub fn seeding_size(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
     ))
 }
 
-/// A slider controlling the lifetime of particles.
-pub fn lifetime(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+/// A slider controlling the lifetime of particles on the CPU.
+pub fn cpu_lifetime(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -143,8 +143,11 @@ pub fn mesh_transparency(
     ))
 }
 
-/// A slider controlling the size of the rendered particles.
-pub fn particle_size(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+/// A slider controlling the size of the rendered particles on the CPU.
+pub fn cpu_particle_size(
+    screensize: (f32, f32),
+    font: Rc<RefCell<Font<'static>>>,
+) -> Box<UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -164,8 +167,8 @@ pub fn particle_size(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -
     ))
 }
 
-/// A slider controlling the spawn speed of particles.
-pub fn particle_spawn_rate(
+/// A slider controlling the spawn speed of particles on the CPU.
+pub fn cpu_particle_spawn_rate(
     screensize: (f32, f32),
     font: Rc<RefCell<Font<'static>>>,
 ) -> Box<UiElement> {
@@ -188,14 +191,17 @@ pub fn particle_spawn_rate(
     ))
 }
 
-/// A slider controlling the particle transparency
-pub fn transparency(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+/// A slider controlling the particle transparency on the GPU.
+pub fn gpu_transparency(
+    screensize: (f32, f32),
+    font: Rc<RefCell<Font<'static>>>,
+) -> Box<UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
             width: 225,
             anchor: position::WindowCorner::BotRight,
-            margin_vertical: 360,
+            margin_vertical: 200,
             margin_horizontal: 40,
         },
         100,
@@ -204,7 +210,7 @@ pub fn transparency(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
         Box::new(|ref mut context, value| {
             context.particle_transparency = value;
         }),
-        "GPU Particle transparency".to_owned(),
+        "Particle transparency".to_owned(),
         font,
     ))
 }
@@ -304,8 +310,8 @@ pub fn cpu_gpu_particles_toggle(
         (0.44, 0.5, 0.56),
         screensize,
         true,
-        Box::new(|ref mut context, toggle_state| context.use_gpu_particles = toggle_state),
-        "     Use GPU".to_owned(),
+        Box::new(|ref mut context, toggle_state| context.use_cpu_particles = toggle_state),
+        "     Use CPU".to_owned(),
         font,
     ))
 }
@@ -324,7 +330,7 @@ pub fn toggle_world_points(screensize: (f32, f32), font: Rc<RefCell<Font<'static
         screensize,
         true,
         Box::new(|ref mut _context, _toggle_state| {}),
-        "  Toggle points".to_owned(),
+        " Toggle points".to_owned(),
         font,
     )
 }

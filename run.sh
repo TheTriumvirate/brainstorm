@@ -1,2 +1,2 @@
 #!/bin/bash
-cargo run --release -- ./resources/src/fields/brain.bincode --gpu
+cargo run --release -- ./resources/src/fields/brain.bincode

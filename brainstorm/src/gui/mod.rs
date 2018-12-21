@@ -31,10 +31,13 @@ pub struct Gui {
     pub model_bound: ModelBound,
     pub status: StatusLabel,
     pub ui_visible_button: Button,
-    pub ui_elements: Vec<Box<ui_element::UiElement>>,
     pub map: Map,
     pub world_points: WorldPoints,
     pub world_points_toggle: Button,
+    ui_elements: Vec<Box<ui_element::UiElement>>,
+    ui_elements_cpu: Vec<Box<ui_element::UiElement>>,
+    ui_elements_gpu: Vec<Box<ui_element::UiElement>>,
+    show_cpu: bool,
 }
 
 impl Gui {
@@ -48,15 +51,18 @@ impl Gui {
             ui_definitions::highpass_filter(screensize, font.clone()),
             ui_definitions::speed_multiplier(screensize, font.clone()),
             ui_definitions::seeding_size(screensize, font.clone()),
-            ui_definitions::lifetime(screensize, font.clone()),
             ui_definitions::mesh_transparency(screensize, font.clone()),
-            ui_definitions::particle_size(screensize, font.clone()),
-            ui_definitions::particle_spawn_rate(screensize, font.clone()),
             ui_definitions::load_file(screensize, font.clone()),
             ui_definitions::credits_label(screensize, font.clone()),
             ui_definitions::cpu_gpu_particles_toggle(screensize, font.clone()),
-            ui_definitions::transparency(screensize, font.clone()),
         ];
+        let ui_elements_cpu: Vec<Box<ui_element::UiElement>> = vec![
+            ui_definitions::cpu_lifetime(screensize, font.clone()),
+            ui_definitions::cpu_particle_size(screensize, font.clone()),
+            ui_definitions::cpu_particle_spawn_rate(screensize, font.clone()),
+        ];
+        let ui_elements_gpu: Vec<Box<ui_element::UiElement>> =
+            vec![ui_definitions::gpu_transparency(screensize, font.clone())];
 
         let ui_visible_button = ui_definitions::toggle_ui(screensize, font.clone());
         let status = ui_definitions::status_label(screensize, font.clone());
@@ -71,22 +77,26 @@ impl Gui {
             status,
             ui_elements,
             ui_visible_button,
+            ui_elements_cpu,
+            ui_elements_gpu,
             map,
             world_points,
             world_points_toggle,
+            show_cpu: state.use_cpu_particles,
         }
     }
 
     /// Handles events from the window, mutating application state as needed.
     /// Returns whether or not the event was "consumed".
     pub fn handle_event(&mut self, event: &Event, state: &mut State, size: (u32, u32)) -> bool {
+        self.show_cpu = state.use_cpu_particles;
         match event {
             Event::Resized(x, y) => {
                 self.ui_visible_button.resize((*x, *y));
                 self.world_points_toggle.resize((*x, *y));
                 self.status.resize((*x, *y));
                 self.map.resize((*x, *y));
-                for element in &mut self.ui_elements {
+                for element in self.iter_ui_mut() {
                     element.resize((*x, *y));
                 }
                 false
@@ -138,7 +148,7 @@ impl Gui {
                     state.camera_target = self.map.get_target();
                 }
 
-                for element in &mut self.ui_elements {
+                for element in self.iter_ui_mut() {
                     element.mouse_moved(state.mouse_x, state.mouse_y, state);
                 }
                 false
@@ -177,7 +187,7 @@ impl Gui {
                                 .click(state.mouse_x, state.mouse_y, state);
                             handled = true;
                         }
-                        for element in &mut self.ui_elements {
+                        for element in self.iter_ui_mut() {
                             if element.is_within(state.mouse_x, state.mouse_y) {
                                 element.click(state.mouse_x, state.mouse_y, state);
                                 handled = true;
@@ -190,7 +200,7 @@ impl Gui {
                         .click_release(state.mouse_x, state.mouse_y, state);
                     self.world_points_toggle
                         .click_release(state.mouse_x, state.mouse_y, state);
-                    for element in &mut self.ui_elements {
+                    for element in self.iter_ui_mut() {
                         element.click_release(state.mouse_x, state.mouse_y, state);
                     }
                 }
@@ -200,6 +210,7 @@ impl Gui {
         }
     }
 
+    /// Draws the 3D elements of the UI
     pub fn draw_3d_elements(&self, view_matrix: &Matrix4<f32>) {
         if self.ui_visible_button.toggle_state() {
             self.model_bound.draw_transformed(view_matrix);
@@ -209,6 +220,32 @@ impl Gui {
             self.world_points.draw_transformed(view_matrix);
         }
     }
+
+    /// Creats a mutable iterator over the UI elements, including the GPU- or GPU-specific ones
+    /// depending on the cached setting.
+    #[inline]
+    fn iter_ui_mut(&mut self) -> impl Iterator<Item = &mut Box<ui_element::UiElement>> {
+        if self.show_cpu {
+            self.ui_elements
+                .iter_mut()
+                .chain(self.ui_elements_cpu.iter_mut())
+        } else {
+            self.ui_elements
+                .iter_mut()
+                .chain(self.ui_elements_gpu.iter_mut())
+        }
+    }
+
+    /// Creats a mutable iterator over the UI elements, including the GPU- or CPU-specific ones
+    /// depending on the cached setting.
+    #[inline]
+    fn iter_ui(&self) -> impl Iterator<Item = &Box<ui_element::UiElement>> {
+        if self.show_cpu {
+            self.ui_elements.iter().chain(self.ui_elements_cpu.iter())
+        } else {
+            self.ui_elements.iter().chain(self.ui_elements_gpu.iter())
+        }
+    }
 }
 
 impl Drawable for Gui {
@@ -216,9 +253,10 @@ impl Drawable for Gui {
         self.ui_visible_button.draw_transformed(view_matrix);
         self.status.draw_transformed(view_matrix);
         self.map.draw_transformed(view_matrix);
+
         if self.ui_visible_button.toggle_state() {
             self.world_points_toggle.draw_transformed(view_matrix);
-            for element in &self.ui_elements {
+            for element in self.iter_ui() {
                 element.draw_transformed(view_matrix);
             }
         }

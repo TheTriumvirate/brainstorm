@@ -44,9 +44,9 @@ struct Opt {
     #[structopt(name = "FILE", parse(from_os_str))]
     file: Option<PathBuf>,
 
-    /// Start with GPU particles instead of CPU particles.
-    #[structopt(short = "g", long = "gpu")]
-    gpu: bool,
+    /// Start with the old CPU particles instead of GPU particles.
+    #[structopt(long = "cpu")]
+    cpu: bool,
 
     /// Number of particles (squared) to use on the GPU. It's recommended to use a power
     /// of two, like 256, 512 or 1024.
@@ -59,7 +59,7 @@ struct Opt {
 fn main() {
     let opt = Opt::from_args();
 
-    let mut app = App::new(opt.file, opt.gpu, opt.gpu_particle_count);
+    let mut app = App::new(opt.file, opt.cpu, opt.gpu_particle_count);
     window::Window::run_loop(move |_| app.run());
 }
 
@@ -81,7 +81,7 @@ pub struct App {
 impl App {
     /// Starts the application.
     /// Expects a file path for non-web compile targets.
-    pub fn new(path: Option<PathBuf>, start_with_gpu: bool, gpu_particle_count: usize) -> App {
+    pub fn new(path: Option<PathBuf>, start_with_cpu: bool, gpu_particle_count: usize) -> App {
         #[allow(unused_assignments)]
         let mut field_provider = None;
         #[allow(unused_assignments)]
@@ -122,7 +122,7 @@ impl App {
 
         let mut state = State::new();
         state.file_path = path;
-        state.use_gpu_particles = start_with_gpu;
+        state.use_cpu_particles = start_with_cpu;
         state.directional_data = particles.calculate_highly_directional_positions();
 
         let mut gui = Gui::new(
@@ -219,7 +219,10 @@ impl App {
         let projection_matrix = self.camera.get_projection_matrix();
         self.gui.seeding_sphere.resize(self.state.seeding_size);
 
-        if self.state.use_gpu_particles {
+        if self.state.use_cpu_particles {
+            self.particles.update(&self.state, &self.camera);
+            self.particles.draw(&projection_matrix, &self.state);
+        } else {
             context.disable(Context::DEPTH_TEST);
             self.gpu_particles
                 .update(&self.gpu_field, &self.state, &self.camera);
@@ -229,9 +232,6 @@ impl App {
             self.gpu_particles.draw_transformed(&projection_matrix);
             context.depth_mask(true);
             context.blend_func(Context::SRC_ALPHA, Context::ONE_MINUS_SRC_ALPHA);
-        } else {
-            self.particles.update(&self.state, &self.camera);
-            self.particles.draw(&projection_matrix, &self.state);
         }
 
         if self.state.mesh_transparency < 1.0 {
