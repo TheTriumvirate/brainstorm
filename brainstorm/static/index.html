@@ -1,10 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Brainstorm!</title>
+
+    <!-- Favicon data -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
     <style>
         p {
             margin: 0;
@@ -17,61 +30,183 @@
             position: fixed;
             touch-action: none;
         }
+        .pace {
+            -webkit-pointer-events: none;
+            pointer-events: none;
+
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+
+            z-index: 2000;
+            position: fixed;
+            margin: auto;
+            top: 350px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 5px;
+            width: 50%;
+            background: #1c1d1c;
+            border: 1px solid #84152f;
+            border-radius: 3px;
+
+            overflow: hidden;
+        }
+
+        .pace .pace-progress {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -ms-box-sizing: border-box;
+            -o-box-sizing: border-box;
+            box-sizing: border-box;
+
+            -webkit-transform: translate3d(0, 0, 0);
+            -moz-transform: translate3d(0, 0, 0);
+            -ms-transform: translate3d(0, 0, 0);
+            -o-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+
+            max-width: 50%;
+            position: fixed;
+            z-index: 2000;
+            display: block;
+            position: absolute;
+            top: 0;
+            right: 100%;
+            height: 100%;
+            width: 100%;
+            background: #84152f;
+        }
+
+        .pace.pace-inactive {
+            display: none;
+        }
+
+        .bar-text {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            position: fixed;
+            align-items: center;
+            justify-content: center;
+            top: 140px;
+            color: white;
+            font-size: 25px;
+            font-family: "Consolas";
+        }
+
+        .bottom-text {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            position: fixed;
+            align-items: center;
+            justify-content: center;
+            top: 390px;
+            color: white;
+            font-size: 18px;
+            font-family: "Consolas", "monospace";
+        }
+
+        .fill {
+            background-color: #1C1D1C;
+            position:fixed;
+            left:0;
+            right:0;
+            top:0;
+            bottom:0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+        }
+        
+        .brain {
+            position: fixed;
+            margin: auto;
+            top: -300px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 30%;
+            height: 30%;
+        }
     </style>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script>
+        window.paceOptions = {
+            elements: {
+                selectors: ['.wasm-loaded']
+            }
+        };
+    </script>
+    <script src="/pace.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Hide canvas until loaded
+            Pace.on("hide", function () {
+                $(".fill").fadeOut();
+                $(".wasm-loaded").remove();
+            });
+        });
+    </script>
 </head>
+
 <body>
-    <p>Brainstorm! is loading...<br><br>
-    
-    This application requires WebGL 2.0 support to run. As of writing, that means Firefox, Chrome
-    or Opera. <a href="https://caniuse.com/#feat=webgl2">Check CanIUse for an updated list.</a><br><br>
-
-    Got feedback? Let us know at <a href="https://github.com/TheTriumvirate/brainstorm">https://github.com/TheTriumvirate/brainstorm</a></p>
-
+    <div class="fill">
+        <object class="brain" data="image/brainstorm.svg" type="image/svg+xml"></object>
+        <div class="bar-text"><span>Brainstorm! is loading...</span></div>
+        <div class="bottom-text"><span>This application requires WebGL 2.0 and Webassembly support to run.<br />
+                As of writing, that means Firefox, Chrome or Opera. </br>
+                Check <a href="https://caniuse.com/#feat=wasm,webgl2">CanIUse</a> for an updated list.</a><br><br>
+                Got feedback? Let us know at <a href="https://github.com/TheTriumvirate/brainstorm">https://github.com/TheTriumvirate/brainstorm</a></span></div>
+    </div>
 
     <input type="file" id="fileElem" onchange="handleFiles(this.files)" style="display:none">
     <canvas id="canvas"></canvas>
     <script src="brainstorm.js"></script>
     <script>
-    // Asynchronous file loading.
-    let updated = false;
-    let data = null;
-    let path = null;
+        // Asynchronous file loading.
+        let updated = false;
+        let data = null;
+        let path = null;
 
-    function getData() {
-        return data;
-    }
-    
-    function getPath() {
-        return path.name;
-    }
-    
-    function isUpdated() {
-        if (updated) {
-            updated = false;
-            return true;
+        function getData() {
+            return data;
         }
-        return false;
-    }
-    
-    function openFileDialog() {
-        let fileSelect = document.getElementById("fileElem");
-        fileSelect.click();
-    }
-    
-    function handleFiles(files) {
-        if (files !== undefined && files.length === 1) {
-            path = files.item(0);
-            let reader = new FileReader();
-            reader.onload = onLoad;
-            reader.readAsDataURL(path);
+
+        function getPath() {
+            return path.name;
         }
-    }
-    
-    function onLoad(newData) {
-        data = newData.target.result;
-        updated = true;
-        //console.log("File loaded!");
-    }
+
+        function isUpdated() {
+            if (updated) {
+                updated = false;
+                return true;
+            }
+            return false;
+        }
+
+        function openFileDialog() {
+            let fileSelect = document.getElementById("fileElem");
+            fileSelect.click();
+        }
+
+        function handleFiles(files) {
+            if (files !== undefined && files.length === 1) {
+                path = files.item(0);
+                let reader = new FileReader();
+                reader.onload = onLoad;
+                reader.readAsDataURL(path);
+            }
+        }
+
+        function onLoad(newData) {
+            data = newData.target.result;
+            updated = true;
+        }
     </script>
 </body>
+
 </html>
