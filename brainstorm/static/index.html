@@ -131,6 +131,13 @@
             width: 30%;
             height: 30%;
         }
+        
+        .fallbackstyle {
+            color: #1c1d1c;
+            margin: 0;
+            padding: 0;
+            position: fixed;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
@@ -163,6 +170,11 @@
                 Check <a href="https://caniuse.com/#feat=wasm,webgl2">CanIUse</a> for an updated list.</a><br><br>
                 Got feedback? Let us know at <a href="https://github.com/TheTriumvirate/brainstorm">https://github.com/TheTriumvirate/brainstorm</a></span></div>
     </div>
+    <div class="fallbackstyle"><span>This application requires WebGL 2.0 and Webassembly support to
+            run.<br />
+            As of writing, that means Firefox, Chrome or Opera. </br>
+            Check <a href="https://caniuse.com/#feat=wasm,webgl2">CanIUse</a> for an updated list.</a><br><br>
+            Got feedback? Let us know at <a href="https://github.com/TheTriumvirate/brainstorm">https://github.com/TheTriumvirate/brainstorm</a></span></div>
 
     <input type="file" id="fileElem" onchange="handleFiles(this.files)" style="display:none">
     <canvas id="canvas"></canvas>
