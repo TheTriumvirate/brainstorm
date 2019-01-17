@@ -136,9 +136,10 @@
         crossorigin="anonymous"></script>
     <script>
         window.paceOptions = {
-            elements: {
-                selectors: ['.wasm-loaded']
-            }
+            ajax: false,
+            document: true,
+            eventLag: false,
+            elements: false,
         };
     </script>
     <script src="/pace.min.js"></script>
@@ -155,7 +156,7 @@
 
 <body>
     <div class="fill">
-        <object class="brain" data="image/brainstorm.svg" type="image/svg+xml"></object>
+        <img class="brain" src="brainstorm.svg"></img>
         <div class="bar-text"><span>Brainstorm! is loading...</span></div>
         <div class="bottom-text"><span>This application requires WebGL 2.0 and Webassembly support to run.<br />
                 As of writing, that means Firefox, Chrome or Opera. </br>
