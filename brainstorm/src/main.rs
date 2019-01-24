@@ -29,11 +29,12 @@ const INITIAL_WINDOW_WIDTH: u32 = 1000;
 const INITIAL_WINDOW_HEIGHT: u32 = 1000;
 #[allow(dead_code)]
 const DEFAULT_GPU_PARTICLE_COUNT: usize = 768;
+const DEFAULT_WEB_GPU_PARTICLE_COUNT: usize = 512;
 
 /// Main entry point for the Web application.
 #[cfg(target_arch = "wasm32")]
 fn main() {
-    let mut app = App::new(None, false, DEFAULT_GPU_PARTICLE_COUNT);
+    let mut app = App::new(None, false, DEFAULT_WEB_GPU_PARTICLE_COUNT);
     window::Window::run_loop(move |_| app.run());
 }
 
