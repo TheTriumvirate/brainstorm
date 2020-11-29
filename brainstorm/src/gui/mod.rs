@@ -34,9 +34,9 @@ pub struct Gui {
     pub map: Map,
     pub world_points: WorldPoints,
     pub world_points_toggle: Button,
-    ui_elements: Vec<Box<ui_element::UiElement>>,
-    ui_elements_cpu: Vec<Box<ui_element::UiElement>>,
-    ui_elements_gpu: Vec<Box<ui_element::UiElement>>,
+    ui_elements: Vec<Box<dyn ui_element::UiElement>>,
+    ui_elements_cpu: Vec<Box<dyn ui_element::UiElement>>,
+    ui_elements_gpu: Vec<Box<dyn ui_element::UiElement>>,
     show_cpu: bool,
 }
 
@@ -46,7 +46,7 @@ impl Gui {
         let map = ui_definitions::map(screensize);
         let font = Rc::from(RefCell::from(Font::from_bytes(fonts::DEFAULT)));
 
-        let ui_elements: Vec<Box<ui_element::UiElement>> = vec![
+        let ui_elements: Vec<Box<dyn ui_element::UiElement>> = vec![
             ui_definitions::lowpass_filter(screensize, font.clone()),
             ui_definitions::highpass_filter(screensize, font.clone()),
             ui_definitions::speed_multiplier(screensize, font.clone()),
@@ -56,12 +56,12 @@ impl Gui {
             ui_definitions::credits_label(screensize, font.clone()),
             ui_definitions::cpu_gpu_particles_toggle(screensize, font.clone()),
         ];
-        let ui_elements_cpu: Vec<Box<ui_element::UiElement>> = vec![
+        let ui_elements_cpu: Vec<Box<dyn ui_element::UiElement>> = vec![
             ui_definitions::cpu_lifetime(screensize, font.clone()),
             ui_definitions::cpu_particle_size(screensize, font.clone()),
             ui_definitions::cpu_particle_spawn_rate(screensize, font.clone()),
         ];
-        let ui_elements_gpu: Vec<Box<ui_element::UiElement>> =
+        let ui_elements_gpu: Vec<Box<dyn ui_element::UiElement>> =
             vec![ui_definitions::gpu_transparency(screensize, font.clone())];
 
         let ui_visible_button = ui_definitions::toggle_ui(screensize, font.clone());
@@ -224,7 +224,7 @@ impl Gui {
     /// Creats a mutable iterator over the UI elements, including the GPU- or GPU-specific ones
     /// depending on the cached setting.
     #[inline]
-    fn iter_ui_mut(&mut self) -> impl Iterator<Item = &mut Box<ui_element::UiElement>> {
+    fn iter_ui_mut(&mut self) -> impl Iterator<Item = &mut Box<dyn ui_element::UiElement>> {
         if self.show_cpu {
             self.ui_elements
                 .iter_mut()
@@ -239,7 +239,7 @@ impl Gui {
     /// Creats a mutable iterator over the UI elements, including the GPU- or CPU-specific ones
     /// depending on the cached setting.
     #[inline]
-    fn iter_ui(&self) -> impl Iterator<Item = &Box<ui_element::UiElement>> {
+    fn iter_ui(&self) -> impl Iterator<Item = &Box<dyn ui_element::UiElement>> {
         if self.show_cpu {
             self.ui_elements.iter().chain(self.ui_elements_cpu.iter())
         } else {

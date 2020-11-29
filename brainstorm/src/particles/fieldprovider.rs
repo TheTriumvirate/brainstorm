@@ -97,7 +97,6 @@ impl FieldProvider {
         let v7 = self.get_vec((ux, ly, uz)); // upper depth
         let v8 = self.get_vec((ux, uy, uz)); // upper depth
 
-        use std::f32;
         // remove noise
         if v1 == (0.0, 0.0, 0.0, 0.0)
             && v2 == (0.0, 0.0, 0.0, 0.0)

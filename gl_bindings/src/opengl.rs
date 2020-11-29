@@ -436,7 +436,7 @@ impl AbstractContext for GLContext {
                 size,
                 transpose as u8,
                 matrix
-                    as *const na::Matrix<f32, na::U4, na::U4, na::MatrixArray<f32, na::U4, na::U4>>
+                    as *const na::Matrix<f32, na::U4, na::U4, na::ArrayStorage<f32, na::U4, na::U4>>
                     as *const f32,
             );
         }

@@ -107,8 +107,6 @@ impl Slider {
 
     /// Moves the visible slider to match the `x` value.
     fn update_slider_pos(&mut self, x: f64) {
-        use crate::graphics::position::WindowCorner;
-
         // Cap to edges
         let c = self.pos_rel.get_coordinates();
         let x = (x as f32).max(c.x1).min(c.x2);

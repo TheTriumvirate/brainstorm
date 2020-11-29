@@ -29,6 +29,7 @@ const INITIAL_WINDOW_WIDTH: u32 = 1000;
 const INITIAL_WINDOW_HEIGHT: u32 = 1000;
 #[allow(dead_code)]
 const DEFAULT_GPU_PARTICLE_COUNT: usize = 768;
+#[allow(dead_code)]
 const DEFAULT_WEB_GPU_PARTICLE_COUNT: usize = 512;
 
 /// Main entry point for the Web application.

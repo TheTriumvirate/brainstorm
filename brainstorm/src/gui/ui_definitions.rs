@@ -12,7 +12,7 @@ use super::{Button, Label, Map, Slider, StatusLabel, UiElement, WorldPoints};
 use crate::graphics::{position, Font};
 
 /// A slider acting as a low-pass filter.
-pub fn lowpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn lowpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<dyn UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -33,7 +33,7 @@ pub fn lowpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) 
 }
 
 /// A slider acting as a high-pass filter.
-pub fn highpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn highpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<dyn UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -57,7 +57,7 @@ pub fn highpass_filter(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>)
 pub fn speed_multiplier(
     screensize: (f32, f32),
     font: Rc<RefCell<Font<'static>>>,
-) -> Box<UiElement> {
+) -> Box<dyn UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -78,7 +78,7 @@ pub fn speed_multiplier(
 }
 
 /// A slider controlling the size of the seeding area.
-pub fn seeding_size(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn seeding_size(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<dyn UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -99,7 +99,7 @@ pub fn seeding_size(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
 }
 
 /// A slider controlling the lifetime of particles on the CPU.
-pub fn cpu_lifetime(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn cpu_lifetime(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<dyn UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -123,7 +123,7 @@ pub fn cpu_lifetime(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
 pub fn mesh_transparency(
     screensize: (f32, f32),
     font: Rc<RefCell<Font<'static>>>,
-) -> Box<UiElement> {
+) -> Box<dyn UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -147,7 +147,7 @@ pub fn mesh_transparency(
 pub fn cpu_particle_size(
     screensize: (f32, f32),
     font: Rc<RefCell<Font<'static>>>,
-) -> Box<UiElement> {
+) -> Box<dyn UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -171,7 +171,7 @@ pub fn cpu_particle_size(
 pub fn cpu_particle_spawn_rate(
     screensize: (f32, f32),
     font: Rc<RefCell<Font<'static>>>,
-) -> Box<UiElement> {
+) -> Box<dyn UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -195,7 +195,7 @@ pub fn cpu_particle_spawn_rate(
 pub fn gpu_transparency(
     screensize: (f32, f32),
     font: Rc<RefCell<Font<'static>>>,
-) -> Box<UiElement> {
+) -> Box<dyn UiElement> {
     Box::new(Slider::new(
         position::Absolute {
             height: 40,
@@ -216,7 +216,7 @@ pub fn gpu_transparency(
 }
 
 /// A button letting the user load a new file.
-pub fn load_file(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn load_file(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<dyn UiElement> {
     Box::new(Button::new(
         position::Absolute {
             height: 40,
@@ -279,7 +279,7 @@ pub fn status_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) ->
 }
 
 /// The credits!
-pub fn credits_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<UiElement> {
+pub fn credits_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -> Box<dyn UiElement> {
     Box::new(Label::new(
         position::Absolute {
             height: 40,
@@ -298,7 +298,7 @@ pub fn credits_label(screensize: (f32, f32), font: Rc<RefCell<Font<'static>>>) -
 pub fn cpu_gpu_particles_toggle(
     screensize: (f32, f32),
     font: Rc<RefCell<Font<'static>>>,
-) -> Box<UiElement> {
+) -> Box<dyn UiElement> {
     Box::new(Button::new(
         position::Absolute {
             height: 40,
